@@ -85,6 +85,7 @@ class MainModel():
         self.printB("Creando modelo...")
 
         self.CONFIG = config
+        self.MODEL_PATH = "models/model_"+self.CITY.lower()+"_option"+str(self.OPTION)
         self.MODEL = self.__getModel()
 
     def __getModel(self):
@@ -115,7 +116,6 @@ class MainModel():
         bin_out = 1
         img_out = self.V_IMG
 
-        model_path = "models/model_"+self.CITY.lower()+"_option"+str(self.OPTION)
         learning_rate = self.CONFIG["learning_rate"]
         lr_decay = self.CONFIG["lr_decay"]
         batch_size = self.CONFIG["batch_size"]
@@ -145,13 +145,12 @@ class MainModel():
         # decay: float >= 0. Learning rate decay over each update.
         adam = keras.optimizers.Adam(lr=learning_rate, decay=lr_decay)
 
-        if (os.path.exists(model_path)):
+        if (os.path.exists(self.MODEL_PATH)):
             self.printW("Cargando pesos de un modelo anterior...")
-            model.load_weights(model_path)
+            model.load_weights(self.MODEL_PATH)
 
         # model.compile(optimizer=adam, loss=custom_loss_fn, loss_weights=[(1 - c_loss), c_loss])
-        model.compile(optimizer=adam, loss=["binary_crossentropy", normalized_mse_loss],
-                      loss_weights=[(1 - c_loss), c_loss])
+        model.compile(optimizer=adam, loss=["binary_crossentropy", normalized_mse_loss],loss_weights=[(1 - c_loss), c_loss])
 
         # summarize layers
         # print(model.summary())
@@ -258,7 +257,34 @@ class MainModel():
         return(TRAIN,DEV,TEST,len(REST_TMP),len(USR_TMP),len(IMG.iloc[0].vector), [MinMSE,MaxMSE,MeanMSE])
 
     def __getF1(self,pred,real):
-        return 0
+
+        TP=0
+        FN=0
+        TN=0
+        FP=0
+
+        for i in range(len(pred)):
+            p = 1 if  pred[i][0] > .5  else 0
+            r = real[i]
+
+            if(p==1 & r==1):TP+=1
+            if(p==1 & r==0):FP+=1
+            if(p==0 & r==1):FN+=1
+            if(p==0 & r==0):TN+=1
+
+        pre = TP/(TP+FP)
+        rec = TP/(TP+FN)
+        f1 = 2*((pre*rec)/(pre+rec))
+
+        self.printB("-"*40)
+        self.printB("TP: "+str(TP)+"\tFP: "+str(FP))
+        self.printB("FN: "+str(FN)+"\tTN: "+str(TN))
+        self.printB("-"*40)
+        self.printB("Precision: \t"+str(pre))
+        self.printB("Recall: \t"+str(rec))
+        self.printB("-"*40)
+        self.printB("F1: \t"+str(pre))
+        self.printB("-"*40)
 
     def train(self, save=True, show_epoch_info=True):
 
@@ -273,7 +299,7 @@ class MainModel():
         callbacks_list = []
 
         if(save):
-            checkpoint = ModelCheckpoint(config['model_path'], verbose=0)
+            checkpoint = ModelCheckpoint(self.MODEL_PATH, verbose=0)
             callbacks_list.append(checkpoint)
 
         if(show_epoch_info):
@@ -282,9 +308,9 @@ class MainModel():
 
         self.MODEL.fit([oh_users, oh_rests], [y_likes, y_image], epochs=self.CONFIG['epochs'], batch_size=self.CONFIG['batch_size'],callbacks=callbacks_list, verbose=0)
 
-        bin_pred, img_pred = model.predict([oh_users, oh_rests], verbose=0)
+        bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-        self.__getF1(pred,y_likes)
+        self.__getF1(bin_pred,y_likes)
 
     def printW(self,text):
         print(bcolors.WARNING+str("[AVISO] ")+str(text)+bcolors.ENDC)

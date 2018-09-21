@@ -212,7 +212,7 @@ def getModel(N_RST,N_USR, V_IMG, config,MSE_DATA):
 
 option = 2
 config = {"emb_size":20,
-          "learning_rate":0.00001,
+          "learning_rate":0.001,
           "lr_decay":0.0,
           "batch_size":1024,
           "epochs":100,
@@ -221,7 +221,7 @@ seed = 100
 
 city = "Gijon"
 modelGijon = MainModel(city=city, option=option, config=config, seed=seed)
-modelGijon.train(save=False, show_epoch_info=True)
+modelGijon.train(save=True, show_epoch_info=True)
 
 exit()
 

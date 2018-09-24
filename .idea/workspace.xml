@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="" />
+    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.Main.swp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.main.swp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainModel.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -12,8 +18,8 @@
     <session id="1862562037">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="8" />
-          <entry key="project.open.time.11" value="2" />
+          <entry key="project.closed" value="9" />
+          <entry key="project.open.time.11" value="3" />
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.13" value="1" />
           <entry key="project.open.time.14" value="1" />
@@ -21,25 +27,28 @@
           <entry key="project.open.time.18" value="1" />
           <entry key="project.open.time.19" value="1" />
           <entry key="project.open.time.2" value="2" />
-          <entry key="project.open.time.3" value="5" />
+          <entry key="project.open.time.3" value="6" />
           <entry key="project.open.time.4" value="4" />
           <entry key="project.open.time.5" value="1" />
-          <entry key="project.opened" value="22" />
+          <entry key="project.opened" value="24" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="28" />
-          <entry key="py" value="13638" />
+          <entry key="py" value="14291" />
+          <entry key="txt" value="15" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="13666" />
+          <entry key="PLAIN_TEXT" value="15" />
+          <entry key="Python" value="14319" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="gitignore" value="1" />
           <entry key="out" value="1" />
           <entry key="png" value="13" />
           <entry key="py" value="61" />
@@ -48,7 +57,7 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Image" value="13" />
-          <entry key="PLAIN_TEXT" value="1" />
+          <entry key="PLAIN_TEXT" value="2" />
           <entry key="Python" value="61" />
         </counts>
       </usages-collector>
@@ -56,71 +65,43 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="244">
-              <caret line="293" column="14" lean-forward="true" selection-start-line="293" selection-end-line="294" />
+            <state relative-caret-position="360">
+              <caret line="41" column="6" lean-forward="true" selection-start-line="41" selection-start-column="6" selection-end-line="41" selection-end-column="6" />
               <folding>
                 <element signature="e#25#34#0" expanded="true" />
-                <element signature="e#763#946#0" />
-                <element signature="e#997#1249#0" />
-                <element signature="e#1371#5839#0" />
-                <element signature="e#5897#7885#0" />
-                <element signature="e#8631#8858#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/MainModel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="318">
-              <caret line="286" column="33" selection-start-line="286" selection-start-column="33" selection-end-line="286" selection-end-column="33" />
+            <state relative-caret-position="357">
+              <caret line="258" column="44" selection-start-line="258" selection-start-column="44" selection-end-line="258" selection-end-column="44" />
               <folding>
                 <element signature="e#729#912#0" />
                 <element signature="e#1086#1685#0" />
-                <element signature="e#1541#2163#0" />
-                <element signature="e#2041#4259#0" />
-                <element signature="e#4694#9565#0" />
-                <element signature="e#9812#9864#0" />
-                <element signature="e#9845#9906#0" />
-                <element signature="e#9721#9766#0" />
-                <marker date="1537518046794" expanded="true" signature="1103:1104" ph="..." />
-                <marker date="1537518046794" expanded="true" signature="1325:1330" ph="..." />
-                <marker date="1537518046794" expanded="true" signature="1827:1828" ph="..." />
-                <marker date="1537518046794" expanded="true" signature="1827:1833" ph="..." />
-                <marker date="1537518046794" expanded="true" signature="9986:10009" ph="..." />
-                <marker date="1537518046794" expanded="true" signature="10058:11021" ph="..." />
+                <element signature="e#1889#2598#0" />
+                <element signature="e#2635#5155#0" />
+                <element signature="e#5191#9944#0" />
+                <element signature="e#10000#10808#0" />
+                <element signature="e#10774#11725#0" />
+                <element signature="e#11879#12319#0" />
+                <element signature="e#12214#12646#0" />
+                <element signature="e#12683#12744#0" />
+                <element signature="e#12781#12841#0" />
+                <element signature="e#13039#13185#0" />
+                <marker date="1537773794297" expanded="true" signature="1103:1104" ph="..." />
+                <marker date="1537773794297" expanded="true" signature="1325:1330" ph="..." />
+                <marker date="1537773794297" expanded="true" signature="1827:1828" ph="..." />
+                <marker date="1537773794297" expanded="true" signature="1827:1833" ph="..." />
+                <marker date="1537773794297" expanded="true" signature="10830:10835" ph="..." />
+                <marker date="1537773794297" expanded="true" signature="10884:12811" ph="..." />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-435">
-              <caret line="145" column="6" selection-start-line="145" selection-start-column="6" selection-end-line="145" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="62" selection-start-line="62" selection-end-line="62" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file:///usr/lib/python3/dist-packages/apport/__init__.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
             </state>
           </provider>
         </entry>
@@ -149,6 +130,9 @@
     <dirStrings>
       <dir>$PROJECT_DIR$/data/__MACOSX</dir>
     </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -207,11 +191,15 @@
       </profile-state>
     </entry>
   </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -228,7 +216,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -366,23 +353,30 @@
       <option name="presentableId" value="Default" />
       <updated>1536918210677</updated>
     </task>
+    <task id="LOCAL-00001" summary="Añadida fn F1">
+      <created>1537532537985</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1537532537985</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1017" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.106371775" />
+      <window_info active="true" content_ui="combo" id="Project" order="2" visible="true" weight="0.106371775" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32936078" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.5092091" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.35249457" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="7" weight="0.23101953" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32936078" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5007899" side_tool="true" weight="0.41170096" />
       <window_info anchor="bottom" id="Python Console" order="10" />
@@ -391,8 +385,22 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout>
   </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Añadida fn F1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Añadida fn F1" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Option2.py" />
@@ -503,10 +511,17 @@
     <entry file="file://$PROJECT_DIR$/the_net.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
+    <entry file="file:///usr/lib/python3.6/genericpath.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="185">
-          <caret line="62" selection-start-line="62" selection-end-line="62" />
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2159">
+          <caret line="145" column="6" selection-start-line="145" selection-start-column="6" selection-end-line="145" selection-end-column="6" />
         </state>
       </provider>
     </entry>
@@ -517,54 +532,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file:///usr/lib/python3.6/genericpath.py">
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file:///usr/lib/python3/dist-packages/apport_python_hook.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="185">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-435">
-          <caret line="145" column="6" selection-start-line="145" selection-start-column="6" selection-end-line="145" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="244">
-          <caret line="293" column="14" lean-forward="true" selection-start-line="293" selection-end-line="294" />
-          <folding>
-            <element signature="e#25#34#0" expanded="true" />
-            <element signature="e#763#946#0" />
-            <element signature="e#997#1249#0" />
-            <element signature="e#1371#5839#0" />
-            <element signature="e#5897#7885#0" />
-            <element signature="e#8631#8858#0" />
-          </folding>
+          <caret line="62" selection-start-line="62" selection-end-line="62" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/MainModel.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="318">
-          <caret line="286" column="33" selection-start-line="286" selection-start-column="33" selection-end-line="286" selection-end-column="33" />
+        <state relative-caret-position="357">
+          <caret line="258" column="44" selection-start-line="258" selection-start-column="44" selection-end-line="258" selection-end-column="44" />
           <folding>
             <element signature="e#729#912#0" />
             <element signature="e#1086#1685#0" />
-            <element signature="e#1541#2163#0" />
-            <element signature="e#2041#4259#0" />
-            <element signature="e#4694#9565#0" />
-            <element signature="e#9812#9864#0" />
-            <element signature="e#9845#9906#0" />
-            <element signature="e#9721#9766#0" />
-            <marker date="1537518046794" expanded="true" signature="1103:1104" ph="..." />
-            <marker date="1537518046794" expanded="true" signature="1325:1330" ph="..." />
-            <marker date="1537518046794" expanded="true" signature="1827:1828" ph="..." />
-            <marker date="1537518046794" expanded="true" signature="1827:1833" ph="..." />
-            <marker date="1537518046794" expanded="true" signature="9986:10009" ph="..." />
-            <marker date="1537518046794" expanded="true" signature="10058:11021" ph="..." />
+            <element signature="e#1889#2598#0" />
+            <element signature="e#2635#5155#0" />
+            <element signature="e#5191#9944#0" />
+            <element signature="e#10000#10808#0" />
+            <element signature="e#10774#11725#0" />
+            <element signature="e#11879#12319#0" />
+            <element signature="e#12214#12646#0" />
+            <element signature="e#12683#12744#0" />
+            <element signature="e#12781#12841#0" />
+            <element signature="e#13039#13185#0" />
+            <marker date="1537773794297" expanded="true" signature="1103:1104" ph="..." />
+            <marker date="1537773794297" expanded="true" signature="1325:1330" ph="..." />
+            <marker date="1537773794297" expanded="true" signature="1827:1828" ph="..." />
+            <marker date="1537773794297" expanded="true" signature="1827:1833" ph="..." />
+            <marker date="1537773794297" expanded="true" signature="10830:10835" ph="..." />
+            <marker date="1537773794297" expanded="true" signature="10884:12811" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="41" column="6" lean-forward="true" selection-start-line="41" selection-start-column="6" selection-end-line="41" selection-end-column="6" />
+          <folding>
+            <element signature="e#25#34#0" expanded="true" />
           </folding>
         </state>
       </provider>

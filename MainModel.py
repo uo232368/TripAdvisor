@@ -256,7 +256,7 @@ class MainModel():
 
         return(TRAIN,DEV,TEST,len(REST_TMP),len(USR_TMP),len(IMG.iloc[0].vector), [MinMSE,MaxMSE,MeanMSE])
 
-    def __getF1(self,pred,real):
+    def __getF1(self,pred,real, title = ""):
 
         TP=0
         FN=0
@@ -276,15 +276,19 @@ class MainModel():
         rec = TP/(TP+FN)
         f1 = 2*((pre*rec)/(pre+rec))
 
-        self.printB("-"*40)
-        self.printB("TP: "+str(TP)+"\tFP: "+str(FP))
-        self.printB("FN: "+str(FN)+"\tTN: "+str(TN))
-        self.printB("-"*40)
+        line_lng = 45
+
+        if(title!=""):
+            self.printB("‒" * line_lng)
+            self.printB(" "+str(title),bold=True)
+
+        self.printB("‒"*line_lng)
+        self.printB("TP: "+str(TP)+"\tFP: "+str(FP)+"\tFN: "+str(FN)+"\tTN: "+str(TN))
+        self.printB("‒"*line_lng)
         self.printB("Precision: \t"+str(pre))
         self.printB("Recall: \t"+str(rec))
-        self.printB("-"*40)
         self.printB("F1: \t"+str(pre))
-        self.printB("-"*40)
+        self.printB("‒"*line_lng)
 
     def train(self, save=True, show_epoch_info=True):
 
@@ -310,7 +314,33 @@ class MainModel():
 
         bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-        self.__getF1(bin_pred,y_likes)
+        self.__getF1(bin_pred,y_likes,title="TRAIN")
+
+    def dev(self):
+
+        # Transformar los datos de TRAIN al formato adecuado
+        oh_users = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
+        oh_rests = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
+
+        y_likes = self.DEV.like.values
+        y_image = np.row_stack(self.DEV.vector.values)
+
+        bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
+
+        self.__getF1(bin_pred, y_likes,title="DEV")
+
+    def test(self):
+
+        # Transformar los datos de TRAIN al formato adecuado
+        oh_users = to_categorical(self.TEST.id_user, num_classes=self.N_USR)
+        oh_rests = to_categorical(self.TEST.id_restaurant, num_classes=self.N_RST)
+
+        y_likes = self.TEST.like.values
+        y_image = np.row_stack(self.TEST.vector.values)
+
+        bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
+
+        self.__getF1(bin_pred, y_likes,title="TEST")
 
     def printW(self,text):
         print(bcolors.WARNING+str("[AVISO] ")+str(text)+bcolors.ENDC)
@@ -318,5 +348,8 @@ class MainModel():
     def printG(self,text):
         print(bcolors.OKGREEN+str("[INFO] ")+str(text)+bcolors.ENDC)
 
-    def printB(self,text):
-        print(bcolors.OKBLUE+str(text)+bcolors.ENDC)
+    def printB(self,text, bold=False):
+        if(bold):
+            print(bcolors.BOLD+bcolors.OKBLUE+str(text)+bcolors.ENDC+bcolors.ENDC)
+        else:
+            print(bcolors.OKBLUE + str(text) + bcolors.ENDC)

@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import sklearn.model_selection
 import tensorflow as tf
+import random
 
 from keras import backend as K
 from keras import losses
@@ -69,11 +70,14 @@ class MainModel():
         self.IMG_PATH = self.PATH + "images/"
         self.SEED = seed
 
+        self.CONFIG = config
+
         self.printB("Obteniendo datos...")
 
-        train, dev, test, n_rest, n_usr, v_img, mse_data = self.__getData()
+        train1,train2, dev, test, n_rest, n_usr, v_img, mse_data = self.__getData()
 
-        self.TRAIN = train
+        self.TRAIN_V1 = train1
+        self.TRAIN_V2 = train2
         self.DEV = dev
         self.TEST = test
 
@@ -84,7 +88,6 @@ class MainModel():
 
         self.printB("Creando modelo...")
 
-        self.CONFIG = config
         self.MODEL_PATH = "models/model_"+self.CITY.lower()+"_option"+str(self.OPTION)
         self.MODEL = self.__getModel()
 
@@ -153,7 +156,7 @@ class MainModel():
         model.compile(optimizer=adam, loss=["binary_crossentropy", normalized_mse_loss],loss_weights=[(1 - c_loss), c_loss])
 
         # summarize layers
-        # print(model.summary())
+        print(model.summary())
         #plot_model(model, to_file='the_net.png')
 
         return model
@@ -164,82 +167,121 @@ class MainModel():
         REST_TMP = pd.DataFrame(columns=["real_id","id_restaurant"])
 
         IMG = pd.read_pickle(self.PATH + "img-option"+str(self.OPTION)+".pkl")
-
         RVW = pd.read_pickle(self.PATH + "reviews.pkl")
+
+        IMG['review'] = IMG.review.astype(int)
+        RVW["reviewId"] = RVW.reviewId.astype(int)
+
         RVW["num_images"] = RVW.images.apply(lambda x: len(x))
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
+        RVW = RVW.loc[(RVW.userId!="")]
 
-        RVW = RVW.loc[RVW.num_images > 0]
+        # Eliminar usuarios con menos de min_revs
+        #---------------------------------------------------------------------------------------------------------------
+        old_len = len(RVW)
 
-        #Obtener tabla real_id -> id para usuarios
+        USR_LST = RVW.groupby("userId", as_index=False).count()
+        USR_LST = USR_LST.loc[(USR_LST.like>=self.CONFIG['min_revs']),"userId"].values
+        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+
+        self.printW("Eliminado usuarios con menos de "+str(self.CONFIG['min_revs'])+" valoraciones quedan un "+str((len(RVW)/old_len)*100)+" % del total de reviews.")
+
+        # Obtener ID para ONE-HOT de usuarios y restaurantes
+        # ---------------------------------------------------------------------------------------------------------------
+
+        # Obtener tabla real_id -> id para usuarios
         USR_TMP.real_id = RVW.sort_values("userId").userId.unique()
-        USR_TMP.id_user = range(0,len(USR_TMP))
+        USR_TMP.id_user = range(0, len(USR_TMP))
 
-        #Obtener tabla real_id -> id para restaurantes
+        # Obtener tabla real_id -> id para restaurantes
         REST_TMP.real_id = RVW.sort_values("restaurantId").restaurantId.unique()
-        REST_TMP.id_restaurant = range(0,len(REST_TMP))
+        REST_TMP.id_restaurant = range(0, len(REST_TMP))
 
-        #Mezclar datos
+        # Mezclar datos
         RET = RVW.merge(USR_TMP, left_on='userId', right_on='real_id', how='inner')
         RET = RET.merge(REST_TMP, left_on='restaurantId', right_on='real_id', how='inner')
 
-        RET = RET[['date', 'images', 'index', 'language', 'rating', 'restaurantId','reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'real_id_x', 'id_user', 'real_id_y', 'id_restaurant', 'like']]
+        RVW = RET[['date', 'images', 'index', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url',
+                   'userId', 'num_images', 'real_id_x', 'id_user', 'real_id_y', 'id_restaurant', 'like']]
 
-        # -------------------------------------------------------------------------------------------------------------------
-        # Forzar usuarios de una review con una imagen a TRAIN
+        # Separar en reviews con y sin imágen
+        #---------------------------------------------------------------------------------------------------------------
+        RVW_IM  = RVW.loc[RVW.num_images > 0]
+        RVW_NIM = RVW.loc[RVW.num_images == 0]
 
-        ids = []
+        self.printG("Reviews con imágen: "+str(len(RVW_IM)))
+        self.printG("Reviews sin imágen: "+str(len(RVW_NIM)))
 
-        for i, g in RET.groupby("id_user"):
-            if(len(g)==1 and g.num_images.values[0]==1):
-                ids.append(i)
+        # Agrupar por usuario-review
+        # ---------------------------------------------------------------------------------------------------------------
+        GRP_RVW_IM  = RVW_IM.groupby(["userId","restaurantId"])
+        GRP_RVW_NIM = RVW_NIM.groupby(["userId","restaurantId"])
 
-        self.printG("Moviendo a TRAIN "+str(len(ids))+" usuarios con una review de una imagen...")
+        random.seed(self.SEED)
 
-        RET_ONEONE = RET.loc[RET.id_user.isin(ids)]
-        RET = RET.loc[~RET.id_user.isin(ids)]
+        TRAIN = []
+        DEV = []
+        TEST = []
 
-        # -------------------------------------------------------------------------------------------------------------------
-        # TRAIN/DEV/TEST
+        self.printG("Separando en TRAIN/DEV/TEST valoraciones con imagen...")
 
-        TRAIN_PROP = 0.6 - (len(RET_ONEONE)/len(RVW))
-        DEV_PROP = (1-TRAIN_PROP)/2
-        TEST_PROP = (1-TRAIN_PROP)/2
+        for i,g in GRP_RVW_IM:
+            rnd = random.random()
+            if(rnd<0.05): TEST.extend(g.reviewId.values)
+            elif(rnd>=0.05 and rnd<0.1): DEV.extend(g.reviewId.values)
+            else: TRAIN.extend(g.reviewId.values)
 
-        X_train, X_test, Y_train, Y_test = sklearn.model_selection.train_test_split(RET.iloc[:, :-1], RET.iloc[:, -1],test_size=TEST_PROP, random_state=self.SEED)
-        X_train, X_dev, Y_train, Y_dev = sklearn.model_selection.train_test_split(X_train, Y_train, test_size=DEV_PROP,random_state=self.SEED)
+        self.printG("Separando en TRAIN/DEV/TEST valoraciones sin imagen...")
+        for i,g in GRP_RVW_NIM:
+            rnd = random.random()
+            if(rnd<0.05): TEST.extend(g.reviewId.values)
+            elif(rnd>=0.05 and rnd<0.1): DEV.extend(g.reviewId.values)
+            else: TRAIN.extend(g.reviewId.values)
 
-        TRAIN = pd.DataFrame(X_train)
-        TRAIN['like'] = Y_train
-        TRAIN = TRAIN.append(RET_ONEONE,ignore_index=True).reset_index()
+        # Obtener conjuntos de TRAIN/DEV/TEST
+        # ---------------------------------------------------------------------------------------------------------------
 
-        DEV = pd.DataFrame(X_dev)
-        DEV['like'] = Y_dev
+        self.printG("Generando conjuntos finales...")
 
-        TEST = pd.DataFrame(X_test)
-        TEST['like'] = Y_test
+        TRAIN_v1 = RVW.loc[RVW.reviewId.isin(TRAIN)]
+        TRAIN_v2 = TRAIN_v1.loc[TRAIN_v1.num_images>0]
+        DEV = RVW.loc[RVW.reviewId.isin(DEV)]
+        TEST = RVW.loc[RVW.reviewId.isin(TEST)]
 
         # -------------------------------------------------------------------------------------------------------------------
         # OVERSAMPLING (SOLO EN TRAIN)
 
-        TRAIN_ONE = TRAIN.loc[TRAIN.like==1]
-        TRAIN_ZRO = TRAIN.loc[TRAIN.like==0]
+        self.printG("Oversampling en TRAIN_V1...")
 
-        TRAIN = TRAIN_ONE.append(TRAIN_ZRO,ignore_index=True)
+        TRAIN_ONE = TRAIN_v1.loc[TRAIN_v1.like==1]
+        TRAIN_ZRO = TRAIN_v1.loc[TRAIN_v1.like==0]
+
+        TRAIN_v1 = TRAIN_ONE.append(TRAIN_ZRO,ignore_index=True)
         TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(len(TRAIN_ONE)-len(TRAIN_ZRO), replace=True, random_state=self.SEED)
-        TRAIN = TRAIN.append(TRAIN_ZRO_SMPLE,ignore_index=True)
+        TRAIN_v1 = TRAIN_v1.append(TRAIN_ZRO_SMPLE,ignore_index=True)
 
-        self.printG("\t· TRAIN: "+str(len(TRAIN)))
-        self.printG("\t· DEV: "+str(len(DEV)))
-        self.printG("\t· TEST: "+str(len(TEST)))
+        self.printG("Oversampling en TRAIN_V2...")
+
+        TRAIN_ONE = TRAIN_v2.loc[TRAIN_v2.like==1]
+        TRAIN_ZRO = TRAIN_v2.loc[TRAIN_v2.like==0]
+
+        TRAIN_v2 = TRAIN_ONE.append(TRAIN_ZRO,ignore_index=True)
+        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(len(TRAIN_ONE)-len(TRAIN_ZRO), replace=True, random_state=self.SEED)
+        TRAIN_v2 = TRAIN_v2.append(TRAIN_ZRO_SMPLE,ignore_index=True)
 
         #-------------------------------------------------------------------------------------------------------------------
+        # Añadir vectores de imágenes
 
-        TRAIN = IMG.merge(TRAIN, left_on='review', right_on='reviewId', how='inner')
+        TRAIN_v1['vector'] = 0
+
+        TRAIN_v2 = IMG.merge(TRAIN_v2, left_on='review', right_on='reviewId', how='inner')
+
         DEV = IMG.merge(DEV, left_on='review', right_on='reviewId', how='inner')
         TEST = IMG.merge(TEST, left_on='review', right_on='reviewId', how='inner')
 
-        TRAIN = TRAIN.drop(columns=['restaurantId','userId','url','text','title','date','real_id_x','real_id_y','images','num_images','index','rating','language','review'])
+        TRAIN_v1 = TRAIN_v1.drop(columns=['restaurantId','userId','url','text','real_id_x','real_id_y','title','date','images','num_images','index','rating','language'])
+        TRAIN_v2 = TRAIN_v2.drop(columns=['restaurantId','userId','url','text','real_id_x','real_id_y','title','date','images','num_images','index','rating','language','review'])
+
         DEV = DEV.drop(columns=['restaurantId','userId','url','text','title','date','real_id_x','real_id_y','images','num_images','index','rating','language','review'])
         TEST = TEST.drop(columns=['restaurantId','userId','url','text','title','date','real_id_x','real_id_y','images','num_images','index','rating','language','review'])
 
@@ -254,7 +296,7 @@ class MainModel():
         MaxMSE = np.apply_along_axis(lambda x:np.max(x),0,IMG_2)
         MinMSE = np.apply_along_axis(lambda x:np.min(x),0,IMG_2)
 
-        return(TRAIN,DEV,TEST,len(REST_TMP),len(USR_TMP),len(IMG.iloc[0].vector), [MinMSE,MaxMSE,MeanMSE])
+        return(TRAIN_v1,TRAIN_v2,DEV,TEST,len(REST_TMP),len(USR_TMP),len(IMG.iloc[0].vector), [MinMSE,MaxMSE,MeanMSE])
 
     def __getF1(self,pred,real, title = ""):
 
@@ -290,14 +332,18 @@ class MainModel():
         self.printB("F1: \t"+str(pre))
         self.printB("‒"*line_lng)
 
-    def train(self, save=True, show_epoch_info=True):
+    def train_step1(self, save=True, show_epoch_info=True):
+
+        self.MODEL_PATH = self.MODEL_PATH+"_step1"
+
 
         # Transformar los datos de TRAIN al formato adecuado
-        oh_users = to_categorical(self.TRAIN.id_user, num_classes=self.N_USR)
-        oh_rests = to_categorical(self.TRAIN.id_restaurant, num_classes=self.N_RST)
+        oh_users = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
+        oh_rests = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
 
-        y_likes = self.TRAIN.like.values
-        y_image = np.row_stack(self.TRAIN.vector.values)
+        y_likes = self.TRAIN_V1.like.values
+        y_image = np.zeros((len(self.TRAIN_V1),self.V_IMG))
+
 
         # Definir un checkpoint para ir almacendando el modelo
         callbacks_list = []

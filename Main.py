@@ -25,19 +25,20 @@ from keras.backend.tensorflow_backend import set_session
 ########################################################################################################################
 
 option = 2
-config = {"emb_size":20,
+config = {"min_revs":10,
+          "emb_size":32,
           "learning_rate":0.001,
           "lr_decay":0.0,
           "batch_size":1024,
-          "epochs":10,
+          "epochs":100,
           "c_loss":.5}
 seed = 100
 
 city = "Gijon"
 modelGijon = MainModel(city=city, option=option, config=config, seed=seed)
-modelGijon.train(save=True, show_epoch_info=True)
-modelGijon.dev()
-modelGijon.test()
+modelGijon.train_step1(save=True, show_epoch_info=True)
+#modelGijon.dev()
+#modelGijon.test()
 
 exit()
 

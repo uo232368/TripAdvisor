@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
+    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="Cambio en forma de generar datos (Teniendo en cuenta las dos fases)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/MainModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MainModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/the_net.png" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -26,38 +27,38 @@
           <entry key="project.open.time.19" value="1" />
           <entry key="project.open.time.2" value="2" />
           <entry key="project.open.time.3" value="6" />
-          <entry key="project.open.time.4" value="4" />
+          <entry key="project.open.time.4" value="6" />
           <entry key="project.open.time.5" value="1" />
-          <entry key="project.opened" value="24" />
+          <entry key="project.opened" value="26" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="28" />
-          <entry key="dummy" value="4" />
-          <entry key="py" value="17125" />
-          <entry key="txt" value="33" />
+          <entry key="dummy" value="6" />
+          <entry key="py" value="19504" />
+          <entry key="txt" value="137" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="37" />
-          <entry key="Python" value="17153" />
+          <entry key="PLAIN_TEXT" value="143" />
+          <entry key="Python" value="19532" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="gitignore" value="1" />
           <entry key="out" value="1" />
-          <entry key="png" value="13" />
-          <entry key="py" value="63" />
+          <entry key="png" value="20" />
+          <entry key="py" value="83" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Image" value="13" />
+          <entry key="Image" value="20" />
           <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="63" />
+          <entry key="Python" value="83" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -73,32 +74,65 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="81">
-              <caret line="27" column="10" selection-start-line="27" selection-start-column="10" selection-end-line="27" selection-end-column="10" />
+            <state relative-caret-position="87">
+              <caret line="37" column="17" selection-start-line="37" selection-start-column="17" selection-end-line="37" selection-end-column="17" />
               <folding>
                 <element signature="e#25#34#0" expanded="true" />
-                <element signature="e#764#937#0" />
+                <element signature="e#1125#1245#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/MainModel.py">
+        <entry file="file://$PROJECT_DIR$/ModelV2.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="276">
-              <caret line="337" selection-start-line="337" selection-end-line="337" />
+            <state relative-caret-position="196">
+              <caret line="137" column="35" selection-start-line="137" selection-start-column="35" selection-end-line="137" selection-end-column="35" />
+              <folding>
+                <element signature="e#24#57#0" expanded="true" />
+                <element signature="e#918#1020#0" />
+                <element signature="e#1055#3479#0" />
+                <element signature="e#3546#4666#0" />
+                <element signature="e#4713#6906#0" />
+                <element signature="e#4745#4810#0" />
+                <element signature="e#4852#5116#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ModelClass.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="224">
+              <caret line="117" column="68" selection-start-line="117" selection-start-column="60" selection-end-line="117" selection-end-column="68" />
               <folding>
                 <element signature="e#24#33#0" expanded="true" />
-                <element signature="e#2692#5210#0" />
-                <element signature="e#5246#11884#0" />
-                <element signature="e#11940#12769#0" />
-                <marker date="1537789379578" expanded="true" signature="1117:1118" ph="..." />
-                <marker date="1537789379578" expanded="true" signature="1339:1344" ph="..." />
-                <marker date="1537789379578" expanded="true" signature="1841:1842" ph="..." />
-                <marker date="1537789379578" expanded="true" signature="1841:1847" ph="..." />
-                <marker date="1537789379578" expanded="true" signature="12786:12791" ph="..." />
-                <marker date="1537789379578" expanded="true" signature="12846:14839" ph="..." />
+                <element signature="e#742#925#0" />
+                <element signature="e#1099#1698#0" />
+                <element signature="e#1157#1336#0" />
+                <element signature="e#1394#1698#0" />
+                <element signature="e#2744#2792#0" />
+                <element signature="e#9917#9965#0" />
+                <element signature="e#10154#11106#0" />
+                <marker date="1537872113907" expanded="true" signature="9908:9971" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ModelV3.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="646">
+              <caret line="134" column="18" selection-start-line="134" selection-start-column="18" selection-end-line="134" selection-end-column="18" />
+              <folding>
+                <element signature="e#24#57#0" expanded="true" />
+                <element signature="e#1021#3551#0" />
+                <element signature="e#3622#4652#0" />
+                <element signature="e#4682#5120#0" />
+                <element signature="e#5151#5594#0" />
               </folding>
             </state>
           </provider>
@@ -123,6 +157,7 @@
       <find>printW</find>
       <find>_v1</find>
       <find>USR_TMP</find>
+      <find>TRA</find>
     </findStrings>
     <replaceStrings>
       <replace>self.CONFIG[</replace>
@@ -150,6 +185,9 @@
         <option value="$PROJECT_DIR$/img_emb/ImageEmbedding.py" />
         <option value="$PROJECT_DIR$/stats/MainModel.py" />
         <option value="$PROJECT_DIR$/MainModel.py" />
+        <option value="$PROJECT_DIR$/ModelV3.py" />
+        <option value="$PROJECT_DIR$/ModelClass.py" />
+        <option value="$PROJECT_DIR$/ModelV2.py" />
         <option value="$PROJECT_DIR$/Main.py" />
       </list>
     </option>
@@ -223,12 +261,13 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/img_emb" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/data/gijon_data" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/img_emb" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -319,7 +358,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/MainModel.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ModelV3.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -391,7 +430,14 @@
       <option name="project" value="LOCAL" />
       <updated>1537773995743</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Cambio en forma de generar datos (Teniendo en cuenta las dos fases)">
+      <created>1537791289873</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1537791289873</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView">
@@ -409,11 +455,11 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.14430244" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.108478144" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286334" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.54338396" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.3997833" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.47396964" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3991323" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.329718" />
@@ -442,7 +488,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Añadida fn F1" />
     <MESSAGE value="Mejoras" />
-    <option name="LAST_COMMIT_MESSAGE" value="Mejoras" />
+    <MESSAGE value="Cambio en forma de generar datos (Teniendo en cuenta las dos fases)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambio en forma de generar datos (Teniendo en cuenta las dos fases)" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Option2.py" />
@@ -543,9 +590,7 @@
         <state relative-caret-position="-1519165" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/the_net.png">
-      <provider selected="true" editor-type-id="images" />
-    </entry>
+    <entry file="file://$PROJECT_DIR$/the_net.png" />
     <entry file="file:///usr/lib/python3.6/genericpath.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="185">
@@ -584,32 +629,74 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/MainModel.py">
+    <entry file="file://$PROJECT_DIR$/ModelV3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="337" selection-start-line="337" selection-end-line="337" />
+        <state relative-caret-position="646">
+          <caret line="134" column="18" selection-start-line="134" selection-start-column="18" selection-end-line="134" selection-end-column="18" />
+          <folding>
+            <element signature="e#24#57#0" expanded="true" />
+            <element signature="e#1021#3551#0" />
+            <element signature="e#3622#4652#0" />
+            <element signature="e#4682#5120#0" />
+            <element signature="e#5151#5594#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/builtins.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="150">
+          <caret line="3629" column="8" selection-start-line="3629" selection-start-column="8" selection-end-line="3629" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="224">
+          <caret line="117" column="68" selection-start-line="117" selection-start-column="60" selection-end-line="117" selection-end-column="68" />
           <folding>
             <element signature="e#24#33#0" expanded="true" />
-            <element signature="e#2692#5210#0" />
-            <element signature="e#5246#11884#0" />
-            <element signature="e#11940#12769#0" />
-            <marker date="1537789379578" expanded="true" signature="1117:1118" ph="..." />
-            <marker date="1537789379578" expanded="true" signature="1339:1344" ph="..." />
-            <marker date="1537789379578" expanded="true" signature="1841:1842" ph="..." />
-            <marker date="1537789379578" expanded="true" signature="1841:1847" ph="..." />
-            <marker date="1537789379578" expanded="true" signature="12786:12791" ph="..." />
-            <marker date="1537789379578" expanded="true" signature="12846:14839" ph="..." />
+            <element signature="e#742#925#0" />
+            <element signature="e#1099#1698#0" />
+            <element signature="e#1157#1336#0" />
+            <element signature="e#1394#1698#0" />
+            <element signature="e#2744#2792#0" />
+            <element signature="e#9917#9965#0" />
+            <element signature="e#10154#11106#0" />
+            <marker date="1537872113907" expanded="true" signature="9908:9971" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modelv3_net.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/modelv2_net.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelV2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="196">
+          <caret line="137" column="35" selection-start-line="137" selection-start-column="35" selection-end-line="137" selection-end-column="35" />
+          <folding>
+            <element signature="e#24#57#0" expanded="true" />
+            <element signature="e#918#1020#0" />
+            <element signature="e#1055#3479#0" />
+            <element signature="e#3546#4666#0" />
+            <element signature="e#4713#6906#0" />
+            <element signature="e#4745#4810#0" />
+            <element signature="e#4852#5116#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="81">
-          <caret line="27" column="10" selection-start-line="27" selection-start-column="10" selection-end-line="27" selection-end-column="10" />
+        <state relative-caret-position="87">
+          <caret line="37" column="17" selection-start-line="37" selection-start-column="17" selection-end-line="37" selection-end-column="17" />
           <folding>
             <element signature="e#25#34#0" expanded="true" />
-            <element signature="e#764#937#0" />
+            <element signature="e#1125#1245#0" />
           </folding>
         </state>
       </provider>

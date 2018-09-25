@@ -2,7 +2,8 @@
 
 import os
 
-from MainModel import MainModel
+from ModelV3 import ModelV3
+from ModelV2 import ModelV2
 
 import pandas as pd
 import numpy as np
@@ -25,23 +26,36 @@ from keras.backend.tensorflow_backend import set_session
 ########################################################################################################################
 
 option = 2
-config = {"min_revs":10,
+config = {"min_revs":5,
           "emb_size":32,
-          "learning_rate":0.001,
+          "learning_rate":0.0001,
           "lr_decay":0.0,
           "batch_size":1024,
-          "epochs":100,
+          "epochs":50,
           "c_loss":.5}
 seed = 100
 
-city = "Gijon"
-modelGijon = MainModel(city=city, option=option, config=config, seed=seed)
-modelGijon.train_step1(save=True, show_epoch_info=True)
-#modelGijon.dev()
-#modelGijon.test()
+city = "Barcelona"
+modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
+
+params = {
+    "learning_rate": [0.000001, 0.00001, 0.0001, 0.001],
+    "emb_size": [32, 64, 128],
+    "batch_size": [512, 1024, 2048],
+}
+modelv2.gridSearchV1(params)
+
+#modelv2.test()
+
+#modelGijon = ModelV3(city=city, option=option, config=config, seed=seed)
+
+
+#ToDo: Preguntar por el número mínimo de valoraciones
+#ToDo: Gridsearch... loss en DEV o F1
+#ToDo: Early stoping??
+#ToDo: Grid-Search
+#ToDo: Test emb imagen con hilos == sin hilos
+
 
 exit()
 
-#ToDo: Cambio a nuevo modelo /generación de datos
-#ToDo: Grid-Search
-#ToDo: Test emb imagen con hilos == sin hilos

@@ -35,27 +35,24 @@ config = {"min_revs":5,
           "c_loss":.5}
 seed = 100
 
-city = "Barcelona"
-modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
-
 params = {
     "learning_rate": [0.000001, 0.00001, 0.0001, 0.001],
     "emb_size": [32, 64, 128],
     "batch_size": [512, 1024, 2048],
 }
+
+city = "Barcelona"
+
+'''
+modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
 modelv2.gridSearchV1(params)
-
-#modelv2.test()
-
-#modelGijon = ModelV3(city=city, option=option, config=config, seed=seed)
+'''
+modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
+modelv3.gridSearchV1(params)
 
 
 #ToDo: Preguntar por el número mínimo de valoraciones
-#ToDo: Gridsearch... loss en DEV o F1
-#ToDo: Early stoping??
 #ToDo: Grid-Search
 #ToDo: Test emb imagen con hilos == sin hilos
 
-
-exit()
 

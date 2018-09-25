@@ -97,10 +97,70 @@ class ModelV3(ModelClass):
         model.compile(optimizer=adam, loss=["binary_crossentropy", normalized_mse_loss],loss_weights=[(1 - c_loss), c_loss])
 
         # summarize layers
-        print(model.summary())
+        #print(model.summary())
         plot_model(model, to_file=self.MODEL_NAME+'_net.png')
 
         return model
+
+    def gridSearchV1(self, params):
+
+        def gsStep(bs):
+            self.MODEL.fit([usr_train, res_train], [bin_train, img_train], epochs=1, batch_size=bs, verbose=0)
+            loss = self.MODEL.evaluate([usr_dev, res_dev], [bin_dev, img_dev], verbose=0)
+            return loss
+
+        # ---------------------------------------------------------------------------------------------------------------
+        usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
+        res_train = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
+        img_train = np.zeros((len(self.TRAIN_V1), self.V_IMG))
+        bin_train = self.TRAIN_V1.like.values
+        # ---------------------------------------------------------------------------------------------------------------
+        usr_dev = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
+        res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
+        img_dev = np.zeros((len(self.DEV), self.V_IMG))
+        bin_dev = self.DEV.like.values
+        # ---------------------------------------------------------------------------------------------------------------
+
+        combs = []
+        max_epochs = 1000
+        last_n_epochs = 10
+        dev_hist = []
+
+        for lr in params['learning_rate']:
+            for bs in params['batch_size']:
+                for em in params['emb_size']:
+                    combs.append([lr, bs, em])
+
+        for c in combs:
+            lr = c[0];
+            bs = c[1]
+            em = c[2]
+            ep = 0
+
+            # Reiniciar modelo e historial
+            self.CONFIG['learning_rate'] = lr
+            self.CONFIG['emb_size'] = em
+            self.MODEL = self.getModel()
+
+            dev_hist.clear()
+
+            for e in range(max_epochs):
+                ep += 1
+
+                loss = gsStep(bs)
+                dev_hist.append(loss[0])
+                print(ep, lr, bs, em, loss[0],loss[1],loss[2])
+
+                if (len(dev_hist) == last_n_epochs):
+                    slope = self.getSlope(dev_hist);
+                    dev_hist.pop(0)
+
+                    if (slope > -1e-5):
+                        print("[STOPPED AT "+str(slope)+"]")
+                        break
+
+            print("-" * 40)
+
 
     def train_step1(self, save=True, show_epoch_info=True):
 
@@ -112,7 +172,6 @@ class ModelV3(ModelClass):
 
         y_likes = self.TRAIN_V1.like.values
         y_image = np.zeros((len(self.TRAIN_V1),self.V_IMG))
-
 
         # Definir un checkpoint para ir almacendando el modelo
         callbacks_list = []

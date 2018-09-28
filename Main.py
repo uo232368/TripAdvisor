@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import argparse
 
 from ModelV3 import ModelV3
 from ModelV2 import ModelV2
@@ -25,6 +26,12 @@ from keras.backend.tensorflow_backend import set_session
 
 ########################################################################################################################
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-m', type=int)
+args = parser.parse_args()
+
+model= 3 if args.m == None else args.m
+
 option = 2
 config = {"min_revs":5,
           "emb_size":32,
@@ -32,26 +39,35 @@ config = {"min_revs":5,
           "lr_decay":0.0,
           "batch_size":1024,
           "epochs":50,
-          "c_loss":.5}
+          "c_loss":.5,
+          "gs_max_slope":-1e-8}
 seed = 100
 
-params = {
-    "learning_rate": [0.000001, 0.00001, 0.0001, 0.001],
-    "emb_size": [32, 64, 128],
-    "batch_size": [512, 1024, 2048],
-}
+city = "Gijon"
 
-city = "Barcelona"
+if (model == 2):
 
-'''
-modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
-modelv2.gridSearchV1(params)
-'''
-modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
-modelv3.gridSearchV1(params)
+    params = {
+        "learning_rate": [1e-07,1e-05,1e-03, 1e-01],
+        "batch_size": [512],
+    }
 
+    modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
+    modelv2.gridSearchV1(params, max_epochs=5000)
 
-#ToDo: Preguntar por el número mínimo de valoraciones
+if (model == 3):
+
+    params = {
+        "learning_rate": [1e-07,1e-05,1e-03, 1e-01],
+        "emb_size": [512,1024,2048],
+        "batch_size": [512],
+    }
+
+    modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
+    print(modelv3.N_USR,modelv3.N_RST)
+    modelv3.gridSearchV1(params, max_epochs=5000)
+
+#ToDo: Revisar creación de datos
 #ToDo: Grid-Search
 #ToDo: Test emb imagen con hilos == sin hilos
 

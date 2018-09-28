@@ -2,11 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelV2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ModelClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ModelV2.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ModelV3.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV3.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/download/DownloadData.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/DownloadData.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/download/TripAdvisor.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/TripAdvisor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/download/temp_data/._.DS_Store" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/temp_data/._.DS_Store" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_emb/Option2.py" beforeDir="false" afterPath="$PROJECT_DIR$/img_emb/Option2.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,7 +22,7 @@
     <session id="1862562037">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="10" />
+          <entry key="project.closed" value="12" />
           <entry key="project.open.time.11" value="3" />
           <entry key="project.open.time.12" value="1" />
           <entry key="project.open.time.13" value="1" />
@@ -28,24 +32,24 @@
           <entry key="project.open.time.19" value="1" />
           <entry key="project.open.time.2" value="2" />
           <entry key="project.open.time.3" value="6" />
-          <entry key="project.open.time.4" value="6" />
+          <entry key="project.open.time.4" value="10" />
           <entry key="project.open.time.5" value="1" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="27" />
+          <entry key="project.opened" value="31" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="Python Console" value="28" />
           <entry key="dummy" value="6" />
-          <entry key="py" value="19697" />
+          <entry key="py" value="20553" />
           <entry key="txt" value="201" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="207" />
-          <entry key="Python" value="19725" />
+          <entry key="Python" value="20581" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -53,14 +57,15 @@
           <entry key="gitignore" value="1" />
           <entry key="out" value="1" />
           <entry key="png" value="20" />
-          <entry key="py" value="86" />
+          <entry key="py" value="98" />
+          <entry key="txt" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Image" value="20" />
-          <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="86" />
+          <entry key="PLAIN_TEXT" value="4" />
+          <entry key="Python" value="98" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -70,18 +75,52 @@
         </counts>
       </usages-collector>
     </session>
+    <session id="1312838246">
+      <usages-collector id="statistics.lifecycle.project">
+        <counts>
+          <entry key="project.closed" value="6" />
+          <entry key="project.open.time.3" value="3" />
+          <entry key="project.open.time.4" value="3" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.opened" value="7" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.open">
+        <counts>
+          <entry key="py" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.open">
+        <counts>
+          <entry key="Python" value="1" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.extensions.edit">
+        <counts>
+          <entry key="py" value="25" />
+        </counts>
+      </usages-collector>
+      <usages-collector id="statistics.file.types.edit">
+        <counts>
+          <entry key="Python" value="25" />
+        </counts>
+      </usages-collector>
+    </session>
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="43" column="17" selection-start-line="43" selection-start-column="17" selection-end-line="43" selection-end-column="17" />
+            <state relative-caret-position="570">
+              <caret line="45" column="13" selection-start-line="45" selection-start-column="13" selection-end-line="45" selection-end-column="13" />
               <folding>
                 <element signature="e#25#34#0" expanded="true" />
-                <element signature="e#788#962#0" />
-                <element signature="e#984#1112#0" />
+                <element signature="e#943#1149#0" />
+                <element signature="e#1204#1427#0" />
+                <element signature="e#1213#1302#0" />
+                <element signature="e#1451#1750#0" />
+                <element signature="e#1460#1586#0" />
               </folding>
             </state>
           </provider>
@@ -90,15 +129,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ModelV3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="368">
-              <caret line="158" column="54" selection-start-line="158" selection-start-column="54" selection-end-line="158" selection-end-column="54" />
+            <state relative-caret-position="270">
+              <caret line="82" column="76" selection-start-line="82" selection-start-column="69" selection-end-line="82" selection-end-column="76" />
               <folding>
-                <element signature="e#24#57#0" expanded="true" />
-                <element signature="e#1021#3551#0" />
-                <element signature="e#3741#3953#0" />
-                <element signature="e#5122#5194#0" />
-                <element signature="e#4682#5120#0" />
-                <element signature="e#5151#5594#0" />
+                <element signature="e#262#365#0" />
+                <element signature="e#400#2679#0" />
+                <element signature="e#453#630#0" />
               </folding>
             </state>
           </provider>
@@ -124,6 +160,10 @@
       <find>_v1</find>
       <find>USR_TMP</find>
       <find>TRA</find>
+      <find>seed</find>
+      <find>shuffle</find>
+      <find>random</find>
+      <find>allow_growth</find>
     </findStrings>
     <replaceStrings>
       <replace>self.CONFIG[</replace>
@@ -151,18 +191,18 @@
         <option value="$PROJECT_DIR$/img_emb/ImageEmbedding.py" />
         <option value="$PROJECT_DIR$/stats/MainModel.py" />
         <option value="$PROJECT_DIR$/MainModel.py" />
+        <option value="$PROJECT_DIR$/Test.py" />
         <option value="$PROJECT_DIR$/ModelV2.py" />
-        <option value="$PROJECT_DIR$/ModelClass.py" />
         <option value="$PROJECT_DIR$/ModelV3.py" />
+        <option value="$PROJECT_DIR$/ModelClass.py" />
         <option value="$PROJECT_DIR$/Main.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1" />
-    <option name="y" value="27" />
-    <option name="width" value="958" />
-    <option name="height" value="1012" />
+    <option name="y" value="23" />
+    <option name="width" value="1920" />
+    <option name="height" value="1017" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -210,7 +250,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -222,9 +261,11 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -334,7 +375,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Option2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="TripAdvisor" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -346,7 +387,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Option2.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -356,19 +397,19 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Python.Option2" />
       <item itemvalue="Python.ImageEmbedding" />
       <item itemvalue="Python.Main" />
       <item itemvalue="Python.DownloadData" />
       <item itemvalue="Python.MainModel" />
+      <item itemvalue="Python.Test" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.Main" />
+        <item itemvalue="Python.Test" />
         <item itemvalue="Python.MainModel" />
         <item itemvalue="Python.ImageEmbedding" />
         <item itemvalue="Python.DownloadData" />
-        <item itemvalue="Python.Option2" />
       </list>
     </recent_temporary>
   </component>
@@ -411,7 +452,14 @@
       <option name="project" value="LOCAL" />
       <updated>1537877113721</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="· Reparadas funciones&#10;· Añadida herencia&#10;· Modelos v2 y v3">
+      <created>1537880050427</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1537880050427</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TodoView">
@@ -429,10 +477,10 @@
     <layout>
       <window_info id="Structure" order="0" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.108478144" />
+      <window_info content_ui="combo" id="Project" order="2" visible="true" weight="0.13796735" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286334" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49921012" visible="true" weight="0.47396964" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49921012" weight="0.46120688" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3991323" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -468,13 +516,7 @@
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Option2.py" />
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/backend/tensorflow_backend.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="169">
-          <caret line="2694" selection-start-line="2694" selection-end-line="2694" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/backend/tensorflow_backend.py" />
     <entry file="file:///usr/lib/python3.6/threading.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1138">
@@ -482,27 +524,9 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/core.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="825" column="8" selection-start-line="825" selection-start-column="8" selection-end-line="825" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/merge.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="183">
-          <caret line="331" column="8" selection-start-line="331" selection-start-column="8" selection-end-line="331" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/optimizers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="442" column="19" selection-start-line="442" selection-end-line="443" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/core.py" />
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/merge.py" />
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/optimizers.py" />
     <entry file="file://$PROJECT_DIR$/multiple_outputs.png" />
     <entry file="file://$PROJECT_DIR$/data/download/TripAdvisor.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -518,20 +542,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="6210" selection-start-line="6210" selection-end-line="6210" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/numpy/lib/shape_base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="36">
-          <caret line="485" column="4" selection-start-line="485" selection-start-column="4" selection-end-line="485" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/frame.py" />
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/numpy/lib/shape_base.py" />
     <entry file="file://$PROJECT_DIR$/img_emb/Option2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="666">
@@ -539,27 +551,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/numpy/core/umath.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="164">
-          <caret line="4614" column="22" selection-start-line="4614" selection-start-column="22" selection-end-line="4614" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/ops/losses/losses_impl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="36" column="15" selection-start-line="36" selection-start-column="6" selection-end-line="36" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/engine/training.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1241">
-          <caret line="1112" column="8" selection-start-line="1112" selection-start-column="8" selection-end-line="1112" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/numpy/core/umath.py" />
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/ops/losses/losses_impl.py" />
     <entry file="file://$PROJECT_DIR$/img_emb/nohup.out">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1519165" />
@@ -573,13 +566,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2159">
-          <caret line="145" column="6" selection-start-line="145" selection-start-column="6" selection-end-line="145" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py" />
     <entry file="file:///usr/lib/python3/dist-packages/apport/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -604,67 +591,64 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/builtins.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="3629" column="8" selection-start-line="3629" selection-start-column="8" selection-end-line="3629" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/builtins.py" />
     <entry file="file://$PROJECT_DIR$/modelv3_net.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
     <entry file="file://$PROJECT_DIR$/modelv2_net.png">
       <provider selected="true" editor-type-id="images" />
     </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/engine/training.py" />
+    <entry file="file://$PROJECT_DIR$/Test.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="16" lean-forward="true" selection-start-line="2" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gs_bar_v2.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/gs_bar_v3.txt">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
     <entry file="file://$PROJECT_DIR$/ModelV2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="179" column="33" selection-start-line="179" selection-start-column="33" selection-end-line="179" selection-end-column="33" />
-          <folding>
-            <element signature="e#24#57#0" expanded="true" />
-            <element signature="e#918#1020#0" />
-            <element signature="e#1055#3479#0" />
-            <element signature="e#3546#4666#0" />
-            <element signature="e#4852#5116#0" />
-          </folding>
+        <state relative-caret-position="629">
+          <caret line="115" selection-start-line="115" selection-end-line="117" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ModelClass.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="293" column="22" selection-start-line="293" selection-start-column="22" selection-end-line="293" selection-end-column="22" />
+        <state relative-caret-position="108">
+          <caret line="71" column="39" selection-start-line="71" selection-start-column="39" selection-end-line="71" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="570">
+          <caret line="45" column="13" selection-start-line="45" selection-start-column="13" selection-end-line="45" selection-end-column="13" />
           <folding>
-            <element signature="e#24#33#0" expanded="true" />
-            <marker date="1537879602223" expanded="true" signature="9943:10006" ph="..." />
+            <element signature="e#25#34#0" expanded="true" />
+            <element signature="e#943#1149#0" />
+            <element signature="e#1204#1427#0" />
+            <element signature="e#1213#1302#0" />
+            <element signature="e#1451#1750#0" />
+            <element signature="e#1460#1586#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/ModelV3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="368">
-          <caret line="158" column="54" selection-start-line="158" selection-start-column="54" selection-end-line="158" selection-end-column="54" />
+        <state relative-caret-position="270">
+          <caret line="82" column="76" selection-start-line="82" selection-start-column="69" selection-end-line="82" selection-end-column="76" />
           <folding>
-            <element signature="e#24#57#0" expanded="true" />
-            <element signature="e#1021#3551#0" />
-            <element signature="e#3741#3953#0" />
-            <element signature="e#5122#5194#0" />
-            <element signature="e#4682#5120#0" />
-            <element signature="e#5151#5594#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="43" column="17" selection-start-line="43" selection-start-column="17" selection-end-line="43" selection-end-column="17" />
-          <folding>
-            <element signature="e#25#34#0" expanded="true" />
-            <element signature="e#788#962#0" />
-            <element signature="e#984#1112#0" />
+            <element signature="e#262#365#0" />
+            <element signature="e#400#2679#0" />
+            <element signature="e#453#630#0" />
           </folding>
         </state>
       </provider>

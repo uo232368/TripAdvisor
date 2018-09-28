@@ -1,27 +1,6 @@
 # -*- coding: utf-8 -*-
-from ModelClass import ModelClass
-from ModelClass import LossHistory
+from ModelClass import *
 
-import os
-
-import keras
-import pandas as pd
-import numpy as np
-import sklearn.model_selection
-import tensorflow as tf
-import random
-
-from keras import backend as K
-from keras import losses
-from keras.utils import plot_model
-from keras.models import Model
-from keras.layers import Input,Dense,Activation
-from keras.layers.convolutional import Conv2D
-from keras.layers.pooling import MaxPooling2D
-from keras.layers import Concatenate, Dot
-from keras.utils import to_categorical
-from keras.callbacks import ModelCheckpoint
-from keras.backend.tensorflow_backend import set_session
 
 ########################################################################################################################
 
@@ -43,13 +22,6 @@ class ModelV3(ModelClass):
 
         # -------------------------------------------------------------------------------------------------------------------
 
-        #Eliminar info de TF
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-        #Utilizar solo memoria GPU necesaria
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        set_session(tf.Session(config=config))
 
         num_users = self.N_USR
         emb_users = self.CONFIG["emb_size"]
@@ -102,10 +74,12 @@ class ModelV3(ModelClass):
 
         return model
 
-    def gridSearchV1(self, params):
+    def gridSearchV1(self, params,max_epochs = 1000):
+        def fs(val):
+            return(str(val).replace(".",","))
 
         def gsStep(bs):
-            self.MODEL.fit([usr_train, res_train], [bin_train, img_train], epochs=1, batch_size=bs, verbose=0)
+            self.MODEL.fit([usr_train, res_train], [bin_train, img_train], epochs=1, batch_size=bs, verbose=0, shuffle=False)
             loss = self.MODEL.evaluate([usr_dev, res_dev], [bin_dev, img_dev], verbose=0)
             return loss
 
@@ -122,7 +96,6 @@ class ModelV3(ModelClass):
         # ---------------------------------------------------------------------------------------------------------------
 
         combs = []
-        max_epochs = 1000
         last_n_epochs = 10
         dev_hist = []
 
@@ -148,15 +121,15 @@ class ModelV3(ModelClass):
                 ep += 1
 
                 loss = gsStep(bs)
-                dev_hist.append(loss[0])
-                print(ep, lr, bs, em, loss[0],loss[1],loss[2])
+                dev_hist.append(loss[1])
+
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(em)+"\t"+fs(loss[0])+"\t"+fs(loss[1])+"\t"+fs(loss[2]))
 
                 if (len(dev_hist) == last_n_epochs):
                     slope = self.getSlope(dev_hist);
                     dev_hist.pop(0)
 
-                    if (slope > -1e-5):
-                        print("[STOPPED AT "+str(slope)+"]")
+                    if (slope > self.CONFIG['gs_max_slope']):
                         break
 
             print("-" * 40)

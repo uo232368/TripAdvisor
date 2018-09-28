@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import sklearn.model_selection
 import tensorflow as tf
-import random
+import random as rn
 
 from keras import backend as K
 from keras import losses
@@ -20,6 +20,7 @@ from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 from keras.backend.tensorflow_backend import set_session
 from scipy.stats import linregress
+from tensorflow import set_random_seed
 
 ########################################################################################################################
 class bcolors:
@@ -65,13 +66,28 @@ class ModelClass():
 
     def __init__(self,city,option,config,name,seed = 2 ):
 
+
         self.CITY = city
         self.OPTION = option
-        self.PATH = "/mnt/hdd/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"
+        self.PATH = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"
         self.IMG_PATH = self.PATH + "images/"
         self.SEED = seed
         self.CONFIG = config
         self.MODEL_NAME = name
+
+        #Eliminar info de TF
+        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+        #Fijar las semillas de numpy y TF
+        np.random.seed(self.SEED)
+        rn.seed(self.SEED)
+        tf.set_random_seed(self.SEED)
+
+        #Utilizar solo memoria GPU necesaria
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        sess = tf.Session(graph=tf.get_default_graph(), config=config)
+        K.set_session(sess)
 
         self.printB("Obteniendo datos...")
 
@@ -123,6 +139,7 @@ class ModelClass():
             "Eliminado usuarios con menos de " + str(self.CONFIG['min_revs']) + " valoraciones quedan un " + str(
                 (len(RVW) / old_len) * 100) + " % del total de reviews.")
 
+
         # Obtener ID para ONE-HOT de usuarios y restaurantes
         # ---------------------------------------------------------------------------------------------------------------
 
@@ -154,7 +171,6 @@ class ModelClass():
         GRP_RVW_IM = RVW_IM.groupby(["userId", "restaurantId"])
         GRP_RVW_NIM = RVW_NIM.groupby(["userId", "restaurantId"])
 
-        random.seed(self.SEED)
 
         TRAIN = []
         DEV = []
@@ -163,7 +179,7 @@ class ModelClass():
         self.printG("Separando en TRAIN/DEV/TEST valoraciones con imagen...")
 
         for i, g in GRP_RVW_IM:
-            rnd = random.random()
+            rnd = rn.random()
             if (rnd < 0.05):
                 TEST.extend(g.reviewId.values)
             elif (rnd >= 0.05 and rnd < 0.1):
@@ -173,7 +189,7 @@ class ModelClass():
 
         self.printG("Separando en TRAIN/DEV/TEST valoraciones sin imagen...")
         for i, g in GRP_RVW_NIM:
-            rnd = random.random()
+            rnd = rn.random()
             if (rnd < 0.05):
                 TEST.extend(g.reviewId.values)
             elif (rnd >= 0.05 and rnd < 0.1):

@@ -1,29 +1,5 @@
 # -*- coding: utf-8 -*-
-from ModelClass import ModelClass
-from ModelClass import LossHistory
-
-import os
-
-import keras
-import pandas as pd
-import numpy as np
-import sklearn.model_selection
-import tensorflow as tf
-import random
-
-from scipy.stats import linregress
-
-from keras import backend as K
-from keras import losses
-from keras.utils import plot_model
-from keras.models import Model
-from keras.layers import Input,Dense,Activation
-from keras.layers.convolutional import Conv2D
-from keras.layers.pooling import MaxPooling2D
-from keras.layers import Concatenate, Dot
-from keras.utils import to_categorical
-from keras.callbacks import ModelCheckpoint
-from keras.backend.tensorflow_backend import set_session
+from ModelClass import *
 
 ########################################################################################################################
 
@@ -135,7 +111,10 @@ class ModelV2(ModelClass):
 
         self.getF1(bin_pred,y_likes,title="TRAIN", verbose=True)
 
-    def gridSearchV1(self, params):
+    def gridSearchV1(self, params,max_epochs = 1000):
+
+        def fs(val):
+            return(str(val).replace(".",","))
 
         def gsStep(lr, bs):
             K.set_value(self.MODEL.optimizer.lr, lr)
@@ -156,7 +135,6 @@ class ModelV2(ModelClass):
         #---------------------------------------------------------------------------------------------------------------
 
         combs = []
-        max_epochs = 1000
         last_n_epochs = 10
         dev_hist = []
 
@@ -174,15 +152,14 @@ class ModelV2(ModelClass):
                 loss = gsStep(lr,bs)
                 dev_hist.append(loss)
 
-                print(ep,lr,bs,loss)
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(loss))
 
                 if(len(dev_hist)==last_n_epochs):
                     slope = self.getSlope(dev_hist);
                     dev_hist.pop(0)
 
-                    if(slope> -1e-5 ):
+                    if (slope > self.CONFIG['gs_max_slope']):
                         break
-                        self.printW("STOP:"+str(slope))
 
             print("-"*40)
 

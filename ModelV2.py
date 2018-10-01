@@ -71,6 +71,9 @@ class ModelV2(ModelClass):
             self.printW("Cargando pesos de un modelo anterior...")
             model.load_weights(self.MODEL_PATH)
 
+        #Modelo paralelo
+        #model = multi_gpu_model(model, gpus=2)
+
         # model.compile(optimizer=adam, loss=custom_loss_fn, loss_weights=[(1 - c_loss), c_loss])
         model.compile(optimizer=adam, loss=["binary_crossentropy"])
 

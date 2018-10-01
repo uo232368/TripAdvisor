@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from ModelClass import *
 
-
 ########################################################################################################################
 
 class ModelV3(ModelClass):
@@ -21,7 +20,6 @@ class ModelV3(ModelClass):
             return tf.losses.mean_squared_error(y_pred, y_real) / (avgMSE)
 
         # -------------------------------------------------------------------------------------------------------------------
-
 
         num_users = self.N_USR
         emb_users = self.CONFIG["emb_size"]
@@ -133,7 +131,6 @@ class ModelV3(ModelClass):
                         break
 
             print("-" * 40)
-
 
     def train_step1(self, save=True, show_epoch_info=True):
 

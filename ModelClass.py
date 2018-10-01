@@ -10,7 +10,7 @@ import random as rn
 
 from keras import backend as K
 from keras import losses
-from keras.utils import plot_model
+from keras.utils import *
 from keras.models import Model
 from keras.layers import Input,Dense,Activation
 from keras.layers.convolutional import Conv2D
@@ -21,6 +21,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.backend.tensorflow_backend import set_session
 from scipy.stats import linregress
 from tensorflow import set_random_seed
+from tensorflow.core.protobuf import config_pb2
 
 ########################################################################################################################
 class bcolors:
@@ -83,11 +84,19 @@ class ModelClass():
         rn.seed(self.SEED)
         tf.set_random_seed(self.SEED)
 
+
         #Utilizar solo memoria GPU necesaria
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
+
+        #config.intra_op_parallelism_threads = 1
+        #config.inter_op_parallelism_threads = 1
+
         sess = tf.Session(graph=tf.get_default_graph(), config=config)
         K.set_session(sess)
+
+        #Asegurarse de que funciona la semilla
+        self.testSeed()
 
         self.printB("Obteniendo datos...")
 
@@ -263,6 +272,8 @@ class ModelClass():
         MaxMSE = np.apply_along_axis(lambda x: np.max(x), 0, IMG_2)
         MinMSE = np.apply_along_axis(lambda x: np.min(x), 0, IMG_2)
 
+
+
         return (TRAIN_v1, TRAIN_v2, DEV, TEST, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
@@ -270,6 +281,31 @@ class ModelClass():
         exit()
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+    def testSeed(self):
+
+        #Numpy
+        vala = np.random.rand(1)
+        np.random.seed(self.SEED)
+        valb = np.random.rand(1)
+
+        if(vala!=valb):self.printW("Error al fijar la semilla en NUMPY");exit()
+
+        #Random
+        vala = rn.random()
+        rn.seed(self.SEED)
+        valb = rn.random()
+
+        if(vala!=valb):self.printW("Error al fijar la semilla en RANDOM");exit()
+
+        #Tensorflow
+
+        rnd = tf.random_normal((1,1))
+        with tf.Session() as sess:vala = sess.run(rnd)[0]
+        tf.set_random_seed(self.SEED)
+        with tf.Session() as sess2:valb = sess2.run(rnd)[0]
+
+        if(vala[0]!=valb[0]):self.printW("Error al fijar la semilla en TensorFlow");exit()
 
     def getF1(self,pred,real, title = "", verbose=True):
         TP=0

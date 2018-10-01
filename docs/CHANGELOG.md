@@ -3,7 +3,7 @@
 ### 1.1.1 Descripción
 Utilizando solamente aquellas reviews que posean imágen, se entrenaría un modelo con la siguiente arquitectura:
 
-<center>![](v1.svg)</center>
+<center>![](https://raw.githubusercontent.com/uo232368/TripAdvisor/master/docs/v1.svg)</center>
 
 ##### Entrada:
 * Usuario (`one-hot`)
@@ -33,7 +33,7 @@ ___
 ### 1.2.1 Descripción
 Utilizando las valoraciones de aquellos **usuarios con 10 o más**, se entrenaría un modelo con la siguiente arquitectura:
 
-<center>![](v2.svg)</center>
+<center>![](https://raw.githubusercontent.com/uo232368/TripAdvisor/master/docs/v2.svg)</center>
 
 ##### Entrada:
 * Usuario (`one-hot`)

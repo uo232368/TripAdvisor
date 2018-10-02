@@ -11,13 +11,6 @@ class ModelV2(ModelClass):
 
     def getModel(self):
 
-        #Eliminar info de TF
-        os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-        #Utilizar solo memoria GPU necesaria
-        config = tf.ConfigProto()
-        config.gpu_options.allow_growth = True
-        set_session(tf.Session(config=config))
 
         num_users = self.N_USR
         emb_users = self.CONFIG["emb_size"]
@@ -64,8 +57,8 @@ class ModelV2(ModelClass):
 
         model = Model(inputs=[in_user, in_image,in_rest], outputs=[out])
 
-        # decay: float >= 0. Learning rate decay over each update.
         adam = keras.optimizers.Adam(lr=learning_rate, decay=lr_decay)
+        #adam = tf.train.AdamOptimizer(learning_rate = learning_rate)
 
         if (os.path.exists(self.MODEL_PATH)):
             self.printW("Cargando pesos de un modelo anterior...")
@@ -119,10 +112,14 @@ class ModelV2(ModelClass):
         def fs(val):
             return(str(val).replace(".",","))
 
-        def gsStep(lr, bs):
-            K.set_value(self.MODEL.optimizer.lr, lr)
-            self.MODEL.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=bs, verbose=0)
-            loss = self.MODEL.evaluate([usr_dev, img_dev, res_dev], [out_dev],verbose=0)
+        def gsStep(model, bs):
+            tss = time.time()
+
+            model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=bs,verbose=0,shuffle=False)
+            loss = model.evaluate([usr_dev, img_dev, res_dev], [out_dev],verbose=0)
+
+            ##print((time.time()-tss)/60.0)
+
             return loss
 
         #---------------------------------------------------------------------------------------------------------------
@@ -135,6 +132,7 @@ class ModelV2(ModelClass):
         img_dev = np.zeros((len(self.DEV), self.V_IMG))
         res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
         out_dev = self.DEV.like.values
+
         #---------------------------------------------------------------------------------------------------------------
 
         combs = []
@@ -149,10 +147,15 @@ class ModelV2(ModelClass):
             lr = c[0]; bs = c[1]
             ep = 0
 
+            #Reiniciar modelo e historial
+            dev_hist.clear()
+            self.CONFIG['learning_rate'] = lr
+            model = self.getModel()
+
             for e in range(max_epochs):
                 ep +=1
 
-                loss = gsStep(lr,bs)
+                loss = gsStep(model,bs)
                 dev_hist.append(loss)
 
                 print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(loss))
@@ -164,11 +167,11 @@ class ModelV2(ModelClass):
                     if (slope > self.CONFIG['gs_max_slope']):
                         break
 
+            print(model.layers[4].get_weights())
+
             print("-"*40)
 
-            #Reiniciar modelo e historial
-            self.MODEL = self.getModel()
-            dev_hist.clear()
+
 
         return False
 

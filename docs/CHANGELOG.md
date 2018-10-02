@@ -1,4 +1,7 @@
 # 1.-Arquitecturas
+
+En todos los casos se utiliza el optimizador **Adam**.
+
 ## 1.1 Arquitectura V1 (13/09/2018)
 ### 1.1.1 Descripción
 Utilizando solamente aquellas reviews que posean imágen, se entrenaría un modelo con la siguiente arquitectura:
@@ -94,7 +97,7 @@ Esta aquitectura es idéntica a la anterior con la salvedad del modelo a utiliza
  
 # 2.-Experimentación
 
-## 2.1 Grid-Search (fase 1)
+## 2.1 Grid-Search [24/01/2018] (fase 1)
 Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Grid-Search` para cada uno de los modelos.
 * Inicialmente, el `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.
 * Se prueba para ambos modelos unos `learning-rates` salteados (1e-7, 1e-5, 1e-3, 1e-1) con el fin de ver en que rangos funciona mejor el modelo y realizar posteriormente otra ejecución con estos valores.
@@ -112,3 +115,18 @@ En el **modelo v2** se retornan los siguientes resultados:
 |    1.00E-01   | 3.165766139 |     10 |
 
 Estos resultados parecen indicar que es necesaria una nueva ejecución con `learning-rates` menores o en torno a **1e-7**.
+
+## Cambios [02/01/2018]
+Se descarta el Grid-Seach anterior.  
+Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Random-Search` para cada uno de los modelos.
+* Inicialmente, el `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.
+* Se prueba para ambos modelos 4 `learning-rates` en el intervalo `[1e-9,1e-1]`.
+* En cuanto al `emb-size` se probarán 3 valores en el intervalo `[256,1024]` (solo en el modelo v3 dado que el v2 no posee embeddings como tal)
+* Se realizará un **early-stopping** utilizando las **10** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.
+* El máximo de epochs establecido en todas las pruebas es de **500**.
+
+#### Acelerar el Random-Search
+Dada la lentitud del Random-Search se deciden implementar los siguientes cambios:
+
+* Se pasa de un `OverSampling` de proporciones 50/50 a utilizar todos los de clase 1 , todos los de clase cero y finalmente otros tantos de clase 0 como los ya existentes (escogidos de forma aleatoria)
+* Reducir los tamaños de embeddigs a probar y el número máximo de epochs. (Explicado previamente)

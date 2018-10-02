@@ -56,8 +56,8 @@ class ModelV3(ModelClass):
 
         model = Model(inputs=[visible1, visible2], outputs=[dotprod, output_img])
 
-        # decay: float >= 0. Learning rate decay over each update.
-        adam = keras.optimizers.Adam(lr=learning_rate, decay=lr_decay)
+        #adam = keras.optimizers.Adam(lr=learning_rate, decay=lr_decay)
+        adam = keras.optimizers.SGD(lr=learning_rate, decay=lr_decay)
 
         if (os.path.exists(self.MODEL_PATH)):
             self.printW("Cargando pesos de un modelo anterior...")

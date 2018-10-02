@@ -1,27 +1,24 @@
 # -*- coding: utf-8 -*-
-import os
+import os, time
 
-import keras
-import pandas as pd
 import numpy as np
-import sklearn.model_selection
-import tensorflow as tf
+import pandas as pd
+import pickle
+
 import random as rn
 
+import keras
+import tensorflow as tf
 from keras import backend as K
 from keras import losses
 from keras.utils import *
 from keras.models import Model
-from keras.layers import Input,Dense,Activation
-from keras.layers.convolutional import Conv2D
-from keras.layers.pooling import MaxPooling2D
-from keras.layers import Concatenate, Dot
+from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
-from keras.backend.tensorflow_backend import set_session
+
 from scipy.stats import linregress
-from tensorflow import set_random_seed
-from tensorflow.core.protobuf import config_pb2
+
 
 ########################################################################################################################
 class bcolors:
@@ -67,7 +64,6 @@ class ModelClass():
 
     def __init__(self,city,option,config,name,seed = 2 ):
 
-
         self.CITY = city
         self.OPTION = option
         self.PATH = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"
@@ -78,12 +74,12 @@ class ModelClass():
 
         #Eliminar info de TF
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+        os.environ['PYTHONHASHSEED'] = '0'
 
         #Fijar las semillas de numpy y TF
         np.random.seed(self.SEED)
         rn.seed(self.SEED)
         tf.set_random_seed(self.SEED)
-
 
         #Utilizar solo memoria GPU necesaria
         config = tf.ConfigProto()
@@ -94,9 +90,6 @@ class ModelClass():
 
         sess = tf.Session(graph=tf.get_default_graph(), config=config)
         K.set_session(sess)
-
-        #Asegurarse de que funciona la semilla
-        self.testSeed()
 
         self.printB("Obteniendo datos...")
 
@@ -122,6 +115,30 @@ class ModelClass():
         exit()
 
     def getData(self):
+
+        # Mirar si ya existen los datos
+        # ---------------------------------------------------------------------------------------------------------------
+        file_path = self.PATH+"model_data/"
+
+
+        if(os.path.exists(file_path)):
+            self.printW("Cargando datos generados previamente...")
+
+            TRAIN_v1 =  self.getPickle(file_path, "TRAIN_v1")
+            TRAIN_v2 =  self.getPickle(file_path, "TRAIN_v2")
+            DEV =       self.getPickle(file_path, "DEV")
+            TEST =      self.getPickle(file_path, "TEST")
+            REST_TMP =  self.getPickle(file_path, "REST_TMP")
+            USR_TMP =   self.getPickle(file_path, "USR_TMP")
+            IMG =       self.getPickle(file_path, "IMG")
+            MSE =       self.getPickle(file_path, "MSE")
+
+            return(TRAIN_v1,TRAIN_v2,DEV,TEST,REST_TMP,USR_TMP,IMG,MSE)
+
+        else:
+            os.makedirs(file_path)
+
+        # ---------------------------------------------------------------------------------------------------------------
 
         USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
         REST_TMP = pd.DataFrame(columns=["real_id", "id_restaurant"])
@@ -180,7 +197,6 @@ class ModelClass():
         GRP_RVW_IM = RVW_IM.groupby(["userId", "restaurantId"])
         GRP_RVW_NIM = RVW_NIM.groupby(["userId", "restaurantId"])
 
-
         TRAIN = []
         DEV = []
         TEST = []
@@ -225,7 +241,11 @@ class ModelClass():
         TRAIN_ZRO = TRAIN_v1.loc[TRAIN_v1.like == 0]
 
         TRAIN_v1 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
-        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(len(TRAIN_ONE) - len(TRAIN_ZRO), replace=True, random_state=self.SEED)
+
+        #SMPLE_ITEMS = len(TRAIN_ONE) - len(TRAIN_ZRO)
+        SMPLE_ITEMS = len(TRAIN_ZRO)*2
+
+        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
         TRAIN_v1 = TRAIN_v1.append(TRAIN_ZRO_SMPLE, ignore_index=True)
 
         self.printG("Oversampling en TRAIN_V2...")
@@ -234,7 +254,11 @@ class ModelClass():
         TRAIN_ZRO = TRAIN_v2.loc[TRAIN_v2.like == 0]
 
         TRAIN_v2 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
-        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(len(TRAIN_ONE) - len(TRAIN_ZRO), replace=True, random_state=self.SEED)
+
+        SMPLE_ITEMS = len(TRAIN_ONE) - len(TRAIN_ZRO)
+        SMPLE_ITEMS = len(TRAIN_ZRO)*2
+
+        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
         TRAIN_v2 = TRAIN_v2.append(TRAIN_ZRO_SMPLE, ignore_index=True)
 
         # -------------------------------------------------------------------------------------------------------------------
@@ -252,7 +276,7 @@ class ModelClass():
                      'num_images', 'index', 'rating', 'language'])
         TRAIN_v2 = TRAIN_v2.drop(
             columns=['restaurantId', 'userId', 'url', 'text', 'real_id_x', 'real_id_y', 'title', 'date', 'images',
-                     'num_images', 'index', 'rating', 'language', 'review'])
+                     'num_images', 'index', 'rating', 'language', 'review', 'image'])
 
         DEV = DEV.drop(
             columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images',
@@ -272,7 +296,14 @@ class ModelClass():
         MaxMSE = np.apply_along_axis(lambda x: np.max(x), 0, IMG_2)
         MinMSE = np.apply_along_axis(lambda x: np.min(x), 0, IMG_2)
 
-
+        self.toPickle(file_path,"TRAIN_v1",TRAIN_v1)
+        self.toPickle(file_path,"TRAIN_v2",TRAIN_v2)
+        self.toPickle(file_path,"DEV",DEV)
+        self.toPickle(file_path,"TEST",TEST)
+        self.toPickle(file_path,"REST_TMP",len(REST_TMP))
+        self.toPickle(file_path,"USR_TMP",len(USR_TMP))
+        self.toPickle(file_path,"IMG",len(IMG.iloc[0].vector))
+        self.toPickle(file_path,"MSE",[MinMSE, MaxMSE, MeanMSE])
 
         return (TRAIN_v1, TRAIN_v2, DEV, TEST, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
@@ -282,30 +313,14 @@ class ModelClass():
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
-    def testSeed(self):
+    def toPickle(self,path,name,data):
+        with open(path+name, 'wb') as handle:
+            pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        #Numpy
-        vala = np.random.rand(1)
-        np.random.seed(self.SEED)
-        valb = np.random.rand(1)
-
-        if(vala!=valb):self.printW("Error al fijar la semilla en NUMPY");exit()
-
-        #Random
-        vala = rn.random()
-        rn.seed(self.SEED)
-        valb = rn.random()
-
-        if(vala!=valb):self.printW("Error al fijar la semilla en RANDOM");exit()
-
-        #Tensorflow
-
-        rnd = tf.random_normal((1,1))
-        with tf.Session() as sess:vala = sess.run(rnd)[0]
-        tf.set_random_seed(self.SEED)
-        with tf.Session() as sess2:valb = sess2.run(rnd)[0]
-
-        if(vala[0]!=valb[0]):self.printW("Error al fijar la semilla en TensorFlow");exit()
+    def getPickle(self,path,name):
+        with open(path+name, 'rb') as handle:
+            data = pickle.load(handle)
+        return data
 
     def getF1(self,pred,real, title = "", verbose=True):
         TP=0

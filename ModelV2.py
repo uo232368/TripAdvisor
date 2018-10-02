@@ -11,7 +11,6 @@ class ModelV2(ModelClass):
 
     def getModel(self):
 
-
         num_users = self.N_USR
         emb_users = self.CONFIG["emb_size"]
 
@@ -35,7 +34,7 @@ class ModelV2(ModelClass):
         # Model
         # -----------------------------------------------------------------------------------------------------------------------
 
-        first_hidden_layer = 4096
+        first_hidden_layer = 1024
 
         # first input model
         in_user = Input(shape=(num_users,), name="input_user")
@@ -107,20 +106,16 @@ class ModelV2(ModelClass):
 
         self.getF1(bin_pred,y_likes,title="TRAIN", verbose=True)
 
-    def gridSearchV1(self, params,max_epochs = 1000):
+    def gridSearchV1(self, params,max_epochs = 500):
 
         def fs(val):
             return(str(val).replace(".",","))
 
-        def gsStep(model, bs):
+        def gsStep(model):
             tss = time.time()
-
-            model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=bs,verbose=0,shuffle=False)
+            model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
             loss = model.evaluate([usr_dev, img_dev, res_dev], [out_dev],verbose=0)
-
-            ##print((time.time()-tss)/60.0)
-
-            return loss
+            return loss, time.time()-tss
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -136,15 +131,14 @@ class ModelV2(ModelClass):
         #---------------------------------------------------------------------------------------------------------------
 
         combs = []
-        last_n_epochs = 10
+        last_n_epochs = 7
         dev_hist = []
 
         for lr in params['learning_rate']:
-            for bs in params['batch_size']:
-                combs.append([lr,bs])
+            combs.append([lr])
 
         for c in combs:
-            lr = c[0]; bs = c[1]
+            lr = c[0];
             ep = 0
 
             #Reiniciar modelo e historial
@@ -155,11 +149,15 @@ class ModelV2(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                loss = gsStep(model,bs)
+                loss,time_e = gsStep(model)
                 dev_hist.append(loss)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(loss))
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(self.CONFIG['batch_size'])+"\t"+fs(loss)+"\t"+fs(time_e))
 
+                #Si no se mejora nada de nada en una epoch, fuera.
+                if(len(dev_hist)>1 and np.std(dev_hist)==0):break
+
+                #Si en las n epochs anteriores la pendiente supera un minimo, parar
                 if(len(dev_hist)==last_n_epochs):
                     slope = self.getSlope(dev_hist);
                     dev_hist.pop(0)
@@ -167,13 +165,8 @@ class ModelV2(ModelClass):
                     if (slope > self.CONFIG['gs_max_slope']):
                         break
 
-            print(model.layers[4].get_weights())
+            print("-"*50)
 
-            print("-"*40)
-
-
-
-        return False
 
     def dev(self):
 

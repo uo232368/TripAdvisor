@@ -100,7 +100,7 @@ Esta aquitectura es idéntica a la anterior con la salvedad del modelo a utiliza
 ## 2.1 Grid-Search [24/01/2018] (fase 1)
 Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Grid-Search` para cada uno de los modelos.
 * Inicialmente, el `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.
-* Se prueba para ambos modelos unos `learning-rates` salteados (1e-7, 1e-5, 1e-3, 1e-1) con el fin de ver en que rangos funciona mejor el modelo y realizar posteriormente otra ejecución con estos valores.
+* Se prueba para ambos modelos unos `learning-rates` salteados  con el fin de ver en que rangos funciona mejor el modelo y realizar posteriormente otra ejecución con estos valores.
 * En cuanto al `emb-size` se probarán los valores: 512,1024,2048 (solo en el modelo v3 dado que el v2 no posee embeddings como tal)
 * Se realizará un **early-stopping** utilizando las **10** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.
 * El máximo de epochs establecido en todas las pruebas es de **5000**.
@@ -119,14 +119,17 @@ Estos resultados parecen indicar que es necesaria una nueva ejecución con `lear
 ## Cambios [02/01/2018]
 Se descarta el Grid-Seach anterior.  
 Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Random-Search` para cada uno de los modelos.
-* Inicialmente, el `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.
-* Se prueba para ambos modelos 4 `learning-rates` en el intervalo `[1e-9,1e-1]`.
-* En cuanto al `emb-size` se probarán 3 valores en el intervalo `[256,1024]` (solo en el modelo v3 dado que el v2 no posee embeddings como tal)
-* Se realizará un **early-stopping** utilizando las **10** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.
-* El máximo de epochs establecido en todas las pruebas es de **500**.
+* Se utilizarán para ambos modelos 5 `learning-rates`: (1e-9, 1e-7, 1e-5, 1e-3, 1e-1).
+* En cuanto al `emb-size` se probarán 4 valores en el intervalo `[128,256,512,1024]` (solo en el modelo v3 dado que el v2 no posee embeddings como tal)
 
-#### Acelerar el Random-Search
-Dada la lentitud del Random-Search se deciden implementar los siguientes cambios:
+El `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.  
+
+El máximo de epochs establecido en todas las pruebas es de **500**.  
+
+#### Acelerar la búsqueda de hiperparámetros
+Dada la baja velocidad, se deciden implementar los siguientes cambios:
 
 * Se pasa de un `OverSampling` de proporciones 50/50 a utilizar todos los de clase 1 , todos los de clase cero y finalmente otros tantos de clase 0 como los ya existentes (escogidos de forma aleatoria)
-* Reducir los tamaños de embeddigs a probar y el número máximo de epochs. (Explicado previamente)
+* Reducir los tamaños de las capas del modelo 2 (1024/512/256/128/64)
+* Se realizará un **early-stopping** utilizando las **7** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.  
+* Si la loss entre las 2 primeras epochs es exactamente igual, detener.

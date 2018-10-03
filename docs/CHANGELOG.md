@@ -136,7 +136,7 @@ Dada la baja velocidad, se deciden implementar los siguientes cambios:
 
 ## Cambios [03/01/2018]
 * El early stopping se realizará esperando 5 epochs y utilizando las 5 siguientes. Como mínimo se realizarán 10 epochs a no ser que no exista mejora alguna.
-* La métrica a utilizar durante la fase de búsqueda de hiperparámetros será el `Area Under ROC` .
+* La métrica a utilizar durante la fase de búsqueda de hiperparámetros será el `Area Under ROC` del conjunto de validación.
 * En el modelo V2 se realizará un `grid-search` variando:
     * Learning-rate: `(1e-1, 1e-3, 1e-5, 1e-7, 1e-9)`
 * En el modelo V3 se realizará nuevamente un `grid-search` variando:

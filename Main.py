@@ -22,7 +22,7 @@ model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
-gpu = 0 if args.gpu == None else args.gpu
+gpu = 1 if args.gpu == None else args.gpu
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
@@ -49,8 +49,8 @@ if (model == 2):
 if (model == 3):
 
     params = {
-        "learning_rate": [1e-01, 1e-03, 1e-05],
-        "emb_size": [256,512]
+        "learning_rate": [1e-01, 1e-03, 1e-05, 1e-07,1e-09],
+        "emb_size": [128,256,512,1024]
     }
 
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)

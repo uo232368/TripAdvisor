@@ -21,8 +21,6 @@ class ModelV2(ModelClass):
 
         in_size = num_users+img_size+num_restaurants
 
-        #print(num_users,img_size,num_restaurants)
-
         bin_out = 1
 
         learning_rate = self.CONFIG["learning_rate"]
@@ -68,6 +66,7 @@ class ModelV2(ModelClass):
 
         # model.compile(optimizer=adam, loss=custom_loss_fn, loss_weights=[(1 - c_loss), c_loss])
         model.compile(optimizer=adam, loss=["binary_crossentropy"])
+        #model.compile(optimizer=adam, loss=[f1_loss])
 
         # summarize layers
         #print(model.summary())
@@ -114,8 +113,11 @@ class ModelV2(ModelClass):
         def gsStep(model):
             tss = time.time()
             model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
-            loss = model.evaluate([usr_dev, img_dev, res_dev], [out_dev],verbose=0)
-            return loss, time.time()-tss
+
+            pred_dev = model.predict([usr_dev, img_dev, res_dev],verbose=0)
+            auc = self.getAUC(pred_dev,out_dev)
+
+            return auc, time.time()-tss
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -130,8 +132,10 @@ class ModelV2(ModelClass):
 
         #---------------------------------------------------------------------------------------------------------------
 
+        start_n_epochs = 5
+        last_n_epochs = 5
+
         combs = []
-        last_n_epochs = 7
         dev_hist = []
 
         for lr in params['learning_rate']:
@@ -149,24 +153,23 @@ class ModelV2(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                loss,time_e = gsStep(model)
-                dev_hist.append(loss)
+                auc,time_e = gsStep(model)
+                dev_hist.append(auc)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(self.CONFIG['batch_size'])+"\t"+fs(loss)+"\t"+fs(time_e))
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(auc))
 
                 #Si no se mejora nada de nada en una epoch, fuera.
                 if(len(dev_hist)>1 and np.std(dev_hist)==0):break
 
                 #Si en las n epochs anteriores la pendiente supera un minimo, parar
-                if(len(dev_hist)==last_n_epochs):
-                    slope = self.getSlope(dev_hist);
+                if(len(dev_hist)==start_n_epochs+last_n_epochs):
+                    slope = self.getSlope(dev_hist[-last_n_epochs:]);
                     dev_hist.pop(0)
 
-                    if (slope > self.CONFIG['gs_max_slope']):
+                    if (slope < self.CONFIG['gs_max_slope']):
                         break
 
             print("-"*50)
-
 
     def dev(self):
 

@@ -133,3 +133,12 @@ Dada la baja velocidad, se deciden implementar los siguientes cambios:
 * Reducir los tamaños de las capas del modelo 2 (1024/512/256/128/64)
 * Se realizará un **early-stopping** utilizando las **7** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.  
 * Si la loss entre las 2 primeras epochs es exactamente igual, detener.
+
+## Cambios [03/01/2018]
+* El early stopping se realizará esperando 5 epochs y utilizando las 5 siguientes. Como mínimo se realizarán 10 epochs a no ser que no exista mejora alguna.
+* La métrica a utilizar durante la fase de búsqueda de hiperparámetros será la `Area Under ROC` .
+* En el modelo V2 se realizará mediante un `grid-search` variando:
+    * Learning-rate: `(1e-1, 1e-3, 1e-5, 1e-7, 1e-9)`
+* En el modelo V3 se realizará nuevamente un `grid-search` variando:
+    * Learning-rate: `(1e-1, 1e-3, 1e-5)`
+    * Embedding: `(256,512)`

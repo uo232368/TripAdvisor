@@ -18,6 +18,7 @@ from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 
 from scipy.stats import linregress
+from sklearn import metrics
 
 
 ########################################################################################################################
@@ -323,6 +324,7 @@ class ModelClass():
         return data
 
     def getF1(self,pred,real, title = "", verbose=True):
+
         TP=0
         FN=0
         TN=0
@@ -337,9 +339,9 @@ class ModelClass():
             if(p==0 and r==1):FN+=1
             if(p==0 and r==0):TN+=1
 
-        pre = TP/(TP+FP)
-        rec = TP/(TP+FN)
-        f1 = 2*((pre*rec)/(pre+rec))
+        pre = TP/(TP+FP) if (TP+FP>0) else 0
+        rec = TP/(TP+FN) if (TP+FN>0) else 0
+        f1 = 2*((pre*rec)/(pre+rec)) if (pre+rec>0) else 0
 
         if(verbose):
             line_lng = 45
@@ -357,6 +359,10 @@ class ModelClass():
             self.printB("‒"*line_lng)
 
         return(TP,FP,FN,TN,pre,rec,f1)
+
+    def getAUC(self,pred,real):
+        auc = metrics.roc_auc_score(np.array(real),np.array(pred[:,0]))
+        return auc
 
     def getSlope(self,data):
             r = linregress(range(len(data)), data)

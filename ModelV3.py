@@ -71,7 +71,7 @@ class ModelV3(ModelClass):
 
         return model
 
-    def randomSearchV1(self, params,max_epochs = 500):
+    def gridSearchV1(self, params,max_epochs = 500):
 
         def fs(val):
             return(str(val).replace(".",","))
@@ -79,8 +79,11 @@ class ModelV3(ModelClass):
         def gsStep(model):
             tss = time.time()
             model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
-            loss = model.evaluate([usr_dev, res_dev], [out_dev, img_dev],verbose=0)
-            return loss, time.time()-tss
+
+            pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
+            auc = self.getAUC(pred_dev,out_dev)
+
+            return auc, time.time()-tss
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -96,16 +99,18 @@ class ModelV3(ModelClass):
         # Generar combinaciones y seleccionar aleatoriamente X
         #---------------------------------------------------------------------------------------------------------------
 
+        start_n_epochs = 5
+        last_n_epochs = 5
+
         combs = []
-        last_n_epochs = 7
         dev_hist = []
 
         for lr in params['learning_rate']:
             for emb in params['emb_size']:
                 combs.append([lr,emb])
 
-        combs = rn.sample(combs,params["tests"])
-        combs.sort(reverse=True)
+        #combs = rn.sample(combs,params["tests"])
+        #combs.sort(reverse=True)
 
         #---------------------------------------------------------------------------------------------------------------
 
@@ -125,17 +130,17 @@ class ModelV3(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                loss,time_e = gsStep(model)
-                dev_hist.append(loss[1])
+                auc,time_e = gsStep(model)
+                dev_hist.append(auc)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(self.CONFIG['batch_size'])+"\t"+fs(loss[1])+"\t"+fs(time_e))
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(auc))
 
                 #Si no se mejora nada de nada en una epoch, fuera.
                 if(len(dev_hist)>1 and np.std(dev_hist)==0):break
 
                 #Si en las n epochs anteriores la pendiente supera un minimo, parar
-                if(len(dev_hist)==last_n_epochs):
-                    slope = self.getSlope(dev_hist);
+                if(len(dev_hist)==start_n_epochs+last_n_epochs):
+                    slope = self.getSlope(dev_hist[-last_n_epochs:]);
                     dev_hist.pop(0)
 
                     if (slope > self.CONFIG['gs_max_slope']):
@@ -143,7 +148,6 @@ class ModelV3(ModelClass):
 
             print("-"*50)
             del model
-
 
     def train_step1(self, save=True, show_epoch_info=True):
 

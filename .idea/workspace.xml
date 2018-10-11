@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
+    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="Cambios del 11/10/2018">
+      <change beforePath="$PROJECT_DIR$/docs/11_10_2018.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/11_10_2018.xlsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -170,11 +169,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ModelClass.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="527">
-              <caret line="355" column="4" lean-forward="true" selection-start-line="355" selection-start-column="4" selection-end-line="355" selection-end-column="4" />
+            <state relative-caret-position="221">
+              <caret line="323" column="3" lean-forward="true" selection-start-line="323" selection-start-column="3" selection-end-line="323" selection-end-column="3" />
               <folding>
                 <element signature="e#13298#13407#0" />
                 <element signature="e#13452#13548#0" />
@@ -188,18 +187,6 @@
                 <element signature="e#14890#14950#0" />
                 <element signature="e#14999#15166#0" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="308">
-                <caret line="200" column="32" lean-forward="true" selection-start-line="200" selection-start-column="32" selection-end-line="200" selection-end-column="32" />
-              </first_editor>
-              <second_editor />
             </state>
           </provider>
         </entry>
@@ -334,6 +321,11 @@
             <path>
               <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
               <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -608,7 +600,14 @@
       <option name="project" value="LOCAL" />
       <updated>1539259375704</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Cambios del 11/10/2018">
+      <created>1539261993007</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1539261993007</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TodoView">
@@ -622,7 +621,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1920" height="1017" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info id="Structure" order="0" sideWeight="0.504717" side_tool="true" weight="0.11005793" />
       <window_info id="Favorites" order="1" side_tool="true" />
@@ -926,26 +924,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelClass.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="527">
-          <caret line="355" column="4" lean-forward="true" selection-start-line="355" selection-start-column="4" selection-end-line="355" selection-end-column="4" />
-          <folding>
-            <element signature="e#13298#13407#0" />
-            <element signature="e#13452#13548#0" />
-            <element signature="e#13625#13815#0" />
-            <element signature="e#13857#13939#0" />
-            <element signature="e#13994#14183#0" />
-            <element signature="e#14207#14370#0" />
-            <element signature="e#14442#14647#0" />
-            <element signature="e#14690#14755#0" />
-            <element signature="e#14792#14853#0" />
-            <element signature="e#14890#14950#0" />
-            <element signature="e#14999#15166#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/gridsearch.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="296">
@@ -960,6 +938,26 @@
             <caret line="200" column="32" lean-forward="true" selection-start-line="200" selection-start-column="32" selection-end-line="200" selection-end-column="32" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="323" column="3" lean-forward="true" selection-start-line="323" selection-start-column="3" selection-end-line="323" selection-end-column="3" />
+          <folding>
+            <element signature="e#13298#13407#0" />
+            <element signature="e#13452#13548#0" />
+            <element signature="e#13625#13815#0" />
+            <element signature="e#13857#13939#0" />
+            <element signature="e#13994#14183#0" />
+            <element signature="e#14207#14370#0" />
+            <element signature="e#14442#14647#0" />
+            <element signature="e#14690#14755#0" />
+            <element signature="e#14792#14853#0" />
+            <element signature="e#14890#14950#0" />
+            <element signature="e#14999#15166#0" />
+          </folding>
         </state>
       </provider>
     </entry>

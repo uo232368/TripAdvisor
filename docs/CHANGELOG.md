@@ -191,13 +191,13 @@ Se realizará un nuevo Grid-Search utilizando los siguientes parámetros:
 
 ### Modelo 2
 
-* **LR**: [1e-1, 1e-3, 1e-5, 1e-7, 1e-9]
+* **LR**: [1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9]
 * **DPOUT**: No
 * **OVERSAMPLING**: Duplicar ejemplos de la clase 0. 
 
 ### Modelo 3
 
-* **LR**:  [1e-1, 1e-3, 1e-5, 1e-7, 1e-9]
+* **LR**:  [1e-3, 1e-5, 1e-7, 1e-9]
 * **EMB**: [128, 256, 512, 1024]
 * **DPOUT**: No
 * **OVERSAMPLING**: Duplicar ejemplos de la clase 0. 

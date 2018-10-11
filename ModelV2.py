@@ -12,12 +12,8 @@ class ModelV2(ModelClass):
     def getModel(self):
 
         num_users = self.N_USR
-        emb_users = self.CONFIG["emb_size"]
-
         img_size = self.V_IMG
-
         num_restaurants = self.N_RST
-        emb_restaurants = self.CONFIG["emb_size"]
 
         in_size = num_users+img_size+num_restaurants
 
@@ -46,11 +42,21 @@ class ModelV2(ModelClass):
         # merge input models
         concat = Concatenate()([in_user, in_image,in_rest])
         d1 = Dense(first_hidden_layer,activation='relu')(concat)
-        d2 = Dense(first_hidden_layer//2,activation='relu')(d1)
-        d3 = Dense(first_hidden_layer//4,activation='relu')(d2)
-        d4 = Dense(first_hidden_layer//8,activation='relu')(d3)
-        d5 = Dense(first_hidden_layer//16,activation='relu')(d4)
-        out = Dense(1,activation='sigmoid', name="out_layer")(d5)
+        d1_do = Dropout(self.CONFIG['dropout'])(d1)
+
+        d2 = Dense(first_hidden_layer//2,activation='relu')(d1_do)
+        d2_do = Dropout(self.CONFIG['dropout'])(d2)
+
+        d3 = Dense(first_hidden_layer//4,activation='relu')(d2_do)
+        d3_do = Dropout(self.CONFIG['dropout'])(d3)
+
+        d4 = Dense(first_hidden_layer//8,activation='relu')(d3_do)
+        d4_do = Dropout(self.CONFIG['dropout'])(d4)
+
+        d5 = Dense(first_hidden_layer//16,activation='relu')(d4_do)
+        d5_do = Dropout(self.CONFIG['dropout'])(d5)
+
+        out = Dense(1,activation='sigmoid', name="out_layer")(d5_do)
 
         model = Model(inputs=[in_user, in_image,in_rest], outputs=[out])
 
@@ -70,7 +76,7 @@ class ModelV2(ModelClass):
 
         # summarize layers
         #print(model.summary())
-        plot_model(model, to_file=self.MODEL_NAME+'_net.png')
+        #plot_model(model, to_file=self.MODEL_NAME+'_net.png')
 
         return model
 
@@ -103,7 +109,6 @@ class ModelV2(ModelClass):
 
         bin_pred = self.MODEL.predict([oh_users, y_image, oh_rests], verbose=0)
 
-        self.getF1(bin_pred,y_likes,title="TRAIN", verbose=True)
 
     def gridSearchV1(self, params,max_epochs = 500):
 
@@ -114,10 +119,18 @@ class ModelV2(ModelClass):
             tss = time.time()
             model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
 
-            pred_dev = model.predict([usr_dev, img_dev, res_dev],verbose=0)
-            auc = self.getAUC(pred_dev,out_dev)
+            pred_train = model.predict([usr_train, img_train, res_train],verbose=0)
+            train_auc = self.getAUC(pred_train,out_train)
+            train_bin_auc = self.getBIN_AUC(pred_train,out_train)
 
-            return auc, time.time()-tss
+
+            pred_dev = model.predict([usr_dev, img_dev, res_dev],verbose=0)
+            dev_auc = self.getAUC(pred_dev,out_dev)
+            dev_bin_auc = self.getBIN_AUC(pred_dev,out_dev)
+
+            TP, FP, FN, TN= self.getConfMatrix(pred_dev, out_dev, verbose=False)
+
+            return train_auc,dev_auc,train_bin_auc,dev_bin_auc,time.time()-tss,TP, FP, FN, TN
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -153,10 +166,10 @@ class ModelV2(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                auc,time_e = gsStep(model)
-                dev_hist.append(auc)
+                train_auc, dev_auc, train_bin_auc, dev_bin_auc, time_e, TP, FP, FN, TN = gsStep(model)
+                dev_hist.append(dev_auc)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(auc))
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(train_auc)+"\t"+fs(dev_auc)+"\t"+fs(train_bin_auc)+"\t"+fs(dev_bin_auc)+"\t"+fs(TP)+"\t"+fs(FP)+"\t"+fs(FN)+"\t"+fs(TN))
 
                 #Si no se mejora nada de nada en una epoch, fuera.
                 if(len(dev_hist)>1 and np.std(dev_hist)==0):break
@@ -183,7 +196,7 @@ class ModelV2(ModelClass):
 
         bin_pred = self.MODEL.predict([oh_users,y_image, oh_rests], verbose=0)
 
-        self.getF1(bin_pred, y_likes,title="DEV")
+        self.getConfMatrix(bin_pred, y_likes, title="DEV")
 
 
 

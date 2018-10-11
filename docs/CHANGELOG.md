@@ -142,3 +142,41 @@ Dada la baja velocidad, se deciden implementar los siguientes cambios:
 * En el modelo V3 se realizará nuevamente un `grid-search` variando:
     * Learning-rate: `(1e-1, 1e-3, 1e-5)`
     * Embedding: `(256,512)`
+
+### Resultados
+#### Modelo v1
+|    LR    | AUC-ROC | Epochs |
+|:--------:|:-------:|:------:|
+| 1,00E-09 |  0,4976 |     33 |
+| 1,00E-07 |  0,6992 |    404 |
+| 1,00E-06 |  0,7092 |    126 |
+| 1,00E-05 |  0,6463 |     10 |
+| 1,00E-03 |  0,5000 |      2 |
+| 1,00E-01 |  0,5000 |      2 |
+
+#### Modelo v2
+
+|          |    EMB   |        |         |        |         |        |          |        |
+|:--------:|:--------:|:------:|---------|--------|---------|--------|----------|--------|
+|          |      **128** |        | **256**     |        | **512**     |        | **1024**     |        |
+|    **LR**    |  **AUC-ROC** | **EPOCHS** | **AUC-ROC** | **EPOCHS** | **AUC-ROC** | **EPOCHS** | **AUC-ROC**  | **EPOCHS** |
+| 1,00E-07 | 0,542115 |    500 | 0,4671  | 32     | 0,6023  | 500    | 0,615969 | 500    |
+| 1,00E-05 | 0,660177 |     24 | 0,6691  | 16     | 0,6632  | 15     | 0,659717 | 13     |
+| 1,00E-03 | 0,713721 |     24 | 0,6907  | 21     | 0,6872  | 17     | 0,690673 | 16     |
+| 1,00E-01 |      0,5 |      2 | 0,5000  | 2      | 0,5000  | 2      | 0,5      | 2      |
+
+
+## Cambios [04/01/2018]
+Analizando los resultados y probando a realizar entrenamientos con parámetros concretos se ve que existe un alto sobreajuste en TRAIN.
+Para evitar esto y mejorar los resutados en DEV, se deciden los siguientes cambios:
+
+* Añadir `DropOut` en las 5 capas intermedias del modelo v2 y en los embeddings previa realización del producto escalar en el modelo v3.
+* Cambio del tamaño del batch de 512 a 128 con el fin de reducir el número de epochs y no alcanzar el máximo establecido (500)
+* Gridsearch con mejores valores y dropout de 0.5.
+* Probar con oversampling con y sin dropout y sin oversampling con y sin dropout
+* Asegurarse del funcionamiento del dropout en el modelo v3
+
+## Cambios [10/01/2018]
+
+Se añade el cálculo de la métrica AUC (en DEV y TRAIN) utilizando las probabilidades binarizadas de antemano para evitar resutados "muy optimistas" y cambios de AUC ante la misma matriz de confusión.
+

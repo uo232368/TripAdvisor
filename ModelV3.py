@@ -42,10 +42,12 @@ class ModelV3(ModelClass):
         # first input model
         visible1 = Input(shape=(num_users,), name="input_user")
         d1 = Dense(emb_users, name="emb_user")(visible1)
+        d1 = Dropout(self.CONFIG['dropout'])(d1)
 
         # second input model
         visible2 = Input(shape=(num_restaurants,), name="input_restaurant")
         d2 = Dense(emb_restaurants, name="emb_restaurant")(visible2)
+        d2 = Dropout(self.CONFIG['dropout'])(d2)
 
         # merge input models
         concat = Concatenate()([d1, d2])
@@ -67,7 +69,7 @@ class ModelV3(ModelClass):
 
         # summarize layers
         #print(model.summary())
-        plot_model(model, to_file=self.MODEL_NAME+'_net.png')
+        #plot_model(model, to_file=self.MODEL_NAME+'_net.png')
 
         return model
 
@@ -80,10 +82,17 @@ class ModelV3(ModelClass):
             tss = time.time()
             model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
 
-            pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
-            auc = self.getAUC(pred_dev,out_dev)
+            pred_train , _ = model.predict([usr_train, res_train],verbose=0)
+            train_auc = self.getAUC(pred_train,out_train)
+            train_bin_auc = self.getBIN_AUC(pred_train,out_train)
 
-            return auc, time.time()-tss
+            pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
+            dev_auc = self.getAUC(pred_dev,out_dev)
+            dev_bin_auc = self.getBIN_AUC(pred_dev,out_dev)
+
+            TP, FP, FN, TN = self.getConfMatrix(pred_dev, out_dev, verbose=False)
+
+            return train_auc,dev_auc,train_bin_auc,dev_bin_auc,time.time()-tss,TP, FP, FN, TN
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -130,10 +139,10 @@ class ModelV3(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                auc,time_e = gsStep(model)
-                dev_hist.append(auc)
+                train_auc, dev_auc,train_bin_auc, dev_bin_auc,time_e, TP, FP, FN, TN  = gsStep(model)
+                dev_hist.append(dev_auc)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(auc))
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(train_auc)+"\t"+fs(dev_auc)+"\t"+fs(train_bin_auc)+"\t"+fs(dev_bin_auc)+"\t"+fs(TP)+"\t"+fs(FP)+"\t"+fs(FN)+"\t"+fs(TN))
 
                 #Si no se mejora nada de nada en una epoch, fuera.
                 if(len(dev_hist)>1 and np.std(dev_hist)==0):break
@@ -143,8 +152,70 @@ class ModelV3(ModelClass):
                     slope = self.getSlope(dev_hist[-last_n_epochs:]);
                     dev_hist.pop(0)
 
-                    if (slope > self.CONFIG['gs_max_slope']):
+                    if (slope < self.CONFIG['gs_max_slope']):
                         break
+
+            print("-"*50)
+            del model
+
+    def batchTest(self,params,max_epochs=10):
+
+        def fs(val):
+            return(str(val).replace(".",","))
+
+        def gsStep(model,bs):
+            tss = time.time()
+            model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=bs,verbose=0,shuffle=False)
+
+            pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
+            auc = self.getAUC(pred_dev,out_dev)
+
+            return auc, time.time()-tss
+
+        #---------------------------------------------------------------------------------------------------------------
+        usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
+        img_train = np.zeros((len(self.TRAIN_V1), self.V_IMG))
+        res_train = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
+        out_train = self.TRAIN_V1.like.values
+        #---------------------------------------------------------------------------------------------------------------
+        usr_dev = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
+        img_dev = np.zeros((len(self.DEV), self.V_IMG))
+        res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
+        out_dev = self.DEV.like.values
+
+        # Generar combinaciones y seleccionar aleatoriamente X
+        #---------------------------------------------------------------------------------------------------------------
+
+        combs = []
+
+        for lr in params['learning_rate']:
+            for emb in params['emb_size']:
+                for bs in params['batch']:
+                    combs.append([lr,emb,bs])
+
+        #---------------------------------------------------------------------------------------------------------------
+
+        del self.MODEL
+
+        for c in combs:
+            lr = c[0]
+            emb = c[1]
+            bs = c[2]
+
+            ep = 0
+
+            #Reiniciar modelo e historial
+            self.CONFIG['learning_rate'] = lr
+            self.CONFIG['emb_size'] = emb
+            model = self.getModel()
+
+            for e in range(max_epochs):
+                ep +=1
+
+                auc,time_e = gsStep(model,bs)
+
+                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(emb)+"\t"+fs(auc)+"\t"+fs(time_e))
+
 
             print("-"*50)
             del model
@@ -175,8 +246,9 @@ class ModelV3(ModelClass):
 
         bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-
-        self.getF1(bin_pred,y_likes,title="TRAIN")
+        self.getConfMatrix(bin_pred, y_likes)
+        auc = self.getAUC(bin_pred,y_likes)
+        print("TRAIN AUC-ROC: "+str(auc))
 
     def dev(self):
 
@@ -189,7 +261,7 @@ class ModelV3(ModelClass):
 
         bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-        self.getF1(bin_pred, y_likes,title="DEV")
+        self.getConfMatrix(bin_pred, y_likes, title="DEV")
 
     def test(self):
 
@@ -202,4 +274,4 @@ class ModelV3(ModelClass):
 
         bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-        self.getF1(bin_pred, y_likes,title="TEST")
+        self.getConfMatrix(bin_pred, y_likes, title="TEST")

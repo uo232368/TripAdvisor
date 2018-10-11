@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, time
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -13,7 +14,7 @@ from keras import backend as K
 from keras import losses
 from keras.utils import *
 from keras.models import Model
-from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D
+from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 
@@ -76,6 +77,7 @@ class ModelClass():
         #Eliminar info de TF
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         os.environ['PYTHONHASHSEED'] = '0'
+        warnings.filterwarnings('always')
 
         #Fijar las semillas de numpy y TF
         np.random.seed(self.SEED)
@@ -119,8 +121,7 @@ class ModelClass():
 
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
-        file_path = self.PATH+"model_data/"
-
+        file_path = self.PATH+"model_data_"+str(self.CONFIG['oversampling']).lower()+"/"
 
         if(os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
@@ -133,6 +134,11 @@ class ModelClass():
             USR_TMP =   self.getPickle(file_path, "USR_TMP")
             IMG =       self.getPickle(file_path, "IMG")
             MSE =       self.getPickle(file_path, "MSE")
+
+            self.getCardinality(TRAIN_v1.like, title="TRAIN_v1" ,verbose=True)
+            self.getCardinality(TRAIN_v2.like, title="TRAIN_v2" ,verbose=True)
+            self.getCardinality(DEV.like, title="DEV" ,verbose=True)
+            self.getCardinality(TEST.like, title="TEST" ,verbose=True)
 
             return(TRAIN_v1,TRAIN_v2,DEV,TEST,REST_TMP,USR_TMP,IMG,MSE)
 
@@ -236,31 +242,42 @@ class ModelClass():
         # -------------------------------------------------------------------------------------------------------------------
         # OVERSAMPLING (SOLO EN TRAIN)
 
-        self.printG("Oversampling en TRAIN_V1...")
+        if(self.CONFIG['oversampling']!='none'):
 
-        TRAIN_ONE = TRAIN_v1.loc[TRAIN_v1.like == 1]
-        TRAIN_ZRO = TRAIN_v1.loc[TRAIN_v1.like == 0]
+            self.printG("Oversampling en TRAIN_V1...")
 
-        TRAIN_v1 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
+            TRAIN_ONE = TRAIN_v1.loc[TRAIN_v1.like == 1]
+            TRAIN_ZRO = TRAIN_v1.loc[TRAIN_v1.like == 0]
 
-        #SMPLE_ITEMS = len(TRAIN_ONE) - len(TRAIN_ZRO)
-        SMPLE_ITEMS = len(TRAIN_ZRO)*2
+            self.printG("\tZeros:"+str(len(TRAIN_ZRO))+"\tOnes:"+str(len(TRAIN_ONE)))
 
-        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
-        TRAIN_v1 = TRAIN_v1.append(TRAIN_ZRO_SMPLE, ignore_index=True)
+            TRAIN_v1 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
 
-        self.printG("Oversampling en TRAIN_V2...")
+            if(self.CONFIG['oversampling']=="auto"): SMPLE_ITEMS = len(TRAIN_ONE)-len(TRAIN_ZRO)
+            else: SMPLE_ITEMS = len(TRAIN_ZRO)*(int(self.CONFIG['oversampling'])-1)
 
-        TRAIN_ONE = TRAIN_v2.loc[TRAIN_v2.like == 1]
-        TRAIN_ZRO = TRAIN_v2.loc[TRAIN_v2.like == 0]
+            TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
 
-        TRAIN_v2 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
+            TRAIN_v1 = TRAIN_v1.append(TRAIN_ZRO_SMPLE, ignore_index=True)
 
-        SMPLE_ITEMS = len(TRAIN_ONE) - len(TRAIN_ZRO)
-        SMPLE_ITEMS = len(TRAIN_ZRO)*2
+            self.printG("\tZeros:"+str(len(TRAIN_v1)-sum(TRAIN_v1.like))+"\tOnes:"+str(sum(TRAIN_v1.like)))
 
-        TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
-        TRAIN_v2 = TRAIN_v2.append(TRAIN_ZRO_SMPLE, ignore_index=True)
+            self.printG("Oversampling en TRAIN_V2...")
+
+            TRAIN_ONE = TRAIN_v2.loc[TRAIN_v2.like == 1]
+            TRAIN_ZRO = TRAIN_v2.loc[TRAIN_v2.like == 0]
+
+            self.printG("\tZeros:"+str(len(TRAIN_ZRO))+"\tOnes:"+str(len(TRAIN_ONE)))
+
+            TRAIN_v2 = TRAIN_ONE.append(TRAIN_ZRO, ignore_index=True)
+
+            if(self.CONFIG['oversampling']=="auto"): SMPLE_ITEMS = len(TRAIN_ONE)-len(TRAIN_ZRO)
+            else: SMPLE_ITEMS = len(TRAIN_ZRO)*(int(self.CONFIG['oversampling'])-1)
+
+            TRAIN_ZRO_SMPLE = TRAIN_ZRO.sample(SMPLE_ITEMS, replace=True, random_state=self.SEED)
+            TRAIN_v2 = TRAIN_v2.append(TRAIN_ZRO_SMPLE, ignore_index=True)
+
+            self.printG("\tZeros:"+str(len(TRAIN_v2)-sum(TRAIN_v2.like))+"\tOnes:"+str(sum(TRAIN_v2.like)))
 
         # -------------------------------------------------------------------------------------------------------------------
         # Añadir vectores de imágenes
@@ -323,46 +340,35 @@ class ModelClass():
             data = pickle.load(handle)
         return data
 
-    def getF1(self,pred,real, title = "", verbose=True):
+    def getConfMatrix(self, pred, real, title ="", verbose=True):
 
-        TP=0
-        FN=0
-        TN=0
-        FP=0
+        f = np.vectorize(lambda x: 1 if(x<.5) else 0)
+        pred_tmp = f(np.array(pred[:,0]))
 
-        for i in range(len(pred)):
-            p = 1 if  pred[i][0] > .5  else 0
-            r = real[i]
+        TN, FP, FN, TP = metrics.confusion_matrix(real,pred_tmp).ravel()
 
-            if(p==1 and r==1):TP+=1
-            if(p==1 and r==0):FP+=1
-            if(p==0 and r==1):FN+=1
-            if(p==0 and r==0):TN+=1
-
-        pre = TP/(TP+FP) if (TP+FP>0) else 0
-        rec = TP/(TP+FN) if (TP+FN>0) else 0
-        f1 = 2*((pre*rec)/(pre+rec)) if (pre+rec>0) else 0
-
-        if(verbose):
-            line_lng = 45
-
-            if(title!=""):
-                self.printB("‒" * line_lng)
-                self.printB(" "+str(title),bold=True)
-
-            self.printB("‒"*line_lng)
-            self.printB("TP: "+str(TP)+"\tFP: "+str(FP)+"\tFN: "+str(FN)+"\tTN: "+str(TN))
-            self.printB("‒"*line_lng)
-            self.printB("Precision: \t"+str(pre))
-            self.printB("Recall: \t"+str(rec))
-            self.printB("F1: \t"+str(f1), bold=True)
-            self.printB("‒"*line_lng)
-
-        return(TP,FP,FN,TN,pre,rec,f1)
+        return(TP,FP,FN,TN)
 
     def getAUC(self,pred,real):
         auc = metrics.roc_auc_score(np.array(real),np.array(pred[:,0]))
         return auc
+
+    def getBIN_AUC(self,pred,real):
+        f = np.vectorize(lambda x: 1 if (x < .5) else 0)
+        pred = f(np.array(pred[:, 0]))
+        auc = metrics.roc_auc_score(np.array(real),pred)
+        return auc
+
+    def getCardinality(self,data,verbose=False, title = ""):
+
+        total = len(data)
+        ones = sum(data)
+        zeros = total-ones
+
+        if(verbose):
+            self.printB("\t"+title+"\t\tzeros:"+str(zeros)+" ones:"+str(ones))
+
+        return total, zeros, ones
 
     def getSlope(self,data):
             r = linregress(range(len(data)), data)

@@ -97,7 +97,7 @@ Esta aquitectura es idéntica a la anterior con la salvedad del modelo a utiliza
  
 # 2.-Experimentación
 
-## 2.1 Grid-Search [24/01/2018] (fase 1)
+## 2.1 Grid-Search [24/10/2018] (fase 1)
 Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Grid-Search` para cada uno de los modelos.
 * Inicialmente, el `batch-size` **no se considera** como un hiperparámetro a optimizar y se fija en 512.
 * Se prueba para ambos modelos unos `learning-rates` salteados  con el fin de ver en que rangos funciona mejor el modelo y realizar posteriormente otra ejecución con estos valores.
@@ -116,7 +116,7 @@ En el **modelo v2** se retornan los siguientes resultados:
 
 Estos resultados parecen indicar que es necesaria una nueva ejecución con `learning-rates` menores o en torno a **1e-7**.
 
-## Cambios [02/01/2018]
+## Cambios [02/10/2018]
 Se descarta el Grid-Seach anterior.  
 Utilizando las arquitecturas v2 y v3 se procede inicialmente a realizar un `Random-Search` para cada uno de los modelos.
 * Se utilizarán para ambos modelos 5 `learning-rates`: (1e-9, 1e-7, 1e-5, 1e-3, 1e-1).
@@ -134,7 +134,7 @@ Dada la baja velocidad, se deciden implementar los siguientes cambios:
 * Se realizará un **early-stopping** utilizando las **7** epochs anteriores deteniendose en el caso de que la pendiente sea mayor que **-1e-8**.  
 * Si la loss entre las 2 primeras epochs es exactamente igual, detener.
 
-## Cambios [03/01/2018]
+## Cambios [03/10/2018]
 * El early stopping se realizará esperando 5 epochs y utilizando las 5 siguientes. Como mínimo se realizarán 10 epochs a no ser que no exista mejora alguna.
 * La métrica a utilizar durante la fase de búsqueda de hiperparámetros será el `Area Under ROC` del conjunto de validación.
 * En el modelo V2 se realizará un `grid-search` variando:
@@ -166,7 +166,7 @@ Dada la baja velocidad, se deciden implementar los siguientes cambios:
 | 1,00E-01 |      0,5 |      2 | 0,5000  | 2      | 0,5000  | 2      | 0,5      | 2      |
 
 
-## Cambios [04/01/2018]
+## Cambios [04/10/2018]
 Analizando los resultados y probando a realizar entrenamientos con parámetros concretos se ve que existe un alto sobreajuste en TRAIN.
 Para evitar esto y mejorar los resutados en DEV, se deciden los siguientes cambios:
 
@@ -176,7 +176,11 @@ Para evitar esto y mejorar los resutados en DEV, se deciden los siguientes cambi
 * Probar con oversampling con y sin dropout y sin oversampling con y sin dropout
 * Asegurarse del funcionamiento del dropout en el modelo v3
 
-## Cambios [10/01/2018]
+#### Resultados
+
+Ver fichero `docs/04_10_2018.xlsx`
+
+## Cambios [10/10/2018]
 
 Se añade el cálculo de la métrica AUC (en DEV y TRAIN) utilizando las probabilidades binarizadas de antemano para evitar resutados "muy optimistas" y cambios de AUC ante la misma matriz de confusión.
 

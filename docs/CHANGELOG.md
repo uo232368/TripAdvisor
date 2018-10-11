@@ -184,3 +184,23 @@ Ver fichero `docs/04_10_2018.xlsx`
 
 Se añade el cálculo de la métrica AUC (en DEV y TRAIN) utilizando las probabilidades binarizadas de antemano para evitar resutados "muy optimistas" y cambios de AUC ante la misma matriz de confusión.
 
+## Cambios [11/10/2018]
+Ante los problemas vistos utilizando el AUC, se vuelve a realizar la optimización de hiperparámetros utilizando la **loss** en DEV `binary_crossentropy`.
+
+Se realizará un nuevo Grid-Search utilizando los siguientes parámetros:
+
+### Modelo 2
+
+* **LR**: [1e-1, 1e-3, 1e-5, 1e-7, 1e-9]
+* **DPOUT**: No
+* **OVERSAMPLING**: Duplicar ejemplos de la clase 0. 
+
+### Modelo 3
+
+* **LR**:  [1e-1, 1e-3, 1e-5, 1e-7, 1e-9]
+* **EMB**: 
+* **DPOUT**: No
+* **OVERSAMPLING**: Duplicar ejemplos de la clase 0. 
+
+### Otros
+Además de minimizar la loss en DEV, también se mostrará para cada epoch la siguiente información:

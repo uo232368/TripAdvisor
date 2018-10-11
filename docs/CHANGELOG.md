@@ -198,9 +198,20 @@ Se realizará un nuevo Grid-Search utilizando los siguientes parámetros:
 ### Modelo 3
 
 * **LR**:  [1e-1, 1e-3, 1e-5, 1e-7, 1e-9]
-* **EMB**: 
+* **EMB**: [128, 256, 512, 1024]
 * **DPOUT**: No
 * **OVERSAMPLING**: Duplicar ejemplos de la clase 0. 
 
 ### Otros
 Además de minimizar la loss en DEV, también se mostrará para cada epoch la siguiente información:
+* AUC_TRAIN
+* AUC_DEV
+* AUC_BIN_TRAIN
+* AUC_BIN_DEV
+* F1 (Seleccionando correctamente la clase minoritaria)
+* ACCURACY ( TP+TN / TOTAL EJEMPLOS )
+* DEV_LOSS (A minimizar)
+* TP
+* FP
+* FN
+* TN

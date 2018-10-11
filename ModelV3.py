@@ -89,10 +89,13 @@ class ModelV3(ModelClass):
             pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
             dev_auc = self.getAUC(pred_dev,out_dev)
             dev_bin_auc = self.getBIN_AUC(pred_dev,out_dev)
-
+            dev_loss = model.evaluate([usr_dev, res_dev], [out_dev, img_dev],verbose=0)
             TP, FP, FN, TN = self.getConfMatrix(pred_dev, out_dev, verbose=False)
 
-            return train_auc,dev_auc,train_bin_auc,dev_bin_auc,time.time()-tss,TP, FP, FN, TN
+            dev_f1 = self.getF1(pred_dev, out_dev, invert=True)
+            dev_accuracy = (TP + TN) / sum([TP, FP, FN, TN])
+
+            return train_auc,dev_auc,train_bin_auc,dev_bin_auc,dev_loss[1],dev_f1,dev_accuracy,time.time()-tss,TP, FP, FN, TN
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -139,10 +142,15 @@ class ModelV3(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                train_auc, dev_auc,train_bin_auc, dev_bin_auc,time_e, TP, FP, FN, TN  = gsStep(model)
-                dev_hist.append(dev_auc)
+                train_auc, dev_auc, train_bin_auc, dev_bin_auc,  dev_loss, dev_f1, dev_accuracy, time_e, TP, FP, FN, TN = gsStep(model)
 
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(train_auc)+"\t"+fs(dev_auc)+"\t"+fs(train_bin_auc)+"\t"+fs(dev_bin_auc)+"\t"+fs(TP)+"\t"+fs(FP)+"\t"+fs(FN)+"\t"+fs(TN))
+                dev_hist.append(dev_loss)
+
+                logLn = fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"+fs(train_auc)+"\t"+fs(dev_auc)+"\t"+fs(train_bin_auc)+"\t"+fs(dev_bin_auc)
+                logLn += "\t"+fs(dev_loss)+"\t"+fs(dev_f1)+"\t"+fs(dev_accuracy)
+                logLn += "\t"+fs(TP)+"\t"+fs(FP)+"\t"+fs(FN)+"\t"+fs(TN)
+
+                print(logLn)
 
                 #Si no se mejora nada de nada en una epoch, fuera.
                 if(len(dev_hist)>1 and np.std(dev_hist)==0):break
@@ -152,7 +160,7 @@ class ModelV3(ModelClass):
                     slope = self.getSlope(dev_hist[-last_n_epochs:]);
                     dev_hist.pop(0)
 
-                    if (slope < self.CONFIG['gs_max_slope']):
+                    if (slope > self.CONFIG['gs_max_slope']):
                         break
 
             print("-"*50)

@@ -205,13 +205,18 @@ Se realizará un nuevo Grid-Search utilizando los siguientes parámetros:
 ### Otros
 Además de minimizar la loss en DEV, también se mostrará para cada epoch la siguiente información:
 * AUC_TRAIN
-* AUC_DEV
 * AUC_BIN_TRAIN
+* TRAIN_LOSS
+* AUC_DEV
 * AUC_BIN_DEV
-* F1 (Seleccionando correctamente la clase minoritaria)
-* ACCURACY ( TP+TN / TOTAL EJEMPLOS )
 * DEV_LOSS (A minimizar)
+* DEV_F1 (Seleccionando correctamente la clase minoritaria)
+* DEV_ACCURACY ( TP+TN / TOTAL EJEMPLOS )
 * TP
 * FP
 * FN
 * TN
+
+#### Resultados
+
+Ver fichero `docs/11_10_2018.xlsx`

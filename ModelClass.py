@@ -353,6 +353,18 @@ class ModelClass():
         auc = metrics.roc_auc_score(np.array(real),np.array(pred[:,0]))
         return auc
 
+    def getF1(self,pred,real, invert=False):
+        f = np.vectorize(lambda x: 1 if (x < .5) else 0)
+        pred = f(np.array(pred[:, 0]))
+        real = np.array(real)
+
+        if(invert):
+            real = np.abs(real-1)
+
+        f1 = metrics.f1_score(real,pred)
+
+        return f1
+
     def getBIN_AUC(self,pred,real):
         f = np.vectorize(lambda x: 1 if (x < .5) else 0)
         pred = f(np.array(pred[:, 0]))

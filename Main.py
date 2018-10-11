@@ -17,16 +17,20 @@ parser.add_argument('-s', type=int,help="Semilla")
 parser.add_argument('-c', type=str,help="Ciudad", )
 parser.add_argument('-gpu', type=str,help="Gpu")
 parser.add_argument('-over', type=str,help="Oversampling clase 0 ['none' (desactivar), 'auto' (clase 0 y 1 equilibradas) , '2' (duplicar clase 0), '3' (triplicar clase 0) ...]")
+parser.add_argument('-lr', nargs='+', type=float, help='Lista de learning-rates a probar')
+parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a probar')
 
 args = parser.parse_args()
 
-model= 2 if args.m == None else args.m
+model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
 gpu = 0 if args.gpu == None else args.gpu
-dpout = 0.5 if args.d == None else args.d
-over = 'none' if args.over == None else args.over
+dpout = 0.0 if args.d == None else args.d
+over = '2' if args.over == None else args.over
+lrates = [1e-5] if args.lr == None else args.lr
+embsize = [128] if args.emb == None else args.emb
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
@@ -39,7 +43,7 @@ config = {"min_revs":5,
           "epochs":1,
           "oversampling":over, #None (desactivar), "auto"(clase 0 y 1 equilibradas) , 2 (duplicar clase 0), 3 (triplicar clase 0) ...
           "dropout":dpout, # Prob de eliminar no de mantener
-          "gs_max_slope":1e-8}
+          "gs_max_slope":-1e-8}
 
 ########################################################################################################################
 
@@ -47,8 +51,7 @@ config = {"min_revs":5,
 if (model == 2):
 
     params = {
-        #"learning_rate": [1e-05, 1e-06, 1e-07, 1e-08],
-        "learning_rate": [1e-05],
+        "learning_rate": lrates,
     }
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
@@ -57,10 +60,8 @@ if (model == 2):
 if (model == 3):
 
     params = {
-        #"learning_rate": [1e-03, 1e-04, 1e-05, 1e-06],
-        #"emb_size": [128,256,512,1024],
-        "learning_rate": [1e-05],
-        "emb_size": [1024]
+        "learning_rate": lrates,
+        "emb_size": embsize,
     }
 
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)

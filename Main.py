@@ -67,6 +67,10 @@ if (model == 3):
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
     modelv3.gridSearchV1(params, max_epochs=500)
 
+#ToDo: MIRAR QUE PASA EN CADA BATCH
+#ToDo: PARA CADA USUARIO DISTRIBUCION EN TRAIN DEV Y TEST
+#ToDo: ADAPTAR A TOP-N
+
 #ToDo: Test emb imagen con hilos == sin hilos
 #ToDo: BatchNormalization Layer
 #ToDo: AUC binario en TRAIN Y DEV

@@ -6,7 +6,7 @@ En todos los casos se utiliza el optimizador **Adam**.
 ### 1.1.1 Descripción
 Utilizando solamente aquellas reviews que posean imágen, se entrenaría un modelo con la siguiente arquitectura:
 
-<center>![](v1.svg)</center>
+<center>![](modelv3_net.png)</center>
 
 ##### Entrada:
 * Usuario (`one-hot`)
@@ -36,7 +36,7 @@ ___
 ### 1.2.1 Descripción
 Utilizando las valoraciones de aquellos **usuarios con 10 o más**, se entrenaría un modelo con la siguiente arquitectura:
 
-<center>![](v2.svg)</center>
+<center>![](modelv2_net.png)</center>
 
 ##### Entrada:
 * Usuario (`one-hot`)
@@ -84,7 +84,7 @@ ___
 ### 1.3.1 Descripción
 Esta aquitectura es idéntica a la anterior con la salvedad del modelo a utilizar. En este caso el nuevo modelo es:
 
-<center>![](v1.svg)</center>
+<center>![](modelv3_net.png)</center>
 
 ##### Entrada:
 * Usuario (`one-hot`)

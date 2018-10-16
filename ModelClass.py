@@ -354,16 +354,17 @@ class ModelClass():
         return auc
 
     def getF1(self,pred,real, invert=False):
-        f = np.vectorize(lambda x: 1 if (x < .5) else 0)
-        pred = f(np.array(pred[:, 0]))
-        real = np.array(real)
 
         if(invert):
-            real = np.abs(real-1)
+            TN, FN, FP, TP = self.getConfMatrix(pred, real)
+        else:
+            TP, FP, FN, TN = self.getConfMatrix(pred, real)
 
-        f1 = metrics.f1_score(real,pred)
+        PR = TP/(TP+FP) if (TP+FP)>0 else 0
+        RC = TP/(TP+FN) if (TP+FN)>0 else 0
+        F1 = 2*((PR*RC)/(PR+RC)) if (PR+RC)>0 else 0
 
-        return f1
+        return F1
 
     def getBIN_AUC(self,pred,real):
         f = np.vectorize(lambda x: 1 if (x < .5) else 0)

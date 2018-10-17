@@ -22,14 +22,14 @@ parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a pro
 
 args = parser.parse_args()
 
-model= 3 if args.m == None else args.m
+model= 2 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
-gpu = 0 if args.gpu == None else args.gpu
+gpu = 1 if args.gpu == None else args.gpu
 dpout = 0.0 if args.d == None else args.d
 over = '2' if args.over == None else args.over
-lrates = [1e-5] if args.lr == None else args.lr
+lrates = [1e-3] if args.lr == None else args.lr
 embsize = [128] if args.emb == None else args.emb
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
@@ -46,7 +46,6 @@ config = {"min_revs":5,
           "gs_max_slope":-1e-8}
 
 ########################################################################################################################
-
 
 if (model == 2):
 
@@ -67,8 +66,9 @@ if (model == 3):
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
     modelv3.gridSearchV1(params, max_epochs=500)
 
-#ToDo: MIRAR QUE PASA EN CADA BATCH
+
 #ToDo: PARA CADA USUARIO DISTRIBUCION EN TRAIN DEV Y TEST
+#ToDo: MIRAR QUE PASA EN CADA BATCH
 #ToDo: ADAPTAR A TOP-N
 
 #ToDo: Test emb imagen con hilos == sin hilos

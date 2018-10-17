@@ -20,6 +20,7 @@ from keras.callbacks import ModelCheckpoint
 
 from scipy.stats import linregress
 from sklearn import metrics
+from sklearn import utils
 
 
 ########################################################################################################################
@@ -39,26 +40,27 @@ class LossHistory(keras.callbacks.Callback):
 
     FIRST_TIME = True
 
-    def __init__(self,config):
+    def __init__(self,model_class):
         self.FIRST_TIME = True
-        self.CONFIG = config
+        self.MODEL_CLASS = model_class
 
-        self.HEADER = list(config.keys())
-        self.VALUES = list((str(x).replace(".",",") for x in list(config.values())))
+        self.usr_dev = to_categorical(model_class.DEV.id_user, num_classes=model_class.N_USR)
+        self.img_dev = np.zeros((len(model_class.DEV), model_class.V_IMG))
+        self.res_dev = to_categorical(model_class.DEV.id_restaurant, num_classes=model_class.N_RST)
+        self.out_dev = model_class.DEV.like.values
 
+        #self.HEADER = list(config.keys())
+        #self.VALUES = list((str(x).replace(".",",") for x in list(config.values())))
 
-    def on_epoch_end(self, epoch, logs=None):
+    def on_batch_end(self, batch, logs=None):
+        dev_loss = self.MODEL_CLASS.MODEL.evaluate([self.usr_dev, self.res_dev], [self.out_dev, self.img_dev],verbose=0)
 
-        if(self.FIRST_TIME):
-            self.HEADER.extend(list(logs.keys()))
-            self.FIRST_TIME=False
-            print("\t".join(self.HEADER))
+        pred_dev, _ = self.MODEL_CLASS.MODEL.predict([self.usr_dev, self.res_dev], verbose=0)
+        TP, FP, FN, TN = self.MODEL_CLASS.getConfMatrix(pred_dev, self.out_dev, verbose=False)
+        dev_accuracy = (TP + TN) / sum([TP, FP, FN, TN])
 
-        line=[]
-        line.extend(self.VALUES)
-        line.extend((str(x).replace(".",",") for x in list(logs.values())))
+        print(str(logs["batch"])+"\t"+str(logs["dotprod_loss"]).replace(".",",")+"\t"+str(dev_loss[1]).replace(".",",")+"\t"+str(dev_accuracy))
 
-        print("\t".join(line))
 
 ########################################################################################################################
 
@@ -313,6 +315,15 @@ class ModelClass():
         MeanMSE = np.apply_along_axis(lambda x: np.mean(x), 0, IMG_2)
         MaxMSE = np.apply_along_axis(lambda x: np.max(x), 0, IMG_2)
         MinMSE = np.apply_along_axis(lambda x: np.min(x), 0, IMG_2)
+
+        # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
+
+        TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state = self.SEED)
+        TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state = self.SEED)
+        DEV = utils.shuffle(DEV, random_state = self.SEED)
+        TEST = utils.shuffle(TEST, random_state = self.SEED)
+
+        # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
 
         self.toPickle(file_path,"TRAIN_v1",TRAIN_v1)
         self.toPickle(file_path,"TRAIN_v2",TRAIN_v2)

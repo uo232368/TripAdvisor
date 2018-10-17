@@ -220,3 +220,13 @@ Además de minimizar la loss en DEV, también se mostrará para cada epoch la si
 #### Resultados
 
 Ver fichero `docs/11_10_2018.xlsx`
+
+## Cambios [16/10/2018]
+Analizando las epochs a fondo (batch a batch) (ver `docs/16_10_2018_batch.xml`) se descubrió un error en los datos de entrenamiento.
+Los datos de la clase 1 y 0 no se encontraban mezclaban.
+
+Se repiten los Grid-searchs con los datos mezclados.
+
+#### Resultados
+
+Ver fichero `docs/16_10_2018_gs.xml`

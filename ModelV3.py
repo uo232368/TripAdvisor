@@ -80,6 +80,7 @@ class ModelV3(ModelClass):
 
         def gsStep(model):
             tss = time.time()
+
             model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
 
             pred_train , _ = model.predict([usr_train, res_train],verbose=0)
@@ -98,6 +99,7 @@ class ModelV3(ModelClass):
             return train_auc,dev_auc,train_bin_auc,dev_bin_auc,dev_loss[1],dev_f1,dev_accuracy,time.time()-tss,TP, FP, FN, TN
 
         #---------------------------------------------------------------------------------------------------------------
+
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
         img_train = np.zeros((len(self.TRAIN_V1), self.V_IMG))
         res_train = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
@@ -128,6 +130,8 @@ class ModelV3(ModelClass):
 
         del self.MODEL
 
+
+
         for c in combs:
             lr = c[0];
             emb = c[1]
@@ -138,6 +142,7 @@ class ModelV3(ModelClass):
             self.CONFIG['learning_rate'] = lr
             self.CONFIG['emb_size'] = emb
             model = self.getModel()
+            self.MODEL = model
 
             for e in range(max_epochs):
                 ep +=1
@@ -162,68 +167,6 @@ class ModelV3(ModelClass):
 
                     if (slope > self.CONFIG['gs_max_slope']):
                         break
-
-            print("-"*50)
-            del model
-
-    def batchTest(self,params,max_epochs=10):
-
-        def fs(val):
-            return(str(val).replace(".",","))
-
-        def gsStep(model,bs):
-            tss = time.time()
-            model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=bs,verbose=0,shuffle=False)
-
-            pred_dev , _ = model.predict([usr_dev, res_dev],verbose=0)
-            auc = self.getAUC(pred_dev,out_dev)
-
-            return auc, time.time()-tss
-
-        #---------------------------------------------------------------------------------------------------------------
-        usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
-        img_train = np.zeros((len(self.TRAIN_V1), self.V_IMG))
-        res_train = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
-        out_train = self.TRAIN_V1.like.values
-        #---------------------------------------------------------------------------------------------------------------
-        usr_dev = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
-        img_dev = np.zeros((len(self.DEV), self.V_IMG))
-        res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
-        out_dev = self.DEV.like.values
-
-        # Generar combinaciones y seleccionar aleatoriamente X
-        #---------------------------------------------------------------------------------------------------------------
-
-        combs = []
-
-        for lr in params['learning_rate']:
-            for emb in params['emb_size']:
-                for bs in params['batch']:
-                    combs.append([lr,emb,bs])
-
-        #---------------------------------------------------------------------------------------------------------------
-
-        del self.MODEL
-
-        for c in combs:
-            lr = c[0]
-            emb = c[1]
-            bs = c[2]
-
-            ep = 0
-
-            #Reiniciar modelo e historial
-            self.CONFIG['learning_rate'] = lr
-            self.CONFIG['emb_size'] = emb
-            model = self.getModel()
-
-            for e in range(max_epochs):
-                ep +=1
-
-                auc,time_e = gsStep(model,bs)
-
-                print(fs(ep)+"\t"+fs(lr)+"\t"+fs(bs)+"\t"+fs(emb)+"\t"+fs(auc)+"\t"+fs(time_e))
-
 
             print("-"*50)
             del model

@@ -35,12 +35,13 @@ embsize = [128] if args.emb == None else args.emb
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
 config = {"min_revs":5,
+          "min_pos_revs":3,
           "emb_size":32,
           "learning_rate":1e-3,
           "lr_decay":0.0,
-          "c_loss": .5,
-          "batch_size":128,
-          "epochs":1,
+          "c_loss": 0,
+          "batch_size":512,
+          "epochs":5,
           "oversampling":over, #None (desactivar), "auto"(clase 0 y 1 equilibradas) , 2 (duplicar clase 0), 3 (triplicar clase 0) ...
           "dropout":dpout, # Prob de eliminar no de mantener
           "gs_max_slope":-1e-8}
@@ -54,6 +55,9 @@ if (model == 2):
     }
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
+    modelv2.getDataStats()
+    exit()
+
     modelv2.gridSearchV1(params, max_epochs=500)
 
 if (model == 3):
@@ -64,11 +68,15 @@ if (model == 3):
     }
 
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
+    modelv3.newgetData()
+    exit()
     modelv3.gridSearchV1(params, max_epochs=500)
 
 
 #ToDo: PARA CADA USUARIO DISTRIBUCION EN TRAIN DEV Y TEST
 #ToDo: MIRAR QUE PASA EN CADA BATCH
+#ToDo: DATOS: MÁS DE 10 y MÁS DE 3 POSITIVAS (SALEN 7067 USUARIOS)
+
 #ToDo: ADAPTAR A TOP-N
 
 #ToDo: Test emb imagen con hilos == sin hilos

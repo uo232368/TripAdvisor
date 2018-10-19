@@ -193,13 +193,13 @@ class ModelV3(ModelClass):
             history = LossHistory(self.CONFIG)
             callbacks_list.append(history)
 
-        self.MODEL.fit([oh_users, oh_rests], [y_likes, y_image], epochs=self.CONFIG['epochs'], batch_size=self.CONFIG['batch_size'],callbacks=callbacks_list, verbose=0)
+        self.MODEL.fit([oh_users, oh_rests], [y_likes, y_image], epochs=self.CONFIG['epochs'], batch_size=self.CONFIG['batch_size'],callbacks=callbacks_list, verbose=2)
 
         bin_pred, img_pred = self.MODEL.predict([oh_users, oh_rests], verbose=0)
 
-        self.getConfMatrix(bin_pred, y_likes)
-        auc = self.getAUC(bin_pred,y_likes)
-        print("TRAIN AUC-ROC: "+str(auc))
+        TP, FP, FN, TN = self.getConfMatrix(bin_pred, y_likes)
+        print(TP, FP, FN, TN)
+
 
     def dev(self):
 

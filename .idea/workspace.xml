@@ -2,12 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/16_10_2018_batch.xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/16_10_2018_gs.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ModelClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ModelV3.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV3.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/11_10_2018.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/docs/11_10_2018.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gridsearch.sh" beforeDir="false" afterPath="$PROJECT_DIR$/gridsearch.sh" afterDir="false" />
     </list>
@@ -86,46 +85,47 @@
           <entry key="project.open.time.4" value="9" />
           <entry key="project.open.time.5" value="2" />
           <entry key="project.open.time.6" value="4" />
-          <entry key="project.open.time.7" value="2" />
+          <entry key="project.open.time.7" value="3" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="36" />
+          <entry key="project.opened" value="37" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="LEEME" value="1" />
-          <entry key="md" value="25" />
+          <entry key="md" value="26" />
           <entry key="png" value="1" />
-          <entry key="py" value="127" />
+          <entry key="py" value="131" />
           <entry key="sh" value="6" />
+          <entry key="tsv" value="1" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="Bash" value="5" />
           <entry key="Image" value="1" />
-          <entry key="Markdown" value="25" />
-          <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="127" />
+          <entry key="Markdown" value="26" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="Python" value="131" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="LEEME" value="95" />
-          <entry key="Python Console" value="169" />
+          <entry key="Python Console" value="203" />
           <entry key="dummy" value="14" />
-          <entry key="md" value="5307" />
-          <entry key="py" value="8890" />
-          <entry key="sh" value="263" />
-          <entry key="txt" value="281" />
+          <entry key="md" value="5484" />
+          <entry key="py" value="10086" />
+          <entry key="sh" value="268" />
+          <entry key="txt" value="283" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Bash" value="163" />
-          <entry key="Markdown" value="5307" />
-          <entry key="PLAIN_TEXT" value="490" />
-          <entry key="Python" value="9059" />
+          <entry key="Bash" value="168" />
+          <entry key="Markdown" value="5484" />
+          <entry key="PLAIN_TEXT" value="492" />
+          <entry key="Python" value="10289" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -137,51 +137,54 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
-              <caret line="59" selection-start-line="59" selection-end-line="59" />
+            <state relative-caret-position="72">
+              <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
               <folding>
                 <element signature="e#25#40#0" expanded="true" />
-                <element signature="e#1476#1874#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ModelClass.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="394" column="53" selection-start-line="394" selection-start-column="53" selection-end-line="394" selection-end-column="53" />
+              <folding>
+                <element signature="e#24#39#0" expanded="true" />
+                <element signature="e#1048#2183#0" />
+                <element signature="e#1679#2183#0" />
+                <element signature="e#2395#3829#0" />
+                <element signature="e#3863#3911#0" />
+                <element signature="e#3945#14116#0" />
+                <element signature="e#14147#14195#0" />
+                <element signature="e#14356#15454#0" />
+                <element signature="e#15927#16117#0" />
+                <element signature="e#15853#15935#0" />
+                <element signature="e#15991#16297#0" />
+                <element signature="e#16343#16506#0" />
+                <element signature="e#16578#16783#0" />
+                <element signature="e#16826#16891#0" />
+                <element signature="e#17069#17178#0" />
+                <element signature="e#17223#17319#0" />
+                <marker date="1539866762362" expanded="true" signature="14144:25098" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="202">
-                <caret line="223" column="12" selection-start-line="223" selection-start-column="12" selection-end-line="223" selection-end-column="22" />
+              <first_editor relative-caret-position="173">
+                <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
               </first_editor>
               <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/gridsearch.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="374">
-              <caret line="22" column="6" lean-forward="true" selection-start-line="22" selection-start-column="6" selection-end-line="22" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelV3.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-832">
-              <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
-              <folding>
-                <element signature="e#399#2709#0" />
-                <element signature="e#452#629#0" />
-                <element signature="e#2798#2831#0" />
-                <element signature="e#2872#3841#0" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -254,16 +257,17 @@
         <option value="$PROJECT_DIR$/ModelV2.py" />
         <option value="$PROJECT_DIR$/out/11_10_2018/LEEME" />
         <option value="$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py" />
+        <option value="$PROJECT_DIR$/gridsearch.sh" />
+        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
         <option value="$PROJECT_DIR$/ModelV3.py" />
         <option value="$PROJECT_DIR$/ModelClass.py" />
         <option value="$PROJECT_DIR$/Main.py" />
-        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
-        <option value="$PROJECT_DIR$/gridsearch.sh" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
+    <option name="x" value="4" />
+    <option name="y" value="27" />
     <option name="width" value="1920" />
     <option name="height" value="1017" />
   </component>
@@ -328,18 +332,13 @@
             <path>
               <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
               <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="download" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
               <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="out" type="462c0819:PsiDirectoryNode" />
-              <item name="16_10_2018" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -644,7 +643,14 @@
       <option name="project" value="LOCAL" />
       <updated>1539687087967</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Cambios del 16/10/2018">
+      <created>1539777397494</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1539777397494</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TodoView">
@@ -662,10 +668,10 @@
     <layout>
       <window_info id="Structure" order="0" sideWeight="0.504717" side_tool="true" weight="0.11005793" />
       <window_info id="Favorites" order="1" side_tool="true" />
-      <window_info active="true" content_ui="combo" id="Project" order="2" sideWeight="0.495283" visible="true" weight="0.11005793" />
+      <window_info active="true" content_ui="combo" id="Project" order="2" sideWeight="0.495283" visible="true" weight="0.10373881" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286334" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.45227766" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.4099783" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3991323" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -678,6 +684,9 @@
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.24973376" />
     </layout>
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.tsv" />
   </component>
   <component name="Vcs.Log.History.Properties">
     <option name="COLUMN_ORDER">
@@ -731,19 +740,12 @@
     <MESSAGE value="· Cambios del 4/10/2018&#10;· Cambios del 10/10/2018" />
     <MESSAGE value="Añadida carpeta out" />
     <MESSAGE value="Cambios del 11/10/2018" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cambios del 11/10/2018" />
+    <MESSAGE value="Cambios del 16/10/2018" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambios del 16/10/2018" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/core.py" />
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/merge.py" />
     <entry file="file://$PROJECT_DIR$/multiple_outputs.png" />
-    <entry file="file://$PROJECT_DIR$/data/download/TripAdvisor.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data/download/DownloadData.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="477">
@@ -951,55 +953,80 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+    <entry file="file://$PROJECT_DIR$/gridsearch.sh">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4726">
-          <caret line="331" column="57" lean-forward="true" selection-start-line="331" selection-start-column="57" selection-end-line="331" selection-end-column="57" />
-          <folding>
-            <element signature="e#24#39#0" expanded="true" />
-            <element signature="e#3864#3912#0" />
-          </folding>
+        <state relative-caret-position="357">
+          <caret line="21" column="32" lean-forward="true" selection-start-line="21" selection-start-column="32" selection-end-line="21" selection-end-column="32" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/download/TripAdvisor.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2062">
+          <caret line="11" column="21" selection-start-line="11" selection-start-column="21" selection-end-line="11" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/out.tsv">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/ModelV3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-832">
-          <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
+        <state relative-caret-position="579">
+          <caret line="199" column="62" selection-start-line="199" selection-start-column="62" selection-end-line="199" selection-end-column="62" />
           <folding>
-            <element signature="e#399#2709#0" />
-            <element signature="e#452#629#0" />
+            <element signature="e#2773#6669#0" />
             <element signature="e#2798#2831#0" />
             <element signature="e#2872#3841#0" />
+            <element signature="e#7879#8326#0" />
+            <element signature="e#8357#8809#0" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="59" selection-start-line="59" selection-end-line="59" />
-          <folding>
-            <element signature="e#25#40#0" expanded="true" />
-            <element signature="e#1476#1874#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/gridsearch.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="374">
-          <caret line="22" column="6" lean-forward="true" selection-start-line="22" selection-start-column="6" selection-end-line="22" selection-end-column="6" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="202">
-            <caret line="223" column="12" selection-start-line="223" selection-start-column="12" selection-end-line="223" selection-end-column="22" />
+          <first_editor relative-caret-position="173">
+            <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="394" column="53" selection-start-line="394" selection-start-column="53" selection-end-line="394" selection-end-column="53" />
+          <folding>
+            <element signature="e#24#39#0" expanded="true" />
+            <element signature="e#1048#2183#0" />
+            <element signature="e#1679#2183#0" />
+            <element signature="e#2395#3829#0" />
+            <element signature="e#3863#3911#0" />
+            <element signature="e#3945#14116#0" />
+            <element signature="e#14147#14195#0" />
+            <element signature="e#14356#15454#0" />
+            <element signature="e#15927#16117#0" />
+            <element signature="e#15853#15935#0" />
+            <element signature="e#15991#16297#0" />
+            <element signature="e#16343#16506#0" />
+            <element signature="e#16578#16783#0" />
+            <element signature="e#16826#16891#0" />
+            <element signature="e#17069#17178#0" />
+            <element signature="e#17223#17319#0" />
+            <marker date="1539866762362" expanded="true" signature="14144:25098" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

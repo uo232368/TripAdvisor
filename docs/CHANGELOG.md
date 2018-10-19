@@ -227,6 +227,9 @@ Los datos de la clase 1 y 0 no se encontraban mezclaban.
 
 Se repiten los Grid-searchs con los datos mezclados.
 
+Se añaden métodos para obtener más información sobre los conjuntos.
+* Valoraciones por usuario (positivas, negativas y no valoradas)
+
 #### Resultados
 
 Ver fichero `docs/16_10_2018_gs.xml`

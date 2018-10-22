@@ -2,13 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/docs/16_10_2018_gs.xlsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/19_10_2018_stats.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ModelClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ModelV3.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV3.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gridsearch.sh" beforeDir="false" afterPath="$PROJECT_DIR$/gridsearch.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -76,26 +74,26 @@
     <session id="1312838246">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="24" />
+          <entry key="project.closed" value="26" />
           <entry key="project.open.time.12" value="2" />
           <entry key="project.open.time.14" value="2" />
           <entry key="project.open.time.16" value="1" />
           <entry key="project.open.time.22" value="1" />
           <entry key="project.open.time.3" value="12" />
-          <entry key="project.open.time.4" value="9" />
+          <entry key="project.open.time.4" value="11" />
           <entry key="project.open.time.5" value="2" />
-          <entry key="project.open.time.6" value="4" />
+          <entry key="project.open.time.6" value="6" />
           <entry key="project.open.time.7" value="3" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="37" />
+          <entry key="project.opened" value="41" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="LEEME" value="1" />
-          <entry key="md" value="26" />
+          <entry key="md" value="28" />
           <entry key="png" value="1" />
-          <entry key="py" value="131" />
+          <entry key="py" value="136" />
           <entry key="sh" value="6" />
           <entry key="tsv" value="1" />
         </counts>
@@ -104,9 +102,9 @@
         <counts>
           <entry key="Bash" value="5" />
           <entry key="Image" value="1" />
-          <entry key="Markdown" value="26" />
+          <entry key="Markdown" value="28" />
           <entry key="PLAIN_TEXT" value="3" />
-          <entry key="Python" value="131" />
+          <entry key="Python" value="136" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -114,8 +112,8 @@
           <entry key="LEEME" value="95" />
           <entry key="Python Console" value="203" />
           <entry key="dummy" value="14" />
-          <entry key="md" value="5484" />
-          <entry key="py" value="10086" />
+          <entry key="md" value="6864" />
+          <entry key="py" value="14863" />
           <entry key="sh" value="268" />
           <entry key="txt" value="283" />
         </counts>
@@ -123,9 +121,9 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="168" />
-          <entry key="Markdown" value="5484" />
+          <entry key="Markdown" value="6864" />
           <entry key="PLAIN_TEXT" value="492" />
-          <entry key="Python" value="10289" />
+          <entry key="Python" value="15066" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -137,52 +135,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="72">
-              <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
+            <state relative-caret-position="453">
+              <caret line="69" column="20" selection-start-line="69" selection-start-column="20" selection-end-line="69" selection-end-column="20" />
               <folding>
                 <element signature="e#25#40#0" expanded="true" />
+                <element signature="e#1476#1932#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelClass.py">
+        <entry file="file://$PROJECT_DIR$/ModelV3.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="394" column="53" selection-start-line="394" selection-start-column="53" selection-end-line="394" selection-end-column="53" />
+            <state relative-caret-position="17">
+              <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
               <folding>
-                <element signature="e#24#39#0" expanded="true" />
-                <element signature="e#1048#2183#0" />
-                <element signature="e#1679#2183#0" />
-                <element signature="e#2395#3829#0" />
-                <element signature="e#3863#3911#0" />
-                <element signature="e#3945#14116#0" />
-                <element signature="e#14147#14195#0" />
-                <element signature="e#14356#15454#0" />
-                <element signature="e#15927#16117#0" />
-                <element signature="e#15853#15935#0" />
-                <element signature="e#15991#16297#0" />
-                <element signature="e#16343#16506#0" />
-                <element signature="e#16578#16783#0" />
-                <element signature="e#16826#16891#0" />
-                <element signature="e#17069#17178#0" />
-                <element signature="e#17223#17319#0" />
-                <marker date="1539866762362" expanded="true" signature="14144:25098" ph="..." />
+                <element signature="e#399#2709#0" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="173">
-                <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
+              <first_editor relative-caret-position="499">
+                <caret line="250" column="81" selection-start-line="250" selection-start-column="81" selection-end-line="250" selection-end-column="81" />
               </first_editor>
               <second_editor />
             </state>
@@ -258,16 +241,15 @@
         <option value="$PROJECT_DIR$/out/11_10_2018/LEEME" />
         <option value="$USER_HOME$/.local/lib/python3.6/site-packages/keras/callbacks.py" />
         <option value="$PROJECT_DIR$/gridsearch.sh" />
-        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
         <option value="$PROJECT_DIR$/ModelV3.py" />
         <option value="$PROJECT_DIR$/ModelClass.py" />
         <option value="$PROJECT_DIR$/Main.py" />
+        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="4" />
-    <option name="y" value="27" />
+    <option name="y" value="23" />
     <option name="width" value="1920" />
     <option name="height" value="1017" />
   </component>
@@ -327,18 +309,12 @@
             <path>
               <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
               <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="data" type="462c0819:PsiDirectoryNode" />
-              <item name="download" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
               <item name="docs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
+              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
+              <item name="out" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -650,7 +626,14 @@
       <option name="project" value="LOCAL" />
       <updated>1539777397494</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Cambios del 16/10/2018">
+      <created>1539937068174</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1539937068175</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TodoView">
@@ -671,14 +654,14 @@
       <window_info active="true" content_ui="combo" id="Project" order="2" sideWeight="0.495283" visible="true" weight="0.10373881" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3286334" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4986835" visible="true" weight="0.4099783" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49815693" visible="true" weight="0.25921908" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.3991323" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.329718" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.29067245" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32936078" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5013165" side_tool="true" weight="0.38503253" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5018431" side_tool="true" weight="0.3275488" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49921012" weight="0.61713666" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -744,7 +727,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Cambios del 16/10/2018" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras/layers/merge.py" />
     <entry file="file://$PROJECT_DIR$/multiple_outputs.png" />
     <entry file="file://$PROJECT_DIR$/data/download/DownloadData.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -753,7 +735,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/frame.py" />
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/numpy/lib/shape_base.py" />
     <entry file="file://$USER_HOME$/.PyCharmCE2018.2/system/python_stubs/-1247971763/numpy/core/umath.py" />
     <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/ops/losses/losses_impl.py" />
@@ -940,9 +921,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-324">
           <caret line="11" column="23" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
-          <folding>
-            <element signature="e#397#2833#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -970,16 +948,65 @@
     <entry file="file://$PROJECT_DIR$/out.tsv">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
+    <entry file="file:///usr/lib/python3.6/random.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="750" selection-start-line="750" selection-end-line="750" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/frame.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="124">
+          <caret line="6210" selection-start-line="6210" selection-end-line="6210" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8">
+          <caret line="119" lean-forward="true" selection-start-line="119" selection-end-line="119" />
+          <folding>
+            <element signature="e#24#39#0" expanded="true" />
+            <element signature="e#1048#2183#0" />
+            <element signature="e#1679#2183#0" />
+            <element signature="e#2395#3829#0" />
+            <element signature="e#3863#3911#0" />
+            <element signature="e#14154#24505#0" />
+            <element signature="e#21041#21422#0" />
+            <element signature="e#24536#24584#0" />
+            <element signature="e#24745#25817#0" />
+            <element signature="e#26016#26206#0" />
+            <element signature="e#26248#26330#0" />
+            <element signature="e#26386#26692#0" />
+            <element signature="e#26738#26901#0" />
+            <element signature="e#26973#27178#0" />
+            <element signature="e#27221#27286#0" />
+            <element signature="e#27457#27566#0" />
+            <element signature="e#27611#27707#0" />
+            <element signature="e#27744#27802#0" />
+            <element signature="e#27839#27900#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="453">
+          <caret line="69" column="20" selection-start-line="69" selection-start-column="20" selection-end-line="69" selection-end-column="20" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+            <element signature="e#1476#1932#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ModelV3.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="579">
-          <caret line="199" column="62" selection-start-line="199" selection-start-column="62" selection-end-line="199" selection-end-column="62" />
+        <state relative-caret-position="17">
+          <caret line="75" column="8" selection-start-line="75" selection-start-column="8" selection-end-line="75" selection-end-column="8" />
           <folding>
-            <element signature="e#2773#6669#0" />
-            <element signature="e#2798#2831#0" />
-            <element signature="e#2872#3841#0" />
-            <element signature="e#7879#8326#0" />
-            <element signature="e#8357#8809#0" />
+            <element signature="e#399#2709#0" />
           </folding>
         </state>
       </provider>
@@ -987,46 +1014,10 @@
     <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="173">
-            <caret line="222" lean-forward="true" selection-start-line="222" selection-end-line="222" />
+          <first_editor relative-caret-position="499">
+            <caret line="250" column="81" selection-start-line="250" selection-start-column="81" selection-end-line="250" selection-end-column="81" />
           </first_editor>
           <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ModelClass.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="394" column="53" selection-start-line="394" selection-start-column="53" selection-end-line="394" selection-end-column="53" />
-          <folding>
-            <element signature="e#24#39#0" expanded="true" />
-            <element signature="e#1048#2183#0" />
-            <element signature="e#1679#2183#0" />
-            <element signature="e#2395#3829#0" />
-            <element signature="e#3863#3911#0" />
-            <element signature="e#3945#14116#0" />
-            <element signature="e#14147#14195#0" />
-            <element signature="e#14356#15454#0" />
-            <element signature="e#15927#16117#0" />
-            <element signature="e#15853#15935#0" />
-            <element signature="e#15991#16297#0" />
-            <element signature="e#16343#16506#0" />
-            <element signature="e#16578#16783#0" />
-            <element signature="e#16826#16891#0" />
-            <element signature="e#17069#17178#0" />
-            <element signature="e#17223#17319#0" />
-            <marker date="1539866762362" expanded="true" signature="14144:25098" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="24" column="8" selection-start-line="24" selection-start-column="8" selection-end-line="24" selection-end-column="8" />
-          <folding>
-            <element signature="e#25#40#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>

@@ -22,7 +22,7 @@ parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a pro
 
 args = parser.parse_args()
 
-model= 2 if args.m == None else args.m
+model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
@@ -35,7 +35,9 @@ embsize = [128] if args.emb == None else args.emb
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
 config = {"min_revs":5,
-          "min_pos_revs":3,
+          "min_pos_revs":5,
+          "new_neg_revs": 10,
+
           "emb_size":32,
           "learning_rate":1e-3,
           "lr_decay":0.0,
@@ -55,9 +57,6 @@ if (model == 2):
     }
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
-    modelv2.getDataStats()
-    exit()
-
     modelv2.gridSearchV1(params, max_epochs=500)
 
 if (model == 3):
@@ -68,14 +67,8 @@ if (model == 3):
     }
 
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
-    modelv3.newgetData()
-    exit()
     modelv3.gridSearchV1(params, max_epochs=500)
 
-
-#ToDo: PARA CADA USUARIO DISTRIBUCION EN TRAIN DEV Y TEST
-#ToDo: MIRAR QUE PASA EN CADA BATCH
-#ToDo: DATOS: MÁS DE 10 y MÁS DE 3 POSITIVAS (SALEN 7067 USUARIOS)
 
 #ToDo: ADAPTAR A TOP-N
 

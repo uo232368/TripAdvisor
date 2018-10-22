@@ -233,3 +233,23 @@ Se añaden métodos para obtener más información sobre los conjuntos.
 #### Resultados
 
 Ver fichero `docs/16_10_2018_gs.xml`
+
+## Cambios [19/10/2018]
+Se cambia la forma de separar datos y evaluar el modelo para adaptalo a un problema similar como el descrito por **Yehuda Koren** en **"Performance of Recommender Algorithms
+on Top-N Recommendation Tasks"**.
+
+### Generación de datos
+Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas).  
+
+De los anteriores, aquellos que tengan como mínimo 5 (analisis de distribución de usuarios `docs/19_10_2018_stats.xlsx`) reviews positivas.  
+
+* De todas las reviews positivas, separar para cada usuario `(3,1,1 => TRAIN, DEV, TEST)`.  
+* Todas las negativas para TRAIN.
+* Crear, para cada usuario, `n` (para compensar distribución de positivos 50/50) ejemplos negativos con los restaurantes no vistos por usuario.  
+* En este caso `n = (N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN) N_USUARIOS`.
+
+La razon de añadir nuevos elementos es reforzar la evaluación (ver a continuación).
+
+### Evaluación
+Para cada positivo de cada usuario en DEV o TRAIN, se escogen 1000 aleatorios no vistos y se consideran como negativos. Tras valorar cada uno de ellos se ordenan y se considera acierto si el item real está en el **TOP-N**.
+

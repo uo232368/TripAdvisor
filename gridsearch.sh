@@ -13,11 +13,12 @@
 #nohup python3.6 -u  Main.py -m 3 -g 0 -d 0.5 -over "2" > out/model3/model3_over_dpout.gs &
 #nohup python3.6 -u  Main.py -m 3 -g 1 -d 0.0 -over "2" > out/model3/model3_over_nodpout.gs &
 
-# 11/10/2018 & 16/10/2018
+# 11/10/2018 & 16/10/2018 & 19/10/2018
 ########################################################################################################################
-nohup python3.6 -u  Main.py -m 2 -g 0 -d 0.0 -over "2" -lr 1e-4 1e-5 1e-6 > out/16_10_2018/model2_loss_p1.gs &
-nohup python3.6 -u  Main.py -m 2 -g 1 -d 0.0 -over "2" -lr 1e-7 1e-8 1e-9 > out/16_10_2018/model2_loss_p2.gs &
+nohup python3.6 -u  Main.py -m 2 -g 0 -d 0.0 -over "2" -lr 1e-4 1e-5 1e-6 > out/19_10_2018/model2_loss_p1.gs &
+nohup python3.6 -u  Main.py -m 2 -g 1 -d 0.0 -over "2" -lr 1e-7 1e-8 1e-9 > out/19_10_2018/model2_loss_p2.gs &
 
-nohup python3.6 -u  Main.py -m 3 -g 0 -d 0.0 -over "2" -lr 1e-3 1e-5 -emb 128 256 512 1024 > out/16_10_2018/model3_loss_p1.gs &
-nohup python3.6 -u  Main.py -m 3 -g 1 -d 0.0 -over "2" -lr 1e-7 1e-9 -emb 128 256 512 1024 > out/16_10_2018/model3_loss_p2.gs &
-nohup python3.6 -u  Main.py -m 3 -g 0 -d 0.0 -over "2" -lr 1e-4 1e-6 -emb 128 256 512 1024 > out/16_10_2018/model3_loss_p3.gs &
+nohup python3.6 -u  Main.py -m 3 -g 0 -d 0.0 -over "2" -lr 1e-3 1e-5 -emb 128 256 512 1024 > out/19_10_2018/model3_loss_p1.gs &
+nohup python3.6 -u  Main.py -m 3 -g 1 -d 0.0 -over "2" -lr 1e-7 1e-9 -emb 128 256 512 1024 > out/19_10_2018/model3_loss_p2.gs &
+nohup python3.6 -u  Main.py -m 3 -g 0 -d 0.0 -over "2" -lr 1e-4 1e-6 -emb 128 256 512 1024 > out/19_10_2018/model3_loss_p3.gs &
+

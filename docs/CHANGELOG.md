@@ -239,17 +239,37 @@ Se cambia la forma de separar datos y evaluar el modelo para adaptalo a un probl
 on Top-N Recommendation Tasks"**.
 
 ### Generación de datos
-Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas).  
+Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas) **CON IMAGEN**.  
 
 De los anteriores, aquellos que tengan como mínimo 5 (analisis de distribución de usuarios `docs/19_10_2018_stats.xlsx`) reviews positivas.  
 
 * De todas las reviews positivas, separar para cada usuario `(3,1,1 => TRAIN, DEV, TEST)`.  
 * Todas las negativas para TRAIN.
 * Crear, para cada usuario, `n` (para compensar distribución de positivos 50/50) ejemplos negativos con los restaurantes no vistos por usuario.  
-* En este caso `n = (N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN) N_USUARIOS`.
+* En este caso `n = ((N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN)/N_USUARIOS)+1`.
 
-La razon de añadir nuevos elementos es reforzar la evaluación (ver a continuación).
+La razon de añadir nuevos elementos es reforzar la evaluación (ver apartado de evaluación).
+
+Por tanto los conjuntos finales son:
+* **TRAIN_V1**: Reviews separadas para TRAIN con la imágen puesta a 0
+* **TRAIN_V2**: Reviews separadas para TRAIN con el embedding de la imágen.
+* **DEV**: Reviews separadas para DEV y sin multiplicar por el número de imágenes
+* **TEST**: Reviews separadas para TEST y sin multiplicar por el número de imágenes
 
 ### Evaluación
 Para cada positivo de cada usuario en DEV o TRAIN, se escogen 1000 aleatorios no vistos y se consideran como negativos. Tras valorar cada uno de ellos se ordenan y se considera acierto si el item real está en el **TOP-N**.
+
+Para obtener el precisión y recall, previo entrenamiento del modelo con los datos de TRAIN, para cada item `i` positivo de cada usuario:
+
+* Se seleccionan 1000 items no vistos por el usuario (No se pueden añadir los ya añadidos en entrenamiento).
+* Se obtiene la recomendación asociada a cada uno de los 1001 items y se ordenan de mayor a menor rating.
+* Si el item positivo `i` se encuentra en el TOP-N de esa lista, se cuenta como un acierto.
+
+#### Precision y Recall
+Siendo `|T|` el número de positivos del conjunto de TEST y `N` el número de items del TOP-N:
+
+* **Precision:** `precision(N): # hits/|T|`
+* **Recall:**  `recall(N): # recall(N)/N`
+
+
 

@@ -16,7 +16,6 @@ parser.add_argument('-i', type=int,help="Codificación utilizada para las imáge
 parser.add_argument('-s', type=int,help="Semilla")
 parser.add_argument('-c', type=str,help="Ciudad", )
 parser.add_argument('-gpu', type=str,help="Gpu")
-parser.add_argument('-over', type=str,help="Oversampling clase 0 ['none' (desactivar), 'auto' (clase 0 y 1 equilibradas) , '2' (duplicar clase 0), '3' (triplicar clase 0) ...]")
 parser.add_argument('-lr', nargs='+', type=float, help='Lista de learning-rates a probar')
 parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a probar')
 
@@ -26,17 +25,15 @@ model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
-gpu = 1 if args.gpu == None else args.gpu
+gpu = 0 if args.gpu == None else args.gpu
 dpout = 0.0 if args.d == None else args.d
-over = '2' if args.over == None else args.over
-lrates = [1e-3] if args.lr == None else args.lr
+lrates = [1e-4] if args.lr == None else args.lr
 embsize = [128] if args.emb == None else args.emb
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
 config = {"min_revs":5,
           "min_pos_revs":5,
-          "new_neg_revs": 10,
 
           "emb_size":32,
           "learning_rate":1e-3,
@@ -44,9 +41,8 @@ config = {"min_revs":5,
           "c_loss": 0,
           "batch_size":512,
           "epochs":5,
-          "oversampling":over, #None (desactivar), "auto"(clase 0 y 1 equilibradas) , 2 (duplicar clase 0), 3 (triplicar clase 0) ...
           "dropout":dpout, # Prob de eliminar no de mantener
-          "gs_max_slope":-1e-8}
+          "gs_max_slope":1e-8}
 
 ########################################################################################################################
 
@@ -71,6 +67,7 @@ if (model == 3):
 
 
 #ToDo: ADAPTAR A TOP-N
+#ToDo: DEMASIADOS ITEMS PARA DEV (1.725.000)
 
 #ToDo: Test emb imagen con hilos == sin hilos
 #ToDo: BatchNormalization Layer

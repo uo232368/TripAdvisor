@@ -123,9 +123,8 @@ class ModelClass():
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
 
-        file_path = self.PATH + "model_data_" + str(self.CONFIG['oversampling']).lower()
+        file_path = self.PATH + "model_data"
         file_path += "_"+str(self.CONFIG['min_revs'])+"_"+str(self.CONFIG['min_pos_revs'])+"/"
-
 
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
@@ -150,8 +149,6 @@ class ModelClass():
         else:
             os.makedirs(file_path)
 
-
-
         # ---------------------------------------------------------------------------------------------------------------
 
         USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
@@ -167,6 +164,10 @@ class ModelClass():
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
         RVW = RVW.loc[(RVW.userId != "")]
 
+        # Eliminar usuarios sin imágenes
+        # ---------------------------------------------------------------------------------------------------------------
+
+        RVW = RVW.loc[RVW.num_images>0]
 
         # Eliminar usuarios con menos de min_revs
         # ---------------------------------------------------------------------------------------------------------------
@@ -249,17 +250,23 @@ class ModelClass():
         N_NEW_ITEMS = len(POS_REVS)-len(NEG_REVS)
         N_USERS = len(USR_TMP)
 
-        ITEMS_PER_USR = N_NEW_ITEMS//N_USERS
+        ITEMS_PER_USR = (N_NEW_ITEMS//N_USERS)
         ITEMS_LEFT = N_NEW_ITEMS-(ITEMS_PER_USR*N_USERS)
+
+        if(ITEMS_LEFT>0):ITEMS_PER_USR+=1
 
         self.printW("Se añaden " + str(ITEMS_PER_USR) + " items nuevos por usuario. ("+str((ITEMS_PER_USR*N_USERS))+" en total)")
         self.printE("Sobran " + str(ITEMS_LEFT) + " items que no se añaden.")
 
         rest_ids = set(REST_TMP.id_restaurant)
 
+        used_restaurants = {} #Contiene todos los pares usr restaurante ya ulitizados hasta el momento
+
         def append_no_reviewed_restaurants(data):
             no_reviewed = list(rest_ids.difference(set(data.id_restaurant.values)))
             no_reviewed = rn.sample(no_reviewed,ITEMS_PER_USR)
+            
+            used_restaurants[data.id_user.values[0]] = np.append(data.id_restaurant.values,no_reviewed)
 
             ret = pd.DataFrame(-1, index=np.arange(ITEMS_PER_USR), columns=data.columns)
             ret["id_user"]=data.id_user.values[0]
@@ -272,7 +279,68 @@ class ModelClass():
         NEW_REVS = RVW.groupby(['userId']).apply(append_no_reviewed_restaurants).reset_index()
         NEW_REVS = NEW_REVS.drop(columns="level_1")
 
-        TRAIN = TRAIN.append(NEW_REVS, ignore_index=True) #Todos a TRAIN
+        TRAIN = TRAIN.append(NEW_REVS, ignore_index=True, sort=True) #Todos a TRAIN
+
+        # Añadir al conjunto de DEV los 1000 restaurantes no vistos
+        # ---------------------------------------------------------------------------------------------------------------
+
+        TOPN_NEW_ITEMS = 100;
+
+        dev_used_restaurants = {} #Contiene todos los pares usr restaurante ya ulitizados hasta el momento
+
+        def append_topn_items_dev(data):
+
+            idUser = data.id_user.values[0]
+            used_rests = used_restaurants[idUser]
+
+            no_reviewed = list(rest_ids.difference(set(used_rests)))
+            no_reviewed = rn.sample(no_reviewed, TOPN_NEW_ITEMS)
+
+            dev_used_restaurants[idUser] = no_reviewed
+
+            ret = pd.DataFrame(-1, index=np.arange(TOPN_NEW_ITEMS), columns=data.columns)
+            ret["id_user"] = data.id_user.values[0]
+            ret["like"] = 0
+            ret["id_restaurant"] = no_reviewed
+            ret = ret.drop(columns="userId")
+
+            ret = ret.append(data.drop(columns=["userId"]),ignore_index=True)
+
+            return ret
+
+        NEW_DEV = DEV.groupby(['userId']).apply(append_topn_items_dev).reset_index()
+        NEW_DEV = NEW_DEV.drop(columns="level_1")
+
+
+        #Añadir los restaurantes usados en dev a la lista total
+        for i in used_restaurants:used_restaurants[i] = np.append(used_restaurants[i],dev_used_restaurants[i])
+
+
+        # Añadir al conjunto de TEST los 1000 restaurantes no vistos
+        # ---------------------------------------------------------------------------------------------------------------
+
+
+        def append_topn_items_test(data):
+
+            idUser = data.id_user.values[0]
+            used_rests = used_restaurants[idUser]
+
+            no_reviewed = list(rest_ids.difference(set(used_rests)))
+            no_reviewed = rn.sample(no_reviewed, TOPN_NEW_ITEMS)
+
+            ret = pd.DataFrame(-1, index=np.arange(TOPN_NEW_ITEMS), columns=data.columns)
+            ret["id_user"] = data.id_user.values[0]
+            ret["like"] = 0
+            ret["id_restaurant"] = no_reviewed
+            ret = ret.drop(columns="userId")
+
+            ret = ret.append(data.drop(columns=["userId"]),ignore_index=True)
+
+            return ret
+
+
+        NEW_TEST = TEST.groupby(['userId']).apply(append_topn_items_test).reset_index()
+        NEW_TEST = NEW_TEST.drop(columns="level_1")
 
 
         # Obtener conjuntos de TRAIN/DEV/TEST
@@ -281,7 +349,9 @@ class ModelClass():
         self.printG("Generando conjuntos finales...")
 
         TRAIN_v1 = TRAIN
-        TRAIN_v2 = TRAIN_v1.loc[TRAIN_v1.num_images > 0]
+        TRAIN_v2 = TRAIN.loc[(TRAIN.num_images>0)]
+        DEV = NEW_DEV
+        TEST = NEW_TEST
 
         # -------------------------------------------------------------------------------------------------------------------
         # Añadir vectores de imágenes
@@ -290,8 +360,9 @@ class ModelClass():
 
         TRAIN_v2 = IMG.merge(TRAIN_v2, left_on='review', right_on='reviewId', how='inner')
 
-        DEV = IMG.merge(DEV, left_on='review', right_on='reviewId', how='inner')
-        TEST = IMG.merge(TEST, left_on='review', right_on='reviewId', how='inner')
+
+        ##DEV = IMG.merge(DEV, left_on='review', right_on='reviewId', how='inner')
+        ##TEST = IMG.merge(TEST, left_on='review', right_on='reviewId', how='inner')
 
         TRAIN_v1 = TRAIN_v1.drop(
             columns=['restaurantId', 'userId', 'url', 'text', 'real_id_x', 'real_id_y', 'title', 'date', 'images',
@@ -300,12 +371,8 @@ class ModelClass():
             columns=['restaurantId', 'userId', 'url', 'text', 'real_id_x', 'real_id_y', 'title', 'date', 'images',
                      'num_images', 'index', 'rating', 'language', 'review', 'image'])
 
-        DEV = DEV.drop(
-            columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images',
-                     'num_images', 'index', 'rating', 'language', 'review'])
-        TEST = TEST.drop(
-            columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images',
-                     'num_images', 'index', 'rating', 'language', 'review'])
+        #DEV = DEV.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
+        #TEST = TEST.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
 
         self.printW("Las reviews salen repetidas en función del número de imagenes")
 
@@ -323,8 +390,8 @@ class ModelClass():
 
         TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED)
         TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED)
-        DEV = utils.shuffle(DEV, random_state=self.SEED)
-        TEST = utils.shuffle(TEST, random_state=self.SEED)
+        #DEV = utils.shuffle(DEV, random_state=self.SEED)
+        #TEST = utils.shuffle(TEST, random_state=self.SEED)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
 
@@ -387,6 +454,31 @@ class ModelClass():
         file.close()
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+    def getTopN(self, model, top=10):
+
+        pred_dev = self.dev(model)
+
+        users = self.DEV.id_user.values
+        likes = self.DEV.like.values
+
+        results = pd.DataFrame(index=np.arange(len(pred_dev)),columns=["id_user","prediction","like"],)
+        results["id_user"]= users
+        results["prediction"]= pred_dev
+        results["like"]= likes
+
+        hits=0
+
+        for us,gr in results.groupby('id_user'):
+            sorted = gr.sort_values('prediction',ascending=False).reset_index(drop=True)
+
+            if (len(sorted.loc[(sorted.index<top)&(sorted.like==1)])==1):
+                hits+=1
+
+        recall = hits / sum(likes)
+        precision = recall / top
+
+        return hits, precision, recall
 
     def getConfMatrix(self, pred, real, title ="", verbose=True):
 

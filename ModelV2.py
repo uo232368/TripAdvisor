@@ -116,22 +116,12 @@ class ModelV2(ModelClass):
             return(str(val).replace(".",","))
 
         def gsStep(model):
-            tss = time.time()
-            model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
 
-            pred_train = model.predict([usr_train, img_train, res_train],verbose=0)
-            train_auc = self.getAUC(pred_train,out_train)
-            train_bin_auc = self.getBIN_AUC(pred_train,out_train)
+            hist = model.fit([usr_train, img_train, res_train], [out_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
 
-            pred_dev = model.predict([usr_dev, img_dev, res_dev],verbose=0)
-            dev_auc = self.getAUC(pred_dev,out_dev)
-            dev_bin_auc = self.getBIN_AUC(pred_dev,out_dev)
-            dev_loss = model.evaluate([usr_dev, img_dev, res_dev], [out_dev],verbose=0)
-            TP, FP, FN, TN= self.getConfMatrix(pred_dev, out_dev, verbose=False)
-            dev_f1 = self.getF1(pred_dev, out_dev, invert=True)
-            dev_accuracy = (TP+TN)/sum([TP, FP, FN, TN])
+            hits, prec, recll = self.getTopN(model,top=5);
 
-            return train_auc,dev_auc,train_bin_auc,dev_bin_auc,dev_loss,dev_f1,dev_accuracy,time.time()-tss,TP, FP, FN, TN
+            return hits, prec, recll, hist.history['loss']
 
         #---------------------------------------------------------------------------------------------------------------
         usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
@@ -151,6 +141,7 @@ class ModelV2(ModelClass):
 
         combs = []
         dev_hist = []
+        loss_hist = []
 
         for lr in params['learning_rate']:
             combs.append([lr])
@@ -167,42 +158,38 @@ class ModelV2(ModelClass):
             for e in range(max_epochs):
                 ep +=1
 
-                train_auc, dev_auc, train_bin_auc, dev_bin_auc,  dev_loss, dev_f1, dev_accuracy, time_e, TP, FP, FN, TN = gsStep(model)
+                hits, prec, recll,loss = gsStep(model)
 
-                dev_hist.append(dev_loss)
+                dev_hist.append(hits)
+                loss_hist.append(loss)
 
-                logLn = fs(ep)+"\t"+fs(lr)+"\t"+fs(train_auc)+"\t"+fs(dev_auc)+"\t"+fs(train_bin_auc)+"\t"+fs(dev_bin_auc)
-                logLn += "\t"+fs(dev_loss)+"\t"+fs(dev_f1)+"\t"+fs(dev_accuracy)
-                logLn += "\t"+fs(TP)+"\t"+fs(FP)+"\t"+fs(FN)+"\t"+fs(TN)
+                logLn = fs(ep)+"\t"+fs(lr)+"\t"
+                logLn += fs(hits)+"\t"+fs(prec)+"\t"+fs(recll)
 
                 print(logLn)
 
                 #Si no se mejora nada de nada en una epoch, fuera.
-                if(len(dev_hist)>1 and np.std(dev_hist)==0):break
+                if(len(loss_hist)>1 and np.std(loss_hist)==0):break
 
                 #Si en las n epochs anteriores la pendiente supera un minimo, parar
                 if(len(dev_hist)==start_n_epochs+last_n_epochs):
                     slope = self.getSlope(dev_hist[-last_n_epochs:]);
                     dev_hist.pop(0)
 
-                    if (slope > self.CONFIG['gs_max_slope']):
+                    if (slope < self.CONFIG['gs_max_slope']):
                         break
 
             print("-"*50)
 
-    def dev(self):
+    def dev(self, model):
 
-        # Transformar los datos de DEV al formato adecuado
-        oh_users = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
+        if(model==None):model = self.MODEL
+
+        usr_dev = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
+        res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
         y_image = np.zeros((len(self.DEV), self.V_IMG))
-        oh_rests = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
 
-        y_likes = self.DEV.like.values
+        pred_dev = model.predict([usr_dev, y_image,res_dev], verbose=0, batch_size=128)
 
-
-        bin_pred = self.MODEL.predict([oh_users,y_image, oh_rests], verbose=0)
-
-        self.getConfMatrix(bin_pred, y_likes, title="DEV")
-
-
+        return pred_dev
 

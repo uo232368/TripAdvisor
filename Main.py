@@ -4,6 +4,7 @@ import argparse
 
 from ModelV3 import *
 from ModelV2 import *
+from ModelV1 import *
 
 
 ########################################################################################################################
@@ -22,7 +23,7 @@ parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a pro
 
 args = parser.parse_args()
 
-model= 3 if args.m == None else args.m
+model= 1 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
@@ -50,28 +51,19 @@ config = {"min_revs":5,
 
 ########################################################################################################################
 
-if (model == 2):
-
-    params = {
-        "learning_rate": lrates,
-    }
-
-    modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
-    modelv2.gridSearchV1(params, max_epochs=500)
-
-if (model == 3):
+if (model == 1):
 
     params = {
         "learning_rate": lrates,
         "emb_size": embsize,
     }
 
-    modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
-    modelv3.gridSearchV1(params, max_epochs=500)
+    modelv1 = ModelV1(city=city, option=option, config=config, seed=seed)
+    #modelv1.gridSearchV1(params, max_epochs=500)
 
 
-#ToDo: ADAPTAR A TOP-N
 #ToDo: DEMASIADOS ITEMS PARA DEV (1.725.000)
+#ToDo: Normalizar capa de salida
 
 #ToDo: Test emb imagen con hilos == sin hilos
 #ToDo: BatchNormalization Layer

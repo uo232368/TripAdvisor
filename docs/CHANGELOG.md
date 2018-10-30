@@ -269,7 +269,33 @@ Para obtener el precisión y recall, previo entrenamiento del modelo con los dat
 Siendo `|T|` el número de positivos del conjunto de TEST y `N` el número de items del TOP-N:
 
 * **Precision:** `precision(N): # hits/|T|`
-* **Recall:**  `recall(N): # recall(N)/N`
+* **Recall:**  `recall(N): recall(N)/N`
+
+## Cambios [29/10/2018]
+
+### Modelo
+
+Se utiliza ahora solamente el modelo v3, entrenado de la siguiente forma:
+* Un batch solo con `valoraciones` para la parte de clasificación binaria.
+* Un batch solo con `imagenes` para la parte de multiregresión.
+
+De esta forma, se pretenede entrenar cada parte de forma independiente compartiendo la codificación de usuarios y restaurantes.  
+
+En el futuro, es posible que se añada una tercera salida de la red con los comentarios en formato `D2V` o `LSTM` lo que implicariía otro paso más en el entrenamiento.
+
+### Conjunto de datos
+Usuarios con más de 5 revews positivas, separando de la siguiente forma:
+* **TEST:** 1 review positiva + 100 ó 1000 nuevas reviews (distintas de DEV y TRAIN)
+* **DEV:** 1 review positiva  + 100 ó 1000 nuevas reviews (distintas de TRAIN)
+* **TRAIN_V1:** Resto reviews positivas  + reviews negativas + n nuevas reviews para compensar distribución de 1s y 0s
+* **TRAIN_V2:** Igual que TRAIN_V1 (sin n reviews nuevas) y sólo con imágenes
+
+### Entrenamiento
+Dos fases:
+* Primera fase entrenado solamente la clasificación binaria con **TRAIN_V1**.
+* Segunda fase entrenado la clasificación binaria con **TRAIN_V1** y la multiregresión con **TRAIN_V2**.
 
 
 
+### Evaluación
+Se mantiene la evaluación TOP-N anterior.

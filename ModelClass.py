@@ -123,6 +123,7 @@ class ModelClass():
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
 
+
         file_path = self.PATH + "model_data"
         file_path += "_"+str(self.CONFIG['min_revs'])+"_"+str(self.CONFIG['min_pos_revs'])+"/"
 
@@ -164,10 +165,6 @@ class ModelClass():
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
         RVW = RVW.loc[(RVW.userId != "")]
 
-        # Eliminar usuarios sin imágenes
-        # ---------------------------------------------------------------------------------------------------------------
-
-        RVW = RVW.loc[RVW.num_images>0]
 
         # Eliminar usuarios con menos de min_revs
         # ---------------------------------------------------------------------------------------------------------------
@@ -256,7 +253,6 @@ class ModelClass():
         if(ITEMS_LEFT>0):ITEMS_PER_USR+=1
 
         self.printW("Se añaden " + str(ITEMS_PER_USR) + " items nuevos por usuario. ("+str((ITEMS_PER_USR*N_USERS))+" en total)")
-        self.printE("Sobran " + str(ITEMS_LEFT) + " items que no se añaden.")
 
         rest_ids = set(REST_TMP.id_restaurant)
 
@@ -279,7 +275,7 @@ class ModelClass():
         NEW_REVS = RVW.groupby(['userId']).apply(append_no_reviewed_restaurants).reset_index()
         NEW_REVS = NEW_REVS.drop(columns="level_1")
 
-        TRAIN = TRAIN.append(NEW_REVS, ignore_index=True, sort=True) #Todos a TRAIN
+        NEW_TRAIN = TRAIN.append(NEW_REVS, ignore_index=True, sort=True) #Todos a TRAIN
 
         # Añadir al conjunto de DEV los 1000 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
@@ -348,7 +344,7 @@ class ModelClass():
 
         self.printG("Generando conjuntos finales...")
 
-        TRAIN_v1 = TRAIN
+        TRAIN_v1 = NEW_TRAIN
         TRAIN_v2 = TRAIN.loc[(TRAIN.num_images>0)]
         DEV = NEW_DEV
         TEST = NEW_TEST
@@ -374,7 +370,7 @@ class ModelClass():
         #DEV = DEV.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
         #TEST = TEST.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
 
-        self.printW("Las reviews salen repetidas en función del número de imagenes")
+        self.printW("Las reviews v2 salen repetidas en función del número de imagenes")
 
 
         IMG_2 = np.row_stack(IMG.vector.values)

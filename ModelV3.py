@@ -81,7 +81,7 @@ class ModelV3(ModelClass):
         def gsStep(model):
 
             hist = model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
-            hits, prec, recll = self.getTopN(model,top=5);
+            hits, prec, recll = self.getTopN(model);
 
             return hits, prec, recll, hist.history['loss']
 

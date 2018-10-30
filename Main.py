@@ -14,6 +14,7 @@ parser.add_argument('-m', type=int,help="Modelo a utilizar")
 parser.add_argument('-d', type=float,help="DropOut")
 parser.add_argument('-i', type=int,help="Codificación utilizada para las imágenes")
 parser.add_argument('-s', type=int,help="Semilla")
+parser.add_argument('-top', type=int,help="TOP-N")
 parser.add_argument('-c', type=str,help="Ciudad", )
 parser.add_argument('-gpu', type=str,help="Gpu")
 parser.add_argument('-lr', nargs='+', type=float, help='Lista de learning-rates a probar')
@@ -26,14 +27,17 @@ option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
 gpu = 0 if args.gpu == None else args.gpu
+top = 5 if args.top == None else args.top
 dpout = 0.0 if args.d == None else args.d
 lrates = [1e-4] if args.lr == None else args.lr
-embsize = [128] if args.emb == None else args.emb
+embsize = [512] if args.emb == None else args.emb
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
 config = {"min_revs":5,
           "min_pos_revs":5,
+
+          "top": 5,
 
           "emb_size":32,
           "learning_rate":1e-3,

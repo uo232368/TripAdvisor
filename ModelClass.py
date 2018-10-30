@@ -455,7 +455,7 @@ class ModelClass():
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
-    def getTopN(self, model, top=10):
+    def getTopN(self, model):
 
         pred_dev = self.dev(model)
 
@@ -472,11 +472,11 @@ class ModelClass():
         for us,gr in results.groupby('id_user'):
             sorted = gr.sort_values('prediction',ascending=False).reset_index(drop=True)
 
-            if (len(sorted.loc[(sorted.index<top)&(sorted.like==1)])==1):
+            if (len(sorted.loc[(sorted.index<self.CONFIG['top'])&(sorted.like==1)])==1):
                 hits+=1
 
         recall = hits / sum(likes)
-        precision = recall / top
+        precision = recall / self.CONFIG['top']
 
         return hits, precision, recall
 

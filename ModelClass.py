@@ -5,6 +5,8 @@ import warnings
 import numpy as np
 import pandas as pd
 import pickle
+import math
+import signal, sys
 
 import random as rn
 
@@ -67,6 +69,8 @@ class ModelClass():
 
     def __init__(self,city,option,config,name,seed = 2 ):
 
+        signal.signal(signal.SIGINT, self.signal_handler)
+
         self.CITY = city
         self.OPTION = option
         self.PATH = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"
@@ -113,6 +117,12 @@ class ModelClass():
 
         self.MODEL_PATH = "models/"+self.MODEL_NAME+"_" + self.CITY.lower() + "_option" + str(self.OPTION)
         self.MODEL = self.getModel()
+        self.SESSION = None
+
+
+    def signal_handler(self,signal, frame):
+        self.stop()
+        sys.exit(0)
 
     def getModel(self):
         self.printW("FN SIN IMPLEMENTAR")
@@ -451,30 +461,28 @@ class ModelClass():
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
-    def getTopN(self, model):
-
-        pred_dev = self.dev(model)
+    def getTopN(self, results):
 
         users = self.DEV.id_user.values
         likes = self.DEV.like.values
 
-        results = pd.DataFrame(index=np.arange(len(pred_dev)),columns=["id_user","prediction","like"],)
-        results["id_user"]= users
-        results["prediction"]= pred_dev
-        results["like"]= likes
+        results = results.sort_values(['id_user', 'prediction'], ascending=[True, False]).reset_index(drop=True)
 
-        hits=0
+        def getHits(data):
 
-        for us,gr in results.groupby('id_user'):
-            sorted = gr.sort_values('prediction',ascending=False).reset_index(drop=True)
+            ret = {}
 
-            if (len(sorted.loc[(sorted.index<self.CONFIG['top'])&(sorted.like==1)])==1):
-                hits+=1
+            for t in self.CONFIG['top']:
+                hit = sum(data[:t].like.values)
+                ret['hit_'+str(t)]=hit
+            return pd.Series(ret)
 
-        recall = hits / sum(likes)
-        precision = recall / self.CONFIG['top']
+        results = results.groupby('id_user').apply(getHits).reset_index()
 
-        return hits, precision, recall
+        #recall = hits / sum(likes)
+        #precision = recall / self.CONFIG['top']
+
+        return results.iloc[:,1:].sum().to_dict()
 
     def getConfMatrix(self, pred, real, title ="", verbose=True):
 

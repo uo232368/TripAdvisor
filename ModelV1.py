@@ -12,93 +12,83 @@ class ModelV1(ModelClass):
 
     def getModel(self):
 
-        def normalized_mse_loss(y_pred, y_real):
-            minMSE = self.MSE_DATA[0]
-            maxMSE = self.MSE_DATA[1]
-            avgMSE = self.MSE_DATA[2]
+        # Creación del grafo de TF.
+        graph = tf.Graph()
 
-            return tf.losses.mean_squared_error(y_pred, y_real) / (avgMSE)
+        with graph.as_default():
 
-        # -------------------------------------------------------------------------------------------------------------------
+            tf.set_random_seed(self.SEED)
 
-        num_users = self.N_USR
-        emb_users = self.CONFIG["emb_size"]
+            concat_size = self.N_USR + self.N_RST
+            hidden_size = self.CONFIG['emb_size']
 
-        num_restaurants = self.N_RST
-        emb_restaurants = self.CONFIG["emb_size"]
+            # Número global de iteraciones
+            global_step_bin = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step_bin')
+            global_step_img = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step_img')
 
-        bin_out = 1
-        img_out = self.V_IMG
+            dpout = tf.Variable(1.0, dtype=tf.float32, trainable=False, name='dpout')
 
-        learning_rate = self.CONFIG["learning_rate"]
-        lr_decay = self.CONFIG["lr_decay"]
-        batch_size = self.CONFIG["batch_size"]
-        epochs = self.CONFIG["epochs"]
-        c_loss = self.CONFIG["c_loss"]
+            # Datos de entrada -----------------------------------------------------------------------------------------------------------
+            # Array del tamaño del batch con las X
+            user_rest_input = tf.placeholder(tf.int32, shape=[None, 2], name="user_rest_input")
 
-        # Model
-        # -----------------------------------------------------------------------------------------------------------------------
+            # Capas de salida -----------------------------------------------------------------------------------------------------------
 
-        # first input model
-        visible1 = Input(shape=(num_users,), name="input_user")
-        d1 = Dense(emb_users, name="emb_user")(visible1)
-        d1 = Dropout(self.CONFIG['dropout'])(d1)
+            bin_labels = tf.placeholder(tf.float32, shape=[None, 1], name="bin_labels")
+            img_labels = tf.placeholder(tf.float32, shape=[None, self.V_IMG], name="img_labels")
 
-        # second input model
-        visible2 = Input(shape=(num_restaurants,), name="input_restaurant")
-        d2 = Dense(emb_restaurants, name="emb_restaurant")(visible2)
-        d2 = Dropout(self.CONFIG['dropout'])(d2)
+            # Embeddings -----------------------------------------------------------------------------------------------------------------
 
-        # merge input models
-        concat = Concatenate()([d1, d2])
-        dotprod = Dot(axes=1)([d1, d2])
-        dotprod = Activation("sigmoid", name="dotprod")(dotprod)
+            # Matriz T1 que transforma la concatenación de la entrada a un espacio de menor dimension
+            T1 = tf.Variable(tf.truncated_normal([concat_size, hidden_size], mean=0.0, stddev=1.0 / math.sqrt(hidden_size)),name="T1")
 
-        output_img = Dense(img_out, name="output_image", activation="relu")(concat)
+            B1 = tf.Variable(tf.truncated_normal([hidden_size, 1], mean=0.0, stddev=1.0 / math.sqrt(1)),name="B1")
+            R1 = tf.Variable(tf.truncated_normal([hidden_size, self.V_IMG], mean=0.0, stddev=1.0 / math.sqrt(self.V_IMG)),name="R1")
 
-        model = Model(inputs=[visible1, visible2], outputs=[dotprod, output_img])
+            # Operaciones -----------------------------------------------------------------------------------------------------------------
 
-        adam = keras.optimizers.Adam(lr=learning_rate, decay=lr_decay)
+            #Obtener las columnas correspondientes a cada usuario y restaurante para poseteriormente
+            user_h1 = tf.nn.embedding_lookup(T1, user_rest_input[:,0])
+            rest_h1 = tf.nn.embedding_lookup(T1, user_rest_input[:,1]+self.N_USR) # <------ Muy importante
 
-        if (os.path.exists(self.MODEL_PATH)):
-            self.printW("Cargando pesos de un modelo anterior...")
-            model.load_weights(self.MODEL_PATH)
+            h1 = tf.add(user_h1,rest_h1) # Se suman ambos para simular una multiplicación tradicional
 
-        # model.compile(optimizer=adam, loss=custom_loss_fn, loss_weights=[(1 - c_loss), c_loss])
-        model.compile(optimizer=adam, loss=["binary_crossentropy", normalized_mse_loss],loss_weights=[(1 - c_loss), c_loss])
+            #h1_mean, h1_var = tf.nn.moments(h1, axes=[0,1]) # axes=[0] para hacerlo por columnas
+            #h1 = tf.nn.batch_normalization(h1, mean=h1_mean, variance=h1_var, offset=None, scale=None, variance_epsilon=1e-9)
 
-        # summarize layers
-        #print(model.summary())
-        #plot_model(model, to_file=self.MODEL_NAME+'_net.png')
+            h1 = tf.nn.sigmoid(h1)
+            h1 = tf.nn.dropout(h1, keep_prob=dpout)
 
-        return model
+            # Transformar a 32 documento
+            out_bin = tf.matmul(h1, B1)
+
+            # Transformar a 32 cancion
+            out_img = tf.matmul(h1, R1)
+
+            # Cálculo de LOSS y optimizador- ---------------------------------------------------------------------------------------------
+
+            # Obtener las losses
+
+            batch_bin_prob = tf.nn.sigmoid(out_bin, name='batch_bin_prob')
+
+            batch_softplus = tf.nn.softplus((1 - 2 * bin_labels) * out_bin, name='batch_softplus')
+            loss_softplus = tf.reduce_mean(batch_softplus, name='loss_softplus')
+
+            loss_rmse = tf.sqrt(tf.reduce_mean(tf.square(tf.subtract(img_labels, out_img))), name='loss_rmse')
+
+            # Minimizar la loss
+            train_step_bin = tf.train.AdamOptimizer(name='train_step_bin',learning_rate=self.CONFIG['learning_rate']).minimize(loss=loss_softplus, global_step=global_step_bin)
+            train_step_img = tf.train.AdamOptimizer(name='train_step_img',learning_rate=self.CONFIG['learning_rate']).minimize(loss=loss_rmse, global_step=global_step_img)
+
+            # Crear objeto encargado de almacenar la red
+            saver = tf.train.Saver(max_to_keep=1)
+
+        return graph
 
     def gridSearchV1(self, params,max_epochs = 500):
 
-        def fs(val):
-            return(str(val).replace(".",","))
-
-        def gsStep(model):
-
-            hist = model.fit([usr_train, res_train], [out_train, img_train], epochs=1, batch_size=self.CONFIG["batch_size"],verbose=0,shuffle=False)
-            hits, prec, recll = self.getTopN(model);
-
-            return hits, prec, recll, hist.history['loss']
-
-        #---------------------------------------------------------------------------------------------------------------
-
-        usr_train = to_categorical(self.TRAIN_V1.id_user, num_classes=self.N_USR)
-        img_train = np.zeros((len(self.TRAIN_V1), self.V_IMG))
-        res_train = to_categorical(self.TRAIN_V1.id_restaurant, num_classes=self.N_RST)
-        out_train = self.TRAIN_V1.like.values
-        #---------------------------------------------------------------------------------------------------------------
-        usr_dev = to_categorical(self.DEV.id_user, num_classes=self.N_USR)
-        img_dev = np.zeros((len(self.DEV), self.V_IMG))
-        res_dev = to_categorical(self.DEV.id_restaurant, num_classes=self.N_RST)
-        out_dev = self.DEV.like.values
-
         # Generar combinaciones y seleccionar aleatoriamente X
-        #---------------------------------------------------------------------------------------------------------------
+        # ---------------------------------------------------------------------------------------------------------------
 
         start_n_epochs = 5
         last_n_epochs = 5
@@ -107,56 +97,105 @@ class ModelV1(ModelClass):
 
         for lr in params['learning_rate']:
             for emb in params['emb_size']:
-                combs.append([lr,emb])
+                combs.append({'learning_rate':lr, 'emb_size':emb})
 
-        #combs = rn.sample(combs,params["tests"])
-        #combs.sort(reverse=True)
 
-        #---------------------------------------------------------------------------------------------------------------
-
-        dev_hist = []
-        loss_hist = []
-
-        del self.MODEL
+        # Para cada combinación...
+        # ---------------------------------------------------------------------------------------------------------------
 
         for c in combs:
-            lr = c[0];
-            emb = c[1]
-            ep = 0
 
-            #Reiniciar modelo e historial
-            dev_hist.clear()
-            self.CONFIG['learning_rate'] = lr
-            self.CONFIG['emb_size'] = emb
-            model = self.getModel()
-            self.MODEL = model
+            #Variables para almacenar los resultados de la ejecución
+            train_loss_comb = []
+            dev_loss_comb = []
+            stop_param_comb = []
 
-            for e in range(max_epochs):
-                ep +=1
+            start_n_epochs = 5
+            last_n_epochs = 5
 
-                hits, prec, recll,loss = gsStep(model)
+            #Cambiar los parámetros en la configuración
+            self.CONFIG['learning_rate']= c['learning_rate']
+            self.CONFIG['emb_size']= c['emb_size']
 
-                dev_hist.append(hits)
-                loss_hist.append(loss)
+            #Obtener el modelo
+            self.MODEL = self.getModel()
 
-                logLn = fs(ep)+"\t"+fs(lr)+"\t"+fs(emb)+"\t"
-                logLn += fs(hits)+"\t"+fs(prec)+"\t"+fs(recll)
+            print("-"*70)
+            print(self.CONFIG)
 
-                print(logLn)
+            #Configurar y crear sesion
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
 
-                #Si no se mejora nada de nada en una epoch, fuera.
-                if(len(loss_hist)>1 and np.std(loss_hist)==0):break
+            with tf.Session(graph=self.MODEL, config=config) as session:
 
-                #Si en las n epochs anteriores la pendiente supera un minimo, parar
-                if(len(dev_hist)==start_n_epochs+last_n_epochs):
-                    slope = self.getSlope(dev_hist[-last_n_epochs:]);
-                    dev_hist.pop(0)
+                self.SESSION = session
 
-                    if (slope < self.CONFIG['gs_max_slope']):
-                        break
+                # Inicializar variables
+                init = tf.global_variables_initializer()
+                init.run(session=self.SESSION)
 
-            print("-"*50)
-            del model
+                for e in range(max_epochs):
+
+                    # Entrenar el modelo ###################################################################################
+                    train_loss = []
+
+                    for batch in np.array_split(self.TRAIN_V1, len(self.TRAIN_V1)//self.CONFIG['batch_size']):
+
+                        batch_tm = batch[['id_user','id_restaurant','like']].values
+
+                        feed_dict = {"user_rest_input:0": batch_tm[:,[0,1]], "bin_labels:0": batch_tm[:,[2]],'dpout:0':self.CONFIG['dropout']}
+
+                        _, batch_softplus = self.SESSION.run(['train_step_bin:0','batch_softplus:0'],feed_dict=feed_dict)
+
+                        train_loss.extend(batch_softplus[:,0])
+
+                    # Probar en DEV ########################################################################################
+                    dev_res = pd.DataFrame()
+                    dev_loss = []
+
+                    for batch_d in np.array_split(self.DEV, 2):
+
+                        batch_dtfm = batch_d.copy()
+                        batch_dtfm = batch_dtfm[['id_user','id_restaurant','like']]
+
+                        batch_dm = batch_dtfm.values
+                        feed_dict = {"user_rest_input:0": batch_dm[:,[0,1]], "bin_labels:0": batch_dm[:,[2]],'dpout:0':1.0}
+                        batch_bin_prob,batch_softplus = self.SESSION.run(['batch_bin_prob:0','batch_softplus:0'],feed_dict=feed_dict)
+
+                        batch_dtfm['prediction'] = batch_bin_prob[:,0]
+                        dev_loss.extend(batch_softplus[:,0])
+
+                        dev_res = dev_res.append(batch_dtfm,ignore_index=True)
+
+                    hits = self.getTopN(dev_res)
+                    hits = list(hits.values())
+
+                    train_loss_comb.append(np.average(train_loss))
+                    dev_loss_comb.append(np.average(dev_loss))
+                    stop_param_comb.append(hits[0])
+
+                    log_items = [e,self.CONFIG['emb_size'],self.CONFIG['learning_rate'],train_loss_comb[-1],dev_loss_comb[-1]]
+                    log_items.extend(hits)
+                    log_line = "\t".join(map(lambda x:str(x),log_items))
+                    print(log_line)
+
+                    # Si en las n epochs anteriores la pendiente es menor que valor, parar
+                    if (len(stop_param_comb) >= start_n_epochs + last_n_epochs):
+                        slope = self.getSlope(stop_param_comb[-last_n_epochs:]);
+                        if (slope < self.CONFIG['gs_max_slope']):
+                            break
+
+
+
+    def stop(self):
+
+        if(self.SESSION!=None):
+            self.printW("Cerrando sesión de tensorflow...")
+            self.SESSION.close()
+
+        if(self.MODEL!=None):
+            tf.reset_default_graph()
 
     def train_step1(self, save=True, show_epoch_info=True):
 

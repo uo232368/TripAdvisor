@@ -295,7 +295,5 @@ Dos fases:
 * Primera fase entrenado solamente la clasificación binaria con **TRAIN_V1**.
 * Segunda fase entrenado la clasificación binaria con **TRAIN_V1** y la multiregresión con **TRAIN_V2**.
 
-
-
 ### Evaluación
 Se mantiene la evaluación TOP-N anterior.

@@ -60,8 +60,6 @@ if (model == 1):
         "emb_size": embsize,
     }
     modelv1 = ModelV1(city=city, option=option, config=config, seed=seed)
-    modelv1.getUsersGraph()
-
     exit()
     modelv1.gridSearchV1(params, max_epochs=500)
     #modelv1.gridSearchV2(params, max_epochs=500)
@@ -79,6 +77,7 @@ if (model == 2):
 
 
 #ToDo: Normalizar capa de intermedia (BatchNormalization)
+#ToDo: Probar con un ejemplo único en DOTPROD para verificar el buen funcionamiento
 
 #ToDo: Test emb imagen con hilos == sin hilos
 #ToDo: BatchNormalization Layer

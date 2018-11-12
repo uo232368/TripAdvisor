@@ -307,3 +307,14 @@ Se mantiene la evaluación TOP-N anterior.
 * Para ver la distribución de ejemplos por usuario, se generó otro gráfico (Ver fichero `docs/29_10_2018/users_graph.xlsx`)
 
 Analizando lo anterior, se realizan un cambios en la generación de datos descritos a continuación.
+
+## Cambios [12/11/2018]
+
+### Generación de datos
+Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas) **CON IMAGEN**.  
+De los anteriores, aquellos que tengan como mínimo 5 reviews positivas.  
+
+* De todas las reviews positivas, separar para cada usuario `(60%,20%,20% => TRAIN, DEV, TEST)`.  
+* Todas las negativas para TRAIN.
+* Crear, para cada usuario, `n` (para compensar distribución de positivos 50/50) ejemplos negativos con los restaurantes no vistos por usuario.  
+* En este caso `n = ((N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN)/N_USUARIOS)+1`.

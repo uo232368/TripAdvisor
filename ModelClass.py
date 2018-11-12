@@ -82,6 +82,8 @@ class ModelClass():
         #Eliminar info de TF
         os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
         os.environ['PYTHONHASHSEED'] = '0'
+        #os.environ["CUDA_VISIBLE_DEVICES"] = ""
+
         warnings.filterwarnings('always')
 
         #Fijar las semillas de numpy y TF
@@ -119,6 +121,11 @@ class ModelClass():
         self.MODEL = self.getModel()
         self.SESSION = None
 
+        print("\n")
+        print("#"*50)
+        print(' '+self.MODEL_NAME.upper())
+        print("#"*50)
+
 
     def signal_handler(self,signal, frame):
         self.stop()
@@ -127,6 +134,42 @@ class ModelClass():
     def getModel(self):
         self.printW("FN SIN IMPLEMENTAR")
         exit()
+
+    def getFilteredData(self):
+
+        IMG = pd.read_pickle(self.PATH + "img-option" + str(self.OPTION) + ".pkl")
+        RVW = pd.read_pickle(self.PATH + "reviews.pkl")
+
+        IMG['review'] = IMG.review.astype(int)
+        RVW["reviewId"] = RVW.reviewId.astype(int)
+
+        RVW["num_images"] = RVW.images.apply(lambda x: len(x))
+        RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
+        RVW = RVW.loc[(RVW.userId != "")]
+
+        # Eliminar usuarios con menos de min_revs
+        # ---------------------------------------------------------------------------------------------------------------
+        old_len = len(RVW)
+
+        USR_LST = RVW.groupby("userId", as_index=False).count()
+        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_revs']), "userId"].values
+        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+
+        self.printW(
+            "Eliminado usuarios con menos de " + str(self.CONFIG['min_revs']) + " valoraciones quedan un " + str(
+                (len(RVW) / old_len) * 100) + " % del total de reviews.")
+
+        # Eliminar usuarios con menos de min_pos_revs positivos
+        # ---------------------------------------------------------------------------------------------------------------
+        old_len = len(RVW)
+
+        USR_LST = RVW.groupby("userId", as_index=False).sum()
+        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_pos_revs']), "userId"].values
+        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+
+        self.printW("Eliminado usuarios con menos de " + str(self.CONFIG['min_pos_revs']) + " valoraciones positivas.")
+
+        return RVW, IMG
 
     def getData(self):
 
@@ -165,39 +208,7 @@ class ModelClass():
         USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
         REST_TMP = pd.DataFrame(columns=["real_id", "id_restaurant"])
 
-        IMG = pd.read_pickle(self.PATH + "img-option" + str(self.OPTION) + ".pkl")
-        RVW = pd.read_pickle(self.PATH + "reviews.pkl")
-
-        IMG['review'] = IMG.review.astype(int)
-        RVW["reviewId"] = RVW.reviewId.astype(int)
-
-        RVW["num_images"] = RVW.images.apply(lambda x: len(x))
-        RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
-        RVW = RVW.loc[(RVW.userId != "")]
-
-
-        # Eliminar usuarios con menos de min_revs
-        # ---------------------------------------------------------------------------------------------------------------
-        old_len = len(RVW)
-
-        USR_LST = RVW.groupby("userId", as_index=False).count()
-        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_revs']), "userId"].values
-        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
-
-        self.printW(
-            "Eliminado usuarios con menos de " + str(self.CONFIG['min_revs']) + " valoraciones quedan un " + str(
-                (len(RVW) / old_len) * 100) + " % del total de reviews.")
-
-        # Eliminar usuarios con menos de min_pos_revs positivos
-        # ---------------------------------------------------------------------------------------------------------------
-        old_len = len(RVW)
-
-        USR_LST = RVW.groupby("userId", as_index=False).sum()
-        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_pos_revs']), "userId"].values
-        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
-
-        self.printW("Eliminado usuarios con menos de " + str(self.CONFIG['min_pos_revs']) + " valoraciones positivas.")
-
+        RVW, IMG = self.getFilteredData();
 
         # Obtener ID para ONE-HOT de usuarios y restaurantes
         # ---------------------------------------------------------------------------------------------------------------
@@ -287,10 +298,10 @@ class ModelClass():
 
         NEW_TRAIN = TRAIN.append(NEW_REVS, ignore_index=True, sort=True) #Todos a TRAIN
 
-        # Añadir al conjunto de DEV los 1000 restaurantes no vistos
+        # Añadir al conjunto de DEV los 100 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
 
-        TOPN_NEW_ITEMS = 100;
+        TOPN_NEW_ITEMS = 99;
 
         dev_used_restaurants = {} #Contiene todos los pares usr restaurante ya ulitizados hasta el momento
 
@@ -324,6 +335,7 @@ class ModelClass():
 
         # Añadir al conjunto de TEST los 1000 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
+        TOPN_NEW_ITEMS = 99;
 
 
         def append_topn_items_test(data):
@@ -459,6 +471,58 @@ class ModelClass():
 
         file.close()
 
+    def getTailGraph(self):
+
+        file = open("tail_graph_"+self.CITY.lower()+".tsv", "w")
+
+        RVW, IMG = self.getFilteredData();
+
+        def count(data): return(pd.Series({'reviews':len(data)}))
+        RES = RVW.groupby('restaurantId').apply(count)
+        RES = RES.sort_values("reviews", ascending=False).reset_index()
+
+        tot_rest = len(RES)
+        tot_revs = sum(RES.reviews.values)
+
+        items = 0
+        revs = 0
+
+        file.write("% REST\t% REVIEWS\tREST\tREVIEWS\n")
+
+        for i, r in RES.iterrows():
+            items+=1
+            revs+=r.reviews
+
+            file.write(str(items/tot_rest)+"\t"+str(revs/tot_revs)+"\t"+str(items)+"\t"+str(revs)+"\n")
+
+        file.close()
+
+        return None
+
+    def getUsersGraph(self):
+
+        file = open("users_graph_"+self.CITY.lower()+".tsv", "w")
+
+        RVW, IMG = self.getFilteredData();
+
+        def myfn(r):
+            pos = sum(r.like)
+            neg = len(r) - pos
+
+            return pd.Series({"pos": pos, "neg": neg, "total": pos + neg})
+
+        RET = RVW.groupby("userId").apply(myfn)
+        RET = RET.sort_values("total",ascending=False).reset_index()
+
+        file.write("ID\tPOS\tNEG\tTOTAL\n")
+
+        id = 0
+        for i,d in RET.iterrows():
+            file.write(str(id)+"\t"+str(d.pos)+"\t"+str(d.neg)+"\t"+str(d.total)+"\n")
+            id+=1
+
+        file.close()
+
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
     def getTopN(self, results):
@@ -472,9 +536,15 @@ class ModelClass():
 
             ret = {}
 
+            data = data.reset_index()
+            real_pos = data.loc[(data.like==1)].index.values[0]+1
+
             for t in self.CONFIG['top']:
-                hit = sum(data[:t].like.values)
+                hit = 1 if(real_pos<=t) else 0
                 ret['hit_'+str(t)]=hit
+
+            ret['real_pos'] = real_pos
+
             return pd.Series(ret)
 
         results = results.groupby('id_user').apply(getHits).reset_index()
@@ -482,7 +552,10 @@ class ModelClass():
         #recall = hits / sum(likes)
         #precision = recall / self.CONFIG['top']
 
-        return results.iloc[:,1:].sum().to_dict()
+        avg_pos = np.average(results.real_pos.values)
+        median_pos = np.median(results.real_pos.values)
+
+        return results.iloc[:,1:-1].sum().to_dict(),avg_pos,median_pos
 
     def getConfMatrix(self, pred, real, title ="", verbose=True):
 

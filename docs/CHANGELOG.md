@@ -275,7 +275,7 @@ Siendo `|T|` el número de positivos del conjunto de TEST y `N` el número de it
 
 ### Modelo
 
-Se utiliza ahora solamente el modelo v3, entrenado de la siguiente forma:
+Se utiliza ahora solamente el modelo v3* (ahora v1), entrenado de la siguiente forma:
 * Un batch solo con `valoraciones` para la parte de clasificación binaria.
 * Un batch solo con `imagenes` para la parte de multiregresión.
 
@@ -283,10 +283,13 @@ De esta forma, se pretenede entrenar cada parte de forma independiente compartie
 
 En el futuro, es posible que se añada una tercera salida de la red con los comentarios en formato `D2V` o `LSTM` lo que implicariía otro paso más en el entrenamiento.
 
+*se probó una versión con el producto escalar previamente, pero los resultados eran peores (Ver fichero `docs/29_10_2018/deep_vs_dot.xlsx`). También se probó la posibilidad de añadir capas ocultas o en la parte de clasificación binaria sin mejoras relevantes (Ver fichero `docs/29_10_2018/deep_hidden.xlsx`)
+
+
 ### Conjunto de datos
 Usuarios con más de 5 revews positivas, separando de la siguiente forma:
-* **TEST:** 1 review positiva + 100 ó 1000 nuevas reviews (distintas de DEV y TRAIN)
-* **DEV:** 1 review positiva  + 100 ó 1000 nuevas reviews (distintas de TRAIN)
+* **TEST:** 1 review positiva + 1000  nuevas reviews (distintas de DEV y TRAIN)
+* **DEV:** 1 review positiva  + 100 nuevas reviews (distintas de TRAIN)
 * **TRAIN_V1:** Resto reviews positivas  + reviews negativas + n nuevas reviews para compensar distribución de 1s y 0s
 * **TRAIN_V2:** Igual que TRAIN_V1 (sin n reviews nuevas) y sólo con imágenes
 
@@ -297,3 +300,10 @@ Dos fases:
 
 ### Evaluación
 Se mantiene la evaluación TOP-N anterior.
+
+### Análisis de datos
+
+* Se generó un gráfico para ver la proporción entre restaurantes y reviews emulando al de Koren. (Ver fichero `docs/29_10_2018/tail_graph.xlsx`)
+* Para ver la distribución de ejemplos por usuario, se generó otro gráfico (Ver fichero `docs/29_10_2018/users_graph.xlsx`)
+
+Analizando lo anterior, se realizan un cambios en la generación de datos descritos a continuación.

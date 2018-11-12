@@ -433,6 +433,8 @@ class ModelClass():
 
     def getDataStats(self):
 
+        print("NO UTILIZAR; DESACTUALIZADO")
+
         file = open("out.tsv", "w")
 
         RVW = pd.read_pickle(self.PATH + "reviews.pkl")

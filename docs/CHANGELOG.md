@@ -311,7 +311,7 @@ Analizando lo anterior, se realizan un cambios en la generación de datos descri
 ## Cambios [12/11/2018]
 
 ### Generación de datos
-Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas) **CON IMAGEN**.  
+Utilizar aquellos usuarios que tenagan como mínimo 5 reviews (positivas o negativas).  
 De los anteriores, aquellos que tengan como mínimo 5 reviews positivas.  
 
 * De todas las reviews positivas, separar para cada usuario `(60%,20%,20% => TRAIN, DEV, TEST)`.  

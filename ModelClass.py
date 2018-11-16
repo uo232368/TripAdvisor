@@ -7,6 +7,7 @@ import pandas as pd
 import pickle
 import math
 import signal, sys
+import hashlib
 
 import random as rn
 
@@ -147,27 +148,52 @@ class ModelClass():
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
         RVW = RVW.loc[(RVW.userId != "")]
 
+
+        # Eliminar RESTAURANTES con menos de 5 revs
+        # ---------------------------------------------------------------------------------------------------------------
+        RST_LST = RVW.groupby("restaurantId", as_index=False).count()
+
+        old_rest_len = len(RST_LST)
+
+        RST_LST = RST_LST.loc[(RST_LST.like >= self.CONFIG['min_rest_revs']), "restaurantId"].values
+
+        self.printW("Eliminado "+str(old_rest_len-len(RST_LST))+" restaurantes (con menos de " + str(self.CONFIG['min_rest_revs']) + " reviews) de un total de "+str(old_rest_len)+" ("+str(1-(len(RST_LST)/old_rest_len))+" %)")
+
+        old_rvw_len = len(RVW)
+        RVW = RVW.loc[RVW.restaurantId.isin(RST_LST)]
+
+        self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
+
+
         # Eliminar usuarios con menos de min_revs
         # ---------------------------------------------------------------------------------------------------------------
-        old_len = len(RVW)
-
+        '''
         USR_LST = RVW.groupby("userId", as_index=False).count()
+
+        old_usr_len = len(USR_LST)
         USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_revs']), "userId"].values
+
+        self.printW("Eliminado "+str(old_usr_len-len(USR_LST))+" usuarios (con menos de " + str(self.CONFIG['min_revs']) + " reviews) de un total de "+str(old_usr_len)+" ("+str(1-(len(USR_LST)/old_usr_len))+" %)")
+
+        old_rvw_len = len(RVW)
         RVW = RVW.loc[RVW.userId.isin(USR_LST)]
 
-        self.printW(
-            "Eliminado usuarios con menos de " + str(self.CONFIG['min_revs']) + " valoraciones quedan un " + str(
-                (len(RVW) / old_len) * 100) + " % del total de reviews.")
-
+        self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
+        '''
         # Eliminar usuarios con menos de min_pos_revs positivos
         # ---------------------------------------------------------------------------------------------------------------
-        old_len = len(RVW)
 
         USR_LST = RVW.groupby("userId", as_index=False).sum()
-        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_pos_revs']), "userId"].values
-        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+        old_usr_len = len(USR_LST)
+        USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_usr_revs']), "userId"].values
+        self.printW("Eliminado "+str(old_usr_len-len(USR_LST))+" usuarios (con menos de " + str(self.CONFIG['min_usr_revs']) + " reviews positivas) de un total de "+str(old_usr_len)+" ("+str(1-(len(USR_LST)/old_usr_len))+" %)")
 
-        self.printW("Eliminado usuarios con menos de " + str(self.CONFIG['min_pos_revs']) + " valoraciones positivas.")
+        old_rvw_len = len(RVW)
+        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+        self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
+
+        print("USUARIOS:"+str(len(RVW.userId.unique())))
+        print("RESTAURANTES:"+str(len(RVW.restaurantId.unique())))
 
         return RVW, IMG
 
@@ -176,9 +202,8 @@ class ModelClass():
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
 
-
         file_path = self.PATH + "model_data"
-        file_path += "_"+str(self.CONFIG['min_revs'])+"_"+str(self.CONFIG['min_pos_revs'])+"/"
+        file_path += "_"+str(self.CONFIG['min_usr_revs'])+"_"+str(self.CONFIG['min_rest_revs'])+"_"+str(self.CONFIG['top_n_new_items'])+"_"+str(self.CONFIG['train_pos_rate']).replace(".","-")+"/"
 
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
@@ -200,8 +225,6 @@ class ModelClass():
 
             return (TRAIN_v1, TRAIN_v2, DEV, TEST, REST_TMP, USR_TMP, IMG, MSE)
 
-        else:
-            os.makedirs(file_path)
 
         # ---------------------------------------------------------------------------------------------------------------
 
@@ -225,8 +248,7 @@ class ModelClass():
         RET = RVW.merge(USR_TMP, left_on='userId', right_on='real_id', how='inner')
         RET = RET.merge(REST_TMP, left_on='restaurantId', right_on='real_id', how='inner')
 
-        RVW = RET[['date', 'images', 'index', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url',
-                   'userId', 'num_images', 'real_id_x', 'id_user', 'real_id_y', 'id_restaurant', 'like']]
+        RVW = RET[['date', 'images', 'index', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'real_id_x', 'id_user', 'real_id_y', 'id_restaurant', 'like']]
 
         # Mover ejemplos positivos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
@@ -236,24 +258,44 @@ class ModelClass():
 
         #GRP_USR = RVW.groupby(["userId"])
 
+        TRAIN_POS_RATE = self.CONFIG['train_pos_rate']
+        DEV_TEST_RATE = self.CONFIG['dev_test_pos_rate']
+
+        assert TRAIN_POS_RATE+DEV_TEST_RATE+DEV_TEST_RATE == 1.0, "Error en porcentajes"
+
         POS_REVS = RVW.loc[(RVW.like==1)]
         POS_REVS = POS_REVS.sort_values(by=['userId'])
 
-        POS_REVS['id_user_test'] = POS_REVS.id_user.shift(-1)
-        POS_REVS.loc[POS_REVS.id_user_test.isnull(),"id_user_test"] = -1
+        def split_fn(d):
 
-        POS_REVS_TEST = POS_REVS.loc[(POS_REVS.id_user!=POS_REVS.id_user_test)].drop(columns=['id_user_test'])
-        POS_REVS = POS_REVS.loc[(POS_REVS.id_user==POS_REVS.id_user_test)].drop(columns=['id_user_test'])
+            items = len(d)
 
-        POS_REVS['id_user_dev'] = POS_REVS['id_user'].shift(-1)
-        POS_REVS.loc[POS_REVS['id_user_dev'].isnull(),"id_user_dev"] = -1
+            if(TRAIN_POS_RATE!=1.0): dev_test_items = int(items * DEV_TEST_RATE)
 
-        POS_REVS_DEV = POS_REVS.loc[(POS_REVS['id_user']!=POS_REVS['id_user_dev'])].drop(columns=['id_user_dev'])
-        POS_REVS = POS_REVS.loc[(POS_REVS['id_user']==POS_REVS['id_user_dev'])].drop(columns=['id_user_dev'])
+            else:dev_test_items = 1
 
-        TRAIN = TRAIN.append(POS_REVS, ignore_index=True)
-        DEV = DEV.append(POS_REVS_DEV, ignore_index=True)
-        TEST = TEST.append(POS_REVS_TEST, ignore_index=True)
+            train_items = items - (2 * dev_test_items)
+
+            assert dev_test_items >= 1, "No puede haber menos de 1 item en dev y test"
+
+            d["TO_TRAIN"] = 0; d["TO_DEV"] = 0; d["TO_TEST"] = 0
+
+            d.iloc[:train_items,-3] = 1
+            d.iloc[train_items:train_items+dev_test_items,-2] = 1
+            d.iloc[train_items+dev_test_items:,-1] = 1
+
+            return d
+
+        POS_REVS = POS_REVS.groupby('id_user').apply(split_fn)
+
+        TRAIN = POS_REVS.loc[POS_REVS.TO_TRAIN==1]
+        DEV = POS_REVS.loc[POS_REVS.TO_DEV==1]
+        TEST = POS_REVS.loc[POS_REVS.TO_TEST==1]
+
+        TRAIN = TRAIN.drop(columns=["TO_TRAIN","TO_DEV","TO_TEST"])
+        DEV = DEV.drop(columns=["TO_TRAIN","TO_DEV","TO_TEST"])
+        TEST = TEST.drop(columns=["TO_TRAIN","TO_DEV","TO_TEST"])
+
 
         # Mover ejemplos negativos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
@@ -265,7 +307,10 @@ class ModelClass():
         # Crear ejemplos nuevos para compensar distribución de clases
         # ---------------------------------------------------------------------------------------------------------------
 
-        N_NEW_ITEMS = len(POS_REVS)-len(NEG_REVS)
+        N_NEW_ITEMS = len(TRAIN.loc[TRAIN.like==1])-len(NEG_REVS)
+
+        assert len(TRAIN.loc[TRAIN.like==1])> len(NEG_REVS), "Existen más negativos que positivos..."
+
         N_USERS = len(USR_TMP)
 
         ITEMS_PER_USR = (N_NEW_ITEMS//N_USERS)
@@ -282,7 +327,7 @@ class ModelClass():
         def append_no_reviewed_restaurants(data):
             no_reviewed = list(rest_ids.difference(set(data.id_restaurant.values)))
             no_reviewed = rn.sample(no_reviewed,ITEMS_PER_USR)
-            
+
             used_restaurants[data.id_user.values[0]] = np.append(data.id_restaurant.values,no_reviewed)
 
             ret = pd.DataFrame(-1, index=np.arange(ITEMS_PER_USR), columns=data.columns)
@@ -301,7 +346,7 @@ class ModelClass():
         # Añadir al conjunto de DEV los 100 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
 
-        TOPN_NEW_ITEMS = 99;
+        TOPN_NEW_ITEMS = self.CONFIG['top_n_new_items'];
 
         dev_used_restaurants = {} #Contiene todos los pares usr restaurante ya ulitizados hasta el momento
 
@@ -316,6 +361,7 @@ class ModelClass():
             dev_used_restaurants[idUser] = no_reviewed
 
             ret = pd.DataFrame(-1, index=np.arange(TOPN_NEW_ITEMS), columns=data.columns)
+
             ret["id_user"] = data.id_user.values[0]
             ret["like"] = 0
             ret["id_restaurant"] = no_reviewed
@@ -335,7 +381,7 @@ class ModelClass():
 
         # Añadir al conjunto de TEST los 1000 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
-        TOPN_NEW_ITEMS = 99;
+        TOPN_NEW_ITEMS = self.CONFIG['top_n_new_items'];
 
 
         def append_topn_items_test(data):
@@ -412,6 +458,7 @@ class ModelClass():
         #TEST = utils.shuffle(TEST, random_state=self.SEED)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
+        os.makedirs(file_path)
 
         self.toPickle(file_path, "TRAIN_v1", TRAIN_v1)
         self.toPickle(file_path, "TRAIN_v2", TRAIN_v2)
@@ -489,13 +536,13 @@ class ModelClass():
         items = 0
         revs = 0
 
-        file.write("% REST\t% REVIEWS\tREST\tREVIEWS\n")
+        file.write("% REVIEWS\t% REST\tREVIEWS\tREST\n")
 
         for i, r in RES.iterrows():
             items+=1
             revs+=r.reviews
 
-            file.write(str(items/tot_rest)+"\t"+str(revs/tot_revs)+"\t"+str(items)+"\t"+str(revs)+"\n")
+            file.write(str(revs/tot_revs)+"\t"+str(items/tot_rest)+"\t"+str(revs)+"\t"+str(items)+"\n")
 
         file.close()
 
@@ -532,32 +579,50 @@ class ModelClass():
         users = self.DEV.id_user.values
         likes = self.DEV.like.values
 
-        results = results.sort_values(['id_user', 'prediction'], ascending=[True, False]).reset_index(drop=True)
+        results = results.sort_values(['id_user', 'prediction'], ascending=[True, True]).reset_index(drop=True)
 
         def getHits(data):
 
-            ret = {}
-
             data = data.reset_index()
-            real_pos = data.loc[(data.like==1)].index.values[0]+1
 
-            for t in self.CONFIG['top']:
-                hit = 1 if(real_pos<=t) else 0
-                ret['hit_'+str(t)]=hit
+            ones = data.loc[(data.like == 1)]
+            zeros = data.loc[(data.like == 0)]
 
-            ret['real_pos'] = real_pos
+            columns = list(map(lambda x: "hit_"+str(x),self.CONFIG['top']))
+            columns.append("real_pos")
+            ret = pd.DataFrame( columns=columns)
 
-            return pd.Series(ret)
+            for i,p in ones.iterrows():
+                #tmp = zeros.prediction.values
+                #tmp = -np.sort(-np.append(tmp,p.prediction))
+                #real_pos, = np.where(tmp == p.prediction)
+
+                real_pos = np.searchsorted(zeros.prediction.values,p.prediction)
+                real_pos= self.CONFIG['top_n_new_items']-(real_pos-1)
+
+                tmp = {}
+
+                for t in self.CONFIG['top']:
+                    hit = 1 if (real_pos <= t) else 0
+                    tmp['hit_' + str(t)] = hit
+
+                tmp['real_pos'] = real_pos
+
+                ret = ret.append(tmp, ignore_index=True)
+
+            return ret
 
         results = results.groupby('id_user').apply(getHits).reset_index()
+        results = results.drop(columns=["level_1"])
 
+        res= (results.iloc[:,1:-1].sum()/sum(likes))*100.0
         #recall = hits / sum(likes)
         #precision = recall / self.CONFIG['top']
 
-        avg_pos = np.average(results.real_pos.values)
+        avg_pos = np.mean(results.real_pos.values)
         median_pos = np.median(results.real_pos.values)
 
-        return results.iloc[:,1:-1].sum().to_dict(),avg_pos,median_pos
+        return res.to_dict(),avg_pos,median_pos
 
     def getConfMatrix(self, pred, real, title ="", verbose=True):
 
@@ -616,6 +681,26 @@ class ModelClass():
         with open(path+name, 'rb') as handle:
             data = pickle.load(handle)
         return data
+
+    def printConfig(self, filter=[]):
+
+        print(hashlib.md5(str(self.CONFIG).encode('utf-8')).hexdigest())
+
+        print("-" * 25)
+
+        for key, value in self.CONFIG.items():
+
+            line = bcolors.BOLD + key + ": " + bcolors.ENDC + str(value)
+
+            if(len(filter)>0):
+                if(key in filter):
+                    print(line)
+
+            else:
+                print(line)
+
+
+        print("-"*25)
 
     def printE(self,text):
         print(bcolors.FAIL+str("[ERROR] ")+str(text)+bcolors.ENDC)

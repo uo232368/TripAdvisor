@@ -27,17 +27,20 @@ model= 1 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
-gpu = 1 if args.gpu == None else args.gpu
+gpu = 0 if args.gpu == None else args.gpu
 top = [1,5,10,15,20] if args.top == None else args.top
-dpout = .5 if args.d == None else args.d
-lrates = [1e-4] if args.lr == None else args.lr
+dpout = 1.0 if args.d == None else args.d
+lrates = [1e-5] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
-config = {"min_revs":5,
-          "min_pos_revs":5,
+config = {"min_usr_revs":5,
+          "min_rest_revs":5,
+          "top_n_new_items": 99,
+          "train_pos_rate":0.6,
+          "dev_test_pos_rate":0.2,
 
           "top": top,
           "emb_size":embsize[0],
@@ -52,6 +55,7 @@ config = {"min_revs":5,
 
 ########################################################################################################################
 
+
 #DEEP
 if (model == 1):
 
@@ -60,7 +64,6 @@ if (model == 1):
         "emb_size": embsize,
     }
     modelv1 = ModelV1(city=city, option=option, config=config, seed=seed)
-    exit()
     modelv1.gridSearchV1(params, max_epochs=500)
     #modelv1.gridSearchV2(params, max_epochs=500)
 

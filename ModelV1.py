@@ -23,7 +23,7 @@ class ModelV1(ModelClass):
             emb_size = self.CONFIG['emb_size']
             concat_size = emb_size*2
 
-            hidden0_size = emb_size
+            #hidden0_size = emb_size
             hidden_size = self.CONFIG['hidden_size']
 
             # Número global de iteraciones
@@ -142,9 +142,8 @@ class ModelV1(ModelClass):
             #Obtener el modelo
             self.MODEL = self.getModel()
 
-            print("-"*70)
-            print(self.CONFIG)
-
+            #Imprimir la configuración actual
+            self.printConfig(filter=['min_usr_revs','min_rest_revs','train_pos_rate','emb_size','hidden_size','learning_rate','dropout'])
 
             #Configurar y crear sesion
             config = tf.ConfigProto()
@@ -179,6 +178,7 @@ class ModelV1(ModelClass):
                     dev_res = pd.DataFrame()
                     dev_loss = []
 
+
                     for batch_d in np.array_split(self.DEV, 40):
 
                         batch_dtfm = batch_d.copy()
@@ -200,9 +200,12 @@ class ModelV1(ModelClass):
                     dev_loss_comb.append(np.average(dev_loss))
                     stop_param_comb.append(avg_pos)
 
-                    log_items = [e,self.CONFIG['emb_size'],self.CONFIG['learning_rate'],train_loss_comb[-1],dev_loss_comb[-1]]
-                    log_items.extend(hits)
-                    log_items.extend([avg_pos,median_pos])
+                    log_items = [e,self.CONFIG['emb_size'],self.CONFIG['learning_rate']]
+                    log_items.extend(np.round([train_loss_comb[-1],dev_loss_comb[-1]],decimals=4))
+                    log_items.append(bcolors.OKBLUE)
+                    log_items.extend(np.round(hits,decimals=4))
+                    log_items.append(bcolors.ENDC)
+                    log_items.extend(np.round([avg_pos,median_pos],decimals=4))
                     log_line = "\t".join(map(lambda x:str(x),log_items))
                     print(log_line)
 

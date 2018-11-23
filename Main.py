@@ -23,24 +23,25 @@ parser.add_argument('-top', nargs='+', type=int, help='Lista de tops a calcular'
 
 args = parser.parse_args()
 
-model= 1 if args.m == None else args.m
+model= 2 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
-gpu = 0 if args.gpu == None else args.gpu
+gpu = 1 if args.gpu == None else args.gpu
 top = [1,5,10,15,20] if args.top == None else args.top
 dpout = 1.0 if args.d == None else args.d
-lrates = [1e-5] if args.lr == None else args.lr
+lrates = [1e-3] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
-config = {"min_usr_revs":5,
-          "min_rest_revs":5,
+config = {"min_rest_revs":0,
+          "min_usr_revs":5,
           "top_n_new_items": 99,
-          "train_pos_rate":0.6,
-          "dev_test_pos_rate":0.2,
+          "train_pos_rate":1.0,
+          "dev_test_pos_rate":0.0,
+          "use_rest_provs": False,
 
           "top": top,
           "emb_size":embsize[0],

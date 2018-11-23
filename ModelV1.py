@@ -50,6 +50,7 @@ class ModelV1(ModelClass):
             T1 = tf.Variable(tf.truncated_normal([concat_size, hidden_size], mean=0.0, stddev=1.0 / math.sqrt(hidden_size)),name="T1")
             b1 = tf.Variable(tf.zeros([hidden_size]), name="b1")
 
+
             #T2 = tf.Variable(tf.truncated_normal([hidden0_size, hidden_size], mean=0.0, stddev=1.0 / math.sqrt(hidden_size)),name="T2")
             #b2 = tf.Variable(tf.zeros([hidden_size]), name="b2")
 
@@ -63,13 +64,14 @@ class ModelV1(ModelClass):
             user_emb = tf.nn.embedding_lookup(E1, user_rest_input[:,0])
             user_emb = tf.nn.dropout(user_emb, keep_prob=dpout)
 
-            rest_emb = tf.nn.embedding_lookup(E1, user_rest_input[:,1])
+            rest_emb = tf.nn.embedding_lookup(E2, user_rest_input[:,1])
             rest_emb = tf.nn.dropout(rest_emb, keep_prob=dpout)
 
             h0 = tf.concat([user_emb,rest_emb],axis=1, name="concat_h0")
-            h0 = tf.matmul(h0,T1, name="matmul_h0") +  b1
+            h0 = tf.matmul(h0,T1, name="matmul_h0")
+            h0 = tf.add(h0,b1,name="bias_h0")
             h0 = tf.nn.dropout(h0, keep_prob=dpout)
-            h0 = tf.nn.relu(h0)
+            h0 = tf.nn.relu(h0,name="matmul_h0_relu")
 
             #h1 = tf.matmul(h0,T2, name="matmul_h1") +  b2
 
@@ -81,7 +83,7 @@ class ModelV1(ModelClass):
             #h1 = tf.nn.dropout(h1, keep_prob=dpout)
             #h1 = tf.nn.relu(h1)
 
-            out_bin = tf.matmul(h0, B1)
+            out_bin = tf.matmul(h0, B1, name="out_bin")
 
             # multiregresión
             out_img = tf.matmul(h0, R1)
@@ -143,7 +145,7 @@ class ModelV1(ModelClass):
             self.MODEL = self.getModel()
 
             #Imprimir la configuración actual
-            self.printConfig(filter=['min_usr_revs','min_rest_revs','train_pos_rate','emb_size','hidden_size','learning_rate','dropout'])
+            self.printConfig(filter=['min_usr_revs','min_rest_revs','train_pos_rate','emb_size','hidden_size','learning_rate','dropout','seed'])
 
             #Configurar y crear sesion
             config = tf.ConfigProto()
@@ -164,22 +166,38 @@ class ModelV1(ModelClass):
                     # Entrenar el modelo ###################################################################################
                     train_loss = []
 
+
                     for batch in np.array_split(self.TRAIN_V1, len(self.TRAIN_V1)//self.CONFIG['batch_size']):
 
                         batch_tm = batch[['id_user','id_restaurant','like']].values
 
                         feed_dict = {"user_rest_input:0": batch_tm[:,[0,1]], "bin_labels:0": batch_tm[:,[2]],'dpout:0':self.CONFIG['dropout']}
 
+                        batch_tm[:, [0, 1]]
+
                         _, batch_softplus = self.SESSION.run(['train_step_bin:0','batch_softplus:0'],feed_dict=feed_dict)
 
                         train_loss.extend(batch_softplus[:,0])
+
+                    '''
+                    train_test_DF = self.TRAIN_V1.loc[self.TRAIN_V1.id_user.isin([6])]
+                    train_test = np.matrix(train_test_DF[['id_user', 'id_restaurant', 'like']])
+
+                    feed_dict = {"user_rest_input:0": train_test[:, [0, 1]], "bin_labels:0": train_test[:, [2]], 'dpout:0': 1.0}
+                    probs = self.SESSION.run('batch_bin_prob:0', feed_dict=feed_dict)
+
+                    train_test_DF.loc[:,"PRBS"] = probs
+                    train_test_DF = train_test_DF.sort_values("PRBS", ascending=False)
+
+                    #print(probs)
+                    print(train_test_DF[["id_user","id_restaurant","reviewId","like","PRBS"]])
+                    '''
 
                     # Probar en DEV ########################################################################################
                     dev_res = pd.DataFrame()
                     dev_loss = []
 
-
-                    for batch_d in np.array_split(self.DEV, 40):
+                    for batch_d in np.array_split(self.DEV, 20):
 
                         batch_dtfm = batch_d.copy()
                         batch_dtfm = batch_dtfm[['id_user','id_restaurant','like']]
@@ -193,8 +211,88 @@ class ModelV1(ModelClass):
 
                         dev_res = dev_res.append(batch_dtfm,ignore_index=True)
 
+
+
+                    if(e==5):
+                        b1, E1, E2, T1, B1_1 = self.SESSION.run(['b1:0', 'E1:0', 'E2:0', 'T1:0', 'B1_1:0', ])
+
+                        np.savetxt("b1.csv", b1, delimiter="\t")
+                        np.savetxt("E1.csv", E1, delimiter="\t")
+                        np.savetxt("E2.csv", E2, delimiter="\t")
+                        np.savetxt("T1.csv", T1, delimiter="\t")
+                        np.savetxt("B1_1.csv", B1_1, delimiter="\t")
+
+                        dev_res.to_csv("DEV.csv")
+
+                        exit()
+
+                    '''
+                    id_user = 17
+
+                    #self.DEV = self.DEV.loc[(self.DEV.id_user==0)&(self.DEV.id_restaurant.isin([350,1689]))]
+                    self.DEV = self.DEV.loc[(self.DEV.id_user==id_user)]
+                    batch_dtfm = np.matrix(self.DEV[['id_user', 'id_restaurant', 'like']])
+
+                    feed_dict = {"user_rest_input:0": batch_dtfm[:, [0, 1]], "bin_labels:0": batch_dtfm[:, [2]],'dpout:0': 1.0}
+                    bias_h0,concat,batch_softplus,batch_bin_prob,out_bin, h0, r0 = self.SESSION.run(['bias_h0:0','concat_h0:0','batch_softplus:0','batch_bin_prob:0','out_bin:0','matmul_h0:0',"matmul_h0_relu:0"],feed_dict=feed_dict)
+
+                    print(out_bin)
+
+
+                    b1, E1, E2, T1, B1_1 = self.SESSION.run(['b1:0', 'E1:0', 'E2:0', 'T1:0', 'B1_1:0', ])
+
+                    np.savetxt("b1.csv", b1, delimiter="\t")
+                    np.savetxt("E1.csv", E1, delimiter="\t")
+                    np.savetxt("E2.csv", E2, delimiter="\t")
+                    np.savetxt("T1.csv", T1, delimiter="\t")
+                    np.savetxt("B1_1.csv", B1_1, delimiter="\t")
+
+
+                    '''
+
+                    #print(dev_res.loc[dev_res.id_user==id_user])
+
+                    #print(bias_h0)
+
+                    #exit()
+
+
+
+
+                    #row = list(range(1000,6000))
+
+                    #print(h0[row,:],h0.shape)
+                    #print(r0[row,:],r0.shape)
+                    #print(out_bin[row,0],out_bin.shape)
+                    #print(batch_bin_prob[row,0],batch_bin_prob.shape)
+                    #print(batch_softplus[row,0],batch_softplus.shape)
+
+                    #b1,E1, E2, T1, B1_1 = self.SESSION.run(['b1:0','E1:0','E2:0','T1:0','B1_1:0', ])
+
+                    '''
+                    if(e==9):
+                        np.savetxt("b1.csv", b1, delimiter="\t")
+                        np.savetxt("E1.csv", E1, delimiter="\t")
+                        np.savetxt("E2.csv", E2, delimiter="\t")
+                        np.savetxt("T1.csv", T1, delimiter="\t")
+                        np.savetxt("B1_1.csv", B1_1, delimiter="\t")
+                    '''
+
+                    #b1,usr_emb, rest_emb, hidden, bin_class = self.SESSION.run(['b1:0','E1:0','E2:0','T1:0','B1_1:0'])
+
+                    '''
+                    print(np.linalg.norm(usr_emb))
+                    print(np.linalg.norm(rest_emb))
+                    print(np.linalg.norm(hidden))
+                    print(np.linalg.norm(bin_class))
+                    print(np.linalg.norm(b1))
+                    '''
+                    #print(out_bin)
+                    #exit()
+
                     hits,avg_pos,median_pos = self.getTopN(dev_res)
                     hits = list(hits.values())
+
 
                     train_loss_comb.append(np.average(train_loss))
                     dev_loss_comb.append(np.average(dev_loss))
@@ -209,12 +307,14 @@ class ModelV1(ModelClass):
                     log_line = "\t".join(map(lambda x:str(x),log_items))
                     print(log_line)
 
-
+                    '''
                     # Si en las n epochs anteriores la pendiente es menor que valor, parar
                     if (len(stop_param_comb) >= start_n_epochs + last_n_epochs):
                         slope = self.getSlope(stop_param_comb[-last_n_epochs:]);
                         if (slope > self.CONFIG['gs_max_slope']):
                             break
+
+                    '''
 
     def gridSearchV2(self, params, max_epochs=500):
 

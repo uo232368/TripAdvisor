@@ -148,6 +148,9 @@ class ModelClass():
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
         RVW = RVW.loc[(RVW.userId != "")]
 
+        #USR5 = RVW.loc[RVW.reviewId.isin([270316041,344306570])]
+        #print(USR5[['url']].values)
+        #exit()
 
         # Eliminar RESTAURANTES con menos de 5 revs
         # ---------------------------------------------------------------------------------------------------------------
@@ -185,11 +188,16 @@ class ModelClass():
 
         USR_LST = RVW.groupby("userId", as_index=False).sum()
         old_usr_len = len(USR_LST)
+
         USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_usr_revs']), "userId"].values
+        #USR_LST = USR_LST.loc[(USR_LST.like == self.CONFIG['min_usr_revs']), "userId"].values;self.printE("SOLO 5 REVIEWS") # <===============
+
         self.printW("Eliminado "+str(old_usr_len-len(USR_LST))+" usuarios (con menos de " + str(self.CONFIG['min_usr_revs']) + " reviews positivas) de un total de "+str(old_usr_len)+" ("+str(1-(len(USR_LST)/old_usr_len))+" %)")
 
         old_rvw_len = len(RVW)
+
         RVW = RVW.loc[RVW.userId.isin(USR_LST)]
+
         self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
 
         print("USUARIOS:"+str(len(RVW.userId.unique())))
@@ -202,8 +210,16 @@ class ModelClass():
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
 
-        file_path = self.PATH + "model_data"
-        file_path += "_"+str(self.CONFIG['min_usr_revs'])+"_"+str(self.CONFIG['min_rest_revs'])+"_"+str(self.CONFIG['top_n_new_items'])+"_"+str(self.CONFIG['train_pos_rate']).replace(".","-")+"/"
+
+        file_path = self.PATH +"model_data"
+        file_path += "_"+str(self.CONFIG['min_usr_revs'])
+        file_path += "_"+str(self.CONFIG['min_rest_revs'])
+        file_path += "_"+str(self.CONFIG['top_n_new_items'])
+        file_path += "_"+str(self.CONFIG['train_pos_rate'])
+        file_path += "_"+ ("PRB" if(self.CONFIG['use_rest_provs']) else "RNDM")
+        file_path += "/"
+
+        '''
 
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
@@ -224,6 +240,8 @@ class ModelClass():
             self.getCardinality(TEST.like, title="TEST", verbose=True)
 
             return (TRAIN_v1, TRAIN_v2, DEV, TEST, REST_TMP, USR_TMP, IMG, MSE)
+
+        '''
 
 
         # ---------------------------------------------------------------------------------------------------------------
@@ -248,7 +266,12 @@ class ModelClass():
         RET = RVW.merge(USR_TMP, left_on='userId', right_on='real_id', how='inner')
         RET = RET.merge(REST_TMP, left_on='restaurantId', right_on='real_id', how='inner')
 
-        RVW = RET[['date', 'images', 'index', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'real_id_x', 'id_user', 'real_id_y', 'id_restaurant', 'like']]
+        RVW = RET[['date', 'images', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'id_user', 'id_restaurant', 'like']]
+
+        #RST_ERROR = 440
+
+        #print(RVW.loc[RVW.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
+
 
         # Mover ejemplos positivos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
@@ -263,30 +286,77 @@ class ModelClass():
 
         assert TRAIN_POS_RATE+DEV_TEST_RATE+DEV_TEST_RATE == 1.0, "Error en porcentajes"
 
-        POS_REVS = RVW.loc[(RVW.like==1)]
-        POS_REVS = POS_REVS.sort_values(by=['userId'])
+        if(TRAIN_POS_RATE==1):assert self.CONFIG['min_usr_revs'] >= 3, "Mínimo 3 ejemplos positivos (TRAIN/DEV/TEST) "
+
+        #RVW = RVW.loc[RVW.id_user.isin([0,1,2,3])]
+
+        POS_REVS = RVW.loc[(RVW.like==1)].reset_index(drop=True)
+
+        sort = 1
+
+        #POS_REVS.to_csv("PREV_SORT.csv")
+
+        if(sort):POS_REVS = POS_REVS.sort_values(by=['id_user','reviewId'], ascending=[True,True]); print("SORTED")
+
+        #POS_REVS.to_csv("POST_SORT.csv")
+
+
+        #POS_REVS = POS_REVS.sort_values(by=['id_user','reviewId'], ascending=[True, True]); print("SORTED")
 
         def split_fn(d):
 
             items = len(d)
 
             if(TRAIN_POS_RATE!=1.0): dev_test_items = int(items * DEV_TEST_RATE)
-
             else:dev_test_items = 1
 
             train_items = items - (2 * dev_test_items)
-
             assert dev_test_items >= 1, "No puede haber menos de 1 item en dev y test"
-
             d["TO_TRAIN"] = 0; d["TO_DEV"] = 0; d["TO_TEST"] = 0
 
-            d.iloc[:train_items,-3] = 1
-            d.iloc[train_items:train_items+dev_test_items,-2] = 1
-            d.iloc[train_items+dev_test_items:,-1] = 1
+            #rows = [0,1]
+            #rows.extend(list(range(4,len(d))))
+
+            #d.iloc[[0,1,2,3], -3] = 1  # TRAIN
+            #d.iloc[4, -2] = 1  # DEV
+            #d.iloc[3, -1] = 1  # TEST
+
+
+            '''
+            idx = list(d.index.values);idx.sort()
+            idx_min = idx[1]
+            idx.remove(idx_min)
+
+            d.loc[idx, "TO_TRAIN"] = 1  # TRAIN
+            d.loc[idx_min, "TO_DEV"] = 1 # DEV
+
+            '''
+
+            #print(d.loc[d.TO_DEV==1,['id_user','id_restaurant']])
+
+
+            upper = False
+
+            if(upper):
+                d.iloc[:dev_test_items , -1] = 1
+                d.iloc[dev_test_items:-train_items , -2] = 1
+                d.iloc[-train_items:, -3] = 1
+
+            else:
+                d.iloc[:train_items,-3] = 1
+                d.iloc[train_items:train_items+dev_test_items,-2] = 1
+                d.iloc[train_items+dev_test_items:,-1] = 1
+
+
+            #print(d.loc[d.TO_DEV==1])
+            #print(d[["date","reviewId","TO_TRAIN","TO_DEV","TO_TEST"]])
+            #exit()
 
             return d
 
         POS_REVS = POS_REVS.groupby('id_user').apply(split_fn)
+
+        #exit()
 
         TRAIN = POS_REVS.loc[POS_REVS.TO_TRAIN==1]
         DEV = POS_REVS.loc[POS_REVS.TO_DEV==1]
@@ -296,13 +366,11 @@ class ModelClass():
         DEV = DEV.drop(columns=["TO_TRAIN","TO_DEV","TO_TEST"])
         TEST = TEST.drop(columns=["TO_TRAIN","TO_DEV","TO_TEST"])
 
-
         # Mover ejemplos negativos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
 
         NEG_REVS = RVW.loc[(RVW.like!=1)]
-
-        TRAIN = TRAIN.append(NEG_REVS, ignore_index=True) #Todos a TRAIN
+        TRAIN = TRAIN.append(NEG_REVS, ignore_index=True,sort=False) #Todos a TRAIN
 
         # Crear ejemplos nuevos para compensar distribución de clases
         # ---------------------------------------------------------------------------------------------------------------
@@ -318,22 +386,39 @@ class ModelClass():
 
         if(ITEMS_LEFT>0):ITEMS_PER_USR+=1
 
+        #ITEMS_PER_USR = 300; self.printE("ITEMS_PER_USER")
+
         self.printW("Se añaden " + str(ITEMS_PER_USR) + " items nuevos por usuario. ("+str((ITEMS_PER_USR*N_USERS))+" en total)")
 
-        rest_ids = set(REST_TMP.id_restaurant)
+        #Obtener la lista de restaurantes, el número de reviews y la probabilidad de aparecer
+
+        rst_ids_prob = RVW.groupby("id_restaurant", as_index=False).apply(lambda x : pd.Series({"n_rvs":len(x)})).reset_index(drop=True)
+        #rst_ids_prob["prob"] = rst_ids_prob["n_rvs"] / sum(rst_ids_prob["n_rvs"].values)
+
+        #rst_ids_prob["n_rvs"] = max(rst_ids_prob["n_rvs"].values)-rst_ids_prob["n_rvs"];self.printE("INVERTIDO") # <===============
+
+        rest_ids = set(rst_ids_prob.index)
 
         used_restaurants = {} #Contiene todos los pares usr restaurante ya ulitizados hasta el momento
 
         def append_no_reviewed_restaurants(data):
-            no_reviewed = list(rest_ids.difference(set(data.id_restaurant.values)))
-            no_reviewed = rn.sample(no_reviewed,ITEMS_PER_USR)
+            no_reviewed_rests = list(rest_ids.difference(set(data.id_restaurant.values)))
 
-            used_restaurants[data.id_user.values[0]] = np.append(data.id_restaurant.values,no_reviewed)
+            if(self.CONFIG['use_rest_provs']):
+                no_reviewed_probs = rst_ids_prob.loc[no_reviewed_rests,"n_rvs"].values
+                no_reviewed_probs = no_reviewed_probs / sum(no_reviewed_probs)
+            else:
+                no_reviewed_probs = [1 / len(no_reviewed_rests)] * len(no_reviewed_rests)
+
+            #Selecionar items en función del número de reviews (más probables si más reviews)
+            no_reviewed_items = np.random.choice(no_reviewed_rests, ITEMS_PER_USR, replace=False,p=no_reviewed_probs)
+
+            used_restaurants[data.id_user.values[0]] = np.append(data.id_restaurant.values,no_reviewed_items)
 
             ret = pd.DataFrame(-1, index=np.arange(ITEMS_PER_USR), columns=data.columns)
             ret["id_user"]=data.id_user.values[0]
             ret["like"]=0
-            ret["id_restaurant"]=no_reviewed
+            ret["id_restaurant"]=no_reviewed_items
             ret = ret.drop(columns="userId")
 
             return ret
@@ -342,6 +427,7 @@ class ModelClass():
         NEW_REVS = NEW_REVS.drop(columns="level_1")
 
         NEW_TRAIN = TRAIN.append(NEW_REVS, ignore_index=True, sort=True) #Todos a TRAIN
+
 
         # Añadir al conjunto de DEV los 100 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
@@ -355,56 +441,68 @@ class ModelClass():
             idUser = data.id_user.values[0]
             used_rests = used_restaurants[idUser]
 
-            no_reviewed = list(rest_ids.difference(set(used_rests)))
-            no_reviewed = rn.sample(no_reviewed, TOPN_NEW_ITEMS)
+            no_reviewed_rests = list(rest_ids.difference(set(used_rests)))
+            
+            if(self.CONFIG['use_rest_provs']):
+                no_reviewed_probs = rst_ids_prob.loc[no_reviewed_rests, "n_rvs"].values
+                no_reviewed_probs = no_reviewed_probs / sum(no_reviewed_probs)
+            else:
+                no_reviewed_probs = [1/len(no_reviewed_rests)]*len(no_reviewed_rests)
 
-            dev_used_restaurants[idUser] = no_reviewed
+            # Selecionar items en función del número de reviews (más probables si más reviews)
+            no_reviewed_items = np.random.choice(no_reviewed_rests, TOPN_NEW_ITEMS, replace=False, p=no_reviewed_probs)
+
+            dev_used_restaurants[idUser] = no_reviewed_items
 
             ret = pd.DataFrame(-1, index=np.arange(TOPN_NEW_ITEMS), columns=data.columns)
 
             ret["id_user"] = data.id_user.values[0]
             ret["like"] = 0
-            ret["id_restaurant"] = no_reviewed
+            ret["id_restaurant"] = no_reviewed_items
             ret = ret.drop(columns="userId")
 
             ret = ret.append(data.drop(columns=["userId"]),ignore_index=True)
 
             return ret
 
-        NEW_DEV = DEV.groupby(['userId']).apply(append_topn_items_dev).reset_index()
-        NEW_DEV = NEW_DEV.drop(columns="level_1")
-
+        NEW_DEV = DEV.groupby(['userId']).apply(append_topn_items_dev).reset_index(drop=True)
+        #NEW_DEV = NEW_DEV.drop(columns="level_1")
 
         #Añadir los restaurantes usados en dev a la lista total
         for i in used_restaurants:used_restaurants[i] = np.append(used_restaurants[i],dev_used_restaurants[i])
 
-
         # Añadir al conjunto de TEST los 1000 restaurantes no vistos
         # ---------------------------------------------------------------------------------------------------------------
         TOPN_NEW_ITEMS = self.CONFIG['top_n_new_items'];
-
 
         def append_topn_items_test(data):
 
             idUser = data.id_user.values[0]
             used_rests = used_restaurants[idUser]
 
-            no_reviewed = list(rest_ids.difference(set(used_rests)))
-            no_reviewed = rn.sample(no_reviewed, TOPN_NEW_ITEMS)
+            no_reviewed_rests = list(rest_ids.difference(set(used_rests)))
+            
+            if(self.CONFIG['use_rest_provs']):
+                no_reviewed_probs = rst_ids_prob.loc[no_reviewed_rests, "n_rvs"].values
+                no_reviewed_probs = no_reviewed_probs / sum(no_reviewed_probs)
+            else:
+                no_reviewed_probs = [1/len(no_reviewed_rests)]*len(no_reviewed_rests)
+
+            # Selecionar items en función del número de reviews (más probables si más reviews)
+            no_reviewed_items = np.random.choice(no_reviewed_rests, TOPN_NEW_ITEMS, replace=False, p=no_reviewed_probs)
 
             ret = pd.DataFrame(-1, index=np.arange(TOPN_NEW_ITEMS), columns=data.columns)
             ret["id_user"] = data.id_user.values[0]
             ret["like"] = 0
-            ret["id_restaurant"] = no_reviewed
+            ret["id_restaurant"] = no_reviewed_items
             ret = ret.drop(columns="userId")
 
             ret = ret.append(data.drop(columns=["userId"]),ignore_index=True)
 
             return ret
 
-
-        NEW_TEST = TEST.groupby(['userId']).apply(append_topn_items_test).reset_index()
-        NEW_TEST = NEW_TEST.drop(columns="level_1")
+        NEW_TEST = TEST.groupby(['userId']).apply(append_topn_items_test).reset_index(drop=True)
+        #NEW_TEST = NEW_TEST.drop(columns="level_1")
 
 
         # Obtener conjuntos de TRAIN/DEV/TEST
@@ -413,9 +511,17 @@ class ModelClass():
         self.printG("Generando conjuntos finales...")
 
         TRAIN_v1 = NEW_TRAIN
-        TRAIN_v2 = TRAIN.loc[(TRAIN.num_images>0)]
+        TRAIN_v2 = TRAIN.loc[(TRAIN.num_images>0)] #Tiene que ser TRAIN, dado que no queremos los items de relleno o nuevos
         DEV = NEW_DEV
         TEST = NEW_TEST
+
+
+        #print(TRAIN_v1.loc[TRAIN_v1.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
+        #print(DEV.loc[DEV.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
+        #print(TEST.loc[TEST.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
+
+        #exit()
+
 
         # -------------------------------------------------------------------------------------------------------------------
         # Añadir vectores de imágenes
@@ -429,11 +535,11 @@ class ModelClass():
         ##TEST = IMG.merge(TEST, left_on='review', right_on='reviewId', how='inner')
 
         TRAIN_v1 = TRAIN_v1.drop(
-            columns=['restaurantId', 'userId', 'url', 'text', 'real_id_x', 'real_id_y', 'title', 'date', 'images',
-                     'num_images', 'index', 'rating', 'language'])
+            columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images',
+                     'num_images', 'rating', 'language'])
         TRAIN_v2 = TRAIN_v2.drop(
-            columns=['restaurantId', 'userId', 'url', 'text', 'real_id_x', 'real_id_y', 'title', 'date', 'images',
-                     'num_images', 'index', 'rating', 'language', 'review', 'image'])
+            columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images',
+                     'num_images', 'rating', 'language', 'review', 'image'])
 
         #DEV = DEV.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
         #TEST = TEST.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
@@ -452,12 +558,15 @@ class ModelClass():
 
         # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
 
-        TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED)
-        TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED)
+        TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED).reset_index(drop=True)
+        TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED).reset_index(drop=True)
         #DEV = utils.shuffle(DEV, random_state=self.SEED)
         #TEST = utils.shuffle(TEST, random_state=self.SEED)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
+
+        '''
+
         os.makedirs(file_path)
 
         self.toPickle(file_path, "TRAIN_v1", TRAIN_v1)
@@ -468,9 +577,10 @@ class ModelClass():
         self.toPickle(file_path, "USR_TMP", len(USR_TMP))
         self.toPickle(file_path, "IMG", len(IMG.iloc[0].vector))
         self.toPickle(file_path, "MSE", [MinMSE, MaxMSE, MeanMSE])
+        
+        '''
 
-        return (
-        TRAIN_v1, TRAIN_v2, DEV, TEST, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
+        return (TRAIN_v1, TRAIN_v2, DEV, TEST, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
         self.printW("FN SIN IMPLEMENTAR")
@@ -592,10 +702,12 @@ class ModelClass():
             columns.append("real_pos")
             ret = pd.DataFrame( columns=columns)
 
+
             for i,p in ones.iterrows():
                 #tmp = zeros.prediction.values
                 #tmp = -np.sort(-np.append(tmp,p.prediction))
                 #real_pos, = np.where(tmp == p.prediction)
+
 
                 real_pos = np.searchsorted(zeros.prediction.values,p.prediction)
                 real_pos= self.CONFIG['top_n_new_items']-(real_pos-1)
@@ -609,6 +721,10 @@ class ModelClass():
                 tmp['real_pos'] = real_pos
 
                 ret = ret.append(tmp, ignore_index=True)
+
+                #print(data.id_user.values[0],real_pos)
+
+
 
             return ret
 
@@ -684,11 +800,14 @@ class ModelClass():
 
     def printConfig(self, filter=[]):
 
-        print(hashlib.md5(str(self.CONFIG).encode('utf-8')).hexdigest())
+        tmp = self.CONFIG
+        tmp['seed']=self.SEED
+
+        print(hashlib.md5(str(tmp).encode('utf-8')).hexdigest())
 
         print("-" * 25)
 
-        for key, value in self.CONFIG.items():
+        for key, value in tmp.items():
 
             line = bcolors.BOLD + key + ": " + bcolors.ENDC + str(value)
 

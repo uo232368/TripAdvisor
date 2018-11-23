@@ -323,6 +323,18 @@ Sobre lo anterior, eliminar los usuarios con menos de 5 reviews (y sus reviews a
 * Crear, para cada usuario, `n` (para compensar distribución de positivos 50/50) ejemplos negativos con los restaurantes no vistos por usuario.  
 * En este caso `n = ((N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN)/N_USUARIOS)+1`.
 
+### Conjunto de datos
+Usuarios con más de 5 revews positivas, separando de la siguiente forma:
+* **TEST:** 1 review positiva + 99*  nuevas reviews (distintas de DEV y TRAIN)
+* **DEV:** 1 review positiva  + 99* nuevas reviews (distintas de TRAIN)
+* **TRAIN_V1:** Resto reviews positivas  + reviews negativas + n* nuevas reviews para compensar distribución de 1s y 0s
+* **TRAIN_V2:** Igual que TRAIN_V1 (sin n reviews nuevas) y sólo con imágenes
+
+```
+* Las nuevas reviews se seleccionarán de forma aleatoria siendo más probables los restaurantes con más reviews:
+np.random.choice(10,5,replace=False, p=[0.05,0.05,0.05,0.25,0,0.05,0,0,0,0.55])
+```
+
 ### Análisis de datos
 
 Tras realizar esto se obtienen los siguientes números:
@@ -330,6 +342,8 @@ Tras realizar esto se obtienen los siguientes números:
 * Se pasa de tener 183337 usuarios a tener 13285 (eliminar el 92.8%)
 
 Los conjuntos de TRAIN, DEV y TEST poseen las siguientes distribuciones de ejemplos:
+ 
+ **ACTUALIZAR TABLA**
  
 |                       | ZEROS   | ONES  |
 |-----------------------|---------|-------|
@@ -346,3 +360,4 @@ Otros:
 
 ### Resultados
 
+SE ORDENAN LOS EJEMPLOS POSITIVOS PARA CADA USUARIO DE más antiguo y más nuevo ()

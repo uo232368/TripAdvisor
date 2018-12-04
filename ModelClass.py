@@ -248,7 +248,7 @@ class ModelClass():
             self.getCardinality(DEV.like, title="DEV", verbose=True)
             self.getCardinality(TEST.like, title="TEST", verbose=True)
 
-            return (TRAIN_v1, TRAIN_v2, DEV, TEST, REST_TMP, USR_TMP, IMG, MSE)
+            return (TRAIN_v1, TRAIN_v2, DEV,DEV_v2, TEST,TEST_v2, REST_TMP, USR_TMP, IMG, MSE)
 
         # ---------------------------------------------------------------------------------------------------------------
 

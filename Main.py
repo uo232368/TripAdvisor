@@ -82,23 +82,10 @@ if (model == 2):
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
 
-    '''
-    for i,d in modelv2.TRAIN_V2.groupby(['id_user','id_restaurant']):
-        print(i, d.reviewId)
+    print(modelv2.V_IMG)
 
 
     exit()
-
-    all_dta = modelv2.TEST.loc[modelv2.TEST.language!=-1]
-    print(all_dta)
-    all_dta_img = all_dta.loc[all_dta.num_images>0]
-    print(all_dta_img)
-    print(np.average(all_dta_img.num_images))
-
-
-    exit()
-    
-    '''
 
     #modelv2.gridSearchV1(params, max_epochs=500)
     modelv2.gridSearchV2(params, max_epochs=500)

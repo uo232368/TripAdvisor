@@ -369,8 +369,10 @@ Si se hace un GroupBy por usuario de estos datos, el restaurante 55 SIEMPRE apar
 * De los usuarios de >=3, como muchos tienen pocos datos, añadir nueva información facilita el aprendizaje de la fn para esos usuarios (que son muchos)
 
 ### Pruebas
-Se probaron diferentes tamaños de embedding y de capas ocultas:
+Se probaron diferentes tamaños de embedding y de capas ocultas (resumen en `docs/12_11_2018/12_11_2018_arch.xlsx`):
 * 512+512 -> ~1500 `out/12_11_2018/arch/img_bin_512.out` 
 * 512+512 -> 128 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
 * 512+512 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
-* 1024+1024 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
+* 1024+1024 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out`
+
+

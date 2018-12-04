@@ -1,5 +1,7 @@
 import numpy as np
+import pandas as pd
 
+'''
 def sigmoid(x, derivative=False):
   return x*(1-x) if derivative else 1/(1+np.exp(-x))
 
@@ -33,3 +35,21 @@ OUT_2 = np.matmul(HIDDEN_2,B1_1)
 
 print(OUT_1, sigmoid(OUT_1))
 #print(OUT_2)
+'''
+
+
+pred_img = pd.read_csv("pred_img.csv", index_col=0).as_matrix()
+real_img = pd.read_csv("real_img.csv", index_col=0).as_matrix()
+
+pred_mean = np.mean(pred_img,0)
+count = 0
+for i in range(512):
+
+    dist_mean = np.linalg.norm(real_img[i, :] - pred_mean)
+    dist_pred = np.linalg.norm(real_img[i, :] - pred_img[i, :])
+
+    print(dist_pred,dist_mean)
+
+    if(dist_pred>dist_mean):count+=1
+
+print(count)

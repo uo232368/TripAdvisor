@@ -314,50 +314,63 @@ Analizando lo anterior, se realizan un cambios en la generación de datos descri
 
 ## Cambios [12/11/2018]
 
-### Generación de datos
-Eliminar los restaurantes con menos de 5 reviews (y sus reviews asociadas).  
-Sobre lo anterior, eliminar los usuarios con menos de 5 reviews (y sus reviews asociadas).
-
-* De todas las reviews positivas, separar para cada usuario `(60%,20%,20% => TRAIN, DEV, TEST)`.  
-* Todas las negativas para TRAIN.
-* Crear, para cada usuario, `n` (para compensar distribución de positivos 50/50) ejemplos negativos con los restaurantes no vistos por usuario.  
-* En este caso `n = ((N_POSITIVOS_TRAIN - N_NEGATIVOS_TRAIN)/N_USUARIOS)+1`.
-
 ### Conjunto de datos
-Usuarios con más de 5 revews positivas, separando de la siguiente forma:
-* **TEST:** 1 review positiva + 99*  nuevas reviews (distintas de DEV y TRAIN)
-* **DEV:** 1 review positiva  + 99* nuevas reviews (distintas de TRAIN)
+Usuarios con más de 3 revews positivas, separando de la siguiente forma:
+* **TEST:** 1 review positiva + 99  nuevas reviews (distintas de DEV y TRAIN). Se coje la última del usuario (ver aclaraciones).
+* **TEST_V2:** De las anteriores, las que tienen imagen y repetidas por el número de imágenes.
+* **DEV:** 1 review positiva  + 99 nuevas reviews (distintas de TRAIN). Se coje la penúltima del usuario (ver aclaraciones).
+* **DEV_V2:** De las anteriores, las que tienen imagen y repetidas por el número de imágenes.
 * **TRAIN_V1:** Resto reviews positivas  + reviews negativas + n* nuevas reviews para compensar distribución de 1s y 0s
-* **TRAIN_V2:** Igual que TRAIN_V1 (sin n reviews nuevas) y sólo con imágenes
+* **TRAIN_V2:** Igual que TRAIN_V1 (sin n reviews nuevas) , sólo con imágenes y compensado.
 
 ```
-* Las nuevas reviews se seleccionarán de forma aleatoria siendo más probables los restaurantes con más reviews:
-np.random.choice(10,5,replace=False, p=[0.05,0.05,0.05,0.25,0,0.05,0,0,0,0.55])
+* Se vió que añadir más de n items no vistos por usuario mejora los resultados.
+Por tanto N = (N_RST/N_USR)*100
+Ver: docs/12_11_2018/12_11_2018_no_vistos.xlsx
 ```
+#### Compensar TRAIN1 Y TRAIN2
+Para igualar el tamaño de los datos de TRAINv1 y TRAINv2, se rellena este último (dado que es de menor tamaño) con ejemplos seleccionados aleatoriamente de este propio conjunto.
+De esta forma, a la hora de incluir imagenes, es posible crear batches de igual tamaño (en TRAINv1 y TRAINv2) así como obtener el mismo número de estos.
+
+### Regularización L2 (descartado)
+Se probó a añadir regularización L2, pero requiere de numerosos parámetros. Mejor dropout.
+
+### Selecciona de "no vistos" según probabilidad (descartado)
+Empeora el resultado del TOP-N.
 
 ### Análisis de datos
-
-Tras realizar esto se obtienen los siguientes números:
-* Se pasa de tener 7590 restaurantes a tener 5751 (eliminar el 24.3%)
-* Se pasa de tener 183337 usuarios a tener 13285 (eliminar el 92.8%)
-
-Los conjuntos de TRAIN, DEV y TEST poseen las siguientes distribuciones de ejemplos:
- 
- **ACTUALIZAR TABLA**
- 
-|                       | ZEROS   | ONES  |
-|-----------------------|---------|-------|
-| TRAIN                 | 140155  | 89965 |
-| TRAIN (Solo imágenes) | 14702   | 44491 |
-| DEV                   | 1315215 | 23538 |
-| TEST                  | 1315215 | 23538 |
- 
-Otros:
-
 * Se generó un gráfico para ver la proporción entre restaurantes y reviews emulando al de Koren. (Ver fichero `docs/12_11_2018/tail_graph.xlsx`)
 * Para ver la distribución de ejemplos por usuario, se generó otro gráfico (Ver fichero `docs/12_11_2018/users_graph.xlsx`)
 * Un resumen de lo anterior se puede ver en: `docs/12_11_2018/Gráficas.pdf`
 
-### Resultados
+### Aclaraciones 
 
-SE ORDENAN LOS EJEMPLOS POSITIVOS PARA CADA USUARIO DE más antiguo y más nuevo ()
+Se ordenan los ejemplos positivos de cada usuario de más antiguo a más nuevo y se seleccionan los ejemplos del final para dev y test
+
+#### ¿Por qué se ordenan para desordenar?
+Si no se ordenaran, las reviews positivas se encontrarían agrupadas por el restaurante (dada la operación previa). Ej:
+
+| INDEX | USER | RESTAURANT |
+|-------|------|------------|
+| 0     | 28   | **55**     |
+| 1     | 456  | **55**     |
+| 2     | 12   | **55**     |
+| 3     | 9    | **55**     |
+| 4     | 75   | **55**     |
+| 5     | 96   | **55**     |
+| 6     | 777  | 897        |
+| 7     | 25   | 897        |
+
+Si se hace un GroupBy por usuario de estos datos, el restaurante 55 SIEMPRE aparecerá en la primera fila de cada usuario `(28,456,12,9,75,96,777)` y por tanto siempre irá o bien a TRAIN o a DEV o a TEST en función de la política de selección de ejemplos.
+
+#### ¿Por qué va mejor >=3 que >=20 añadiendo +100/+200/+300?
+
+* De los usuarios >=20 se tiene mucha información y añadir más no aporta mucho
+* De los usuarios de >=3, como muchos tienen pocos datos, añadir nueva información facilita el aprendizaje de la fn para esos usuarios (que son muchos)
+
+### Pruebas
+Se probaron diferentes tamaños de embedding y de capas ocultas:
+* 512+512 -> ~1500 `out/12_11_2018/arch/img_bin_512.out` 
+* 512+512 -> 128 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
+* 512+512 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
+* 1024+1024 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 

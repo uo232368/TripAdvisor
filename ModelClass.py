@@ -21,12 +21,15 @@ from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooli
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 
+import scipy
+from scipy.spatial import distance_matrix
 from scipy.stats import linregress
 from sklearn import metrics
 from sklearn import utils
 
 
 ########################################################################################################################
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -104,12 +107,14 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train1, train2, dev, test, n_rest, n_usr, v_img, mse_data = self.getData()
+        train1, train2, dev,dev2, test,test2, n_rest, n_usr, v_img, mse_data = self.getData()
 
         self.TRAIN_V1 = train1
         self.TRAIN_V2 = train2
         self.DEV = dev
+        self.DEV_V2 = dev2
         self.TEST = test
+        self.TEST_V2 = test2
 
         self.N_RST = n_rest
         self.N_USR = n_usr
@@ -126,7 +131,6 @@ class ModelClass():
         print("#"*50)
         print(' '+self.MODEL_NAME.upper())
         print("#"*50)
-
 
     def signal_handler(self,signal, frame):
         self.stop()
@@ -210,16 +214,18 @@ class ModelClass():
         # Mirar si ya existen los datos
         # ---------------------------------------------------------------------------------------------------------------
 
-
         file_path = self.PATH +"model_data"
         file_path += "_"+str(self.CONFIG['min_usr_revs'])
         file_path += "_"+str(self.CONFIG['min_rest_revs'])
         file_path += "_"+str(self.CONFIG['top_n_new_items'])
         file_path += "_"+str(self.CONFIG['train_pos_rate'])
         file_path += "_"+ ("PRB" if(self.CONFIG['use_rest_provs']) else "RNDM")
-        file_path += "/"
 
-        '''
+        if (self.CONFIG['new_train_examples'] == -1): file_path += "_AUTO"
+        elif (self.CONFIG['new_train_examples'] == -2): file_path += "_AUTO2"
+        else: file_path += "_"+str(self.CONFIG['new_train_examples'])
+
+        file_path += "/"
 
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
@@ -227,7 +233,10 @@ class ModelClass():
             TRAIN_v1 = self.getPickle(file_path, "TRAIN_v1")
             TRAIN_v2 = self.getPickle(file_path, "TRAIN_v2")
             DEV = self.getPickle(file_path, "DEV")
+            DEV_v2 = self.getPickle(file_path, "DEV_v2")
             TEST = self.getPickle(file_path, "TEST")
+            TEST_v2 = self.getPickle(file_path, "TEST_v2")
+
             REST_TMP = self.getPickle(file_path, "REST_TMP")
             USR_TMP = self.getPickle(file_path, "USR_TMP")
             IMG = self.getPickle(file_path, "IMG")
@@ -240,9 +249,6 @@ class ModelClass():
             self.getCardinality(TEST.like, title="TEST", verbose=True)
 
             return (TRAIN_v1, TRAIN_v2, DEV, TEST, REST_TMP, USR_TMP, IMG, MSE)
-
-        '''
-
 
         # ---------------------------------------------------------------------------------------------------------------
 
@@ -268,10 +274,6 @@ class ModelClass():
 
         RVW = RET[['date', 'images', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'id_user', 'id_restaurant', 'like']]
 
-        #RST_ERROR = 440
-
-        #print(RVW.loc[RVW.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
-
 
         # Mover ejemplos positivos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
@@ -288,20 +290,8 @@ class ModelClass():
 
         if(TRAIN_POS_RATE==1):assert self.CONFIG['min_usr_revs'] >= 3, "Mínimo 3 ejemplos positivos (TRAIN/DEV/TEST) "
 
-        #RVW = RVW.loc[RVW.id_user.isin([0,1,2,3])]
-
         POS_REVS = RVW.loc[(RVW.like==1)].reset_index(drop=True)
-
-        sort = 1
-
-        #POS_REVS.to_csv("PREV_SORT.csv")
-
-        if(sort):POS_REVS = POS_REVS.sort_values(by=['id_user','reviewId'], ascending=[True,True]); print("SORTED")
-
-        #POS_REVS.to_csv("POST_SORT.csv")
-
-
-        #POS_REVS = POS_REVS.sort_values(by=['id_user','reviewId'], ascending=[True, True]); print("SORTED")
+        POS_REVS = POS_REVS.sort_values(by=['id_user','reviewId'], ascending=[True,True]); print("SORTED")
 
         def split_fn(d):
 
@@ -313,27 +303,6 @@ class ModelClass():
             train_items = items - (2 * dev_test_items)
             assert dev_test_items >= 1, "No puede haber menos de 1 item en dev y test"
             d["TO_TRAIN"] = 0; d["TO_DEV"] = 0; d["TO_TEST"] = 0
-
-            #rows = [0,1]
-            #rows.extend(list(range(4,len(d))))
-
-            #d.iloc[[0,1,2,3], -3] = 1  # TRAIN
-            #d.iloc[4, -2] = 1  # DEV
-            #d.iloc[3, -1] = 1  # TEST
-
-
-            '''
-            idx = list(d.index.values);idx.sort()
-            idx_min = idx[1]
-            idx.remove(idx_min)
-
-            d.loc[idx, "TO_TRAIN"] = 1  # TRAIN
-            d.loc[idx_min, "TO_DEV"] = 1 # DEV
-
-            '''
-
-            #print(d.loc[d.TO_DEV==1,['id_user','id_restaurant']])
-
 
             upper = False
 
@@ -347,16 +316,9 @@ class ModelClass():
                 d.iloc[train_items:train_items+dev_test_items,-2] = 1
                 d.iloc[train_items+dev_test_items:,-1] = 1
 
-
-            #print(d.loc[d.TO_DEV==1])
-            #print(d[["date","reviewId","TO_TRAIN","TO_DEV","TO_TEST"]])
-            #exit()
-
             return d
 
         POS_REVS = POS_REVS.groupby('id_user').apply(split_fn)
-
-        #exit()
 
         TRAIN = POS_REVS.loc[POS_REVS.TO_TRAIN==1]
         DEV = POS_REVS.loc[POS_REVS.TO_DEV==1]
@@ -381,21 +343,25 @@ class ModelClass():
 
         N_USERS = len(USR_TMP)
 
-        ITEMS_PER_USR = (N_NEW_ITEMS//N_USERS)
-        ITEMS_LEFT = N_NEW_ITEMS-(ITEMS_PER_USR*N_USERS)
+        if (self.CONFIG['new_train_examples'] == -1):
+            ITEMS_PER_USR = (N_NEW_ITEMS // N_USERS)
+            ITEMS_LEFT = N_NEW_ITEMS - (ITEMS_PER_USR * N_USERS)
+            if (ITEMS_LEFT > 0): ITEMS_PER_USR += 1
 
-        if(ITEMS_LEFT>0):ITEMS_PER_USR+=1
+        elif(self.CONFIG['new_train_examples'] == -2):
+            ITEMS_PER_USR = int((len(REST_TMP) / len(USR_TMP)) * 100)
 
-        #ITEMS_PER_USR = 300; self.printE("ITEMS_PER_USER")
+        else:
+            ITEMS_PER_USR = self.CONFIG['new_train_examples'];
+
 
         self.printW("Se añaden " + str(ITEMS_PER_USR) + " items nuevos por usuario. ("+str((ITEMS_PER_USR*N_USERS))+" en total)")
 
-        #Obtener la lista de restaurantes, el número de reviews y la probabilidad de aparecer
 
+        #Obtener la lista de restaurantes, el número de reviews y la probabilidad de aparecer
         rst_ids_prob = RVW.groupby("id_restaurant", as_index=False).apply(lambda x : pd.Series({"n_rvs":len(x)})).reset_index(drop=True)
         #rst_ids_prob["prob"] = rst_ids_prob["n_rvs"] / sum(rst_ids_prob["n_rvs"].values)
 
-        #rst_ids_prob["n_rvs"] = max(rst_ids_prob["n_rvs"].values)-rst_ids_prob["n_rvs"];self.printE("INVERTIDO") # <===============
 
         rest_ids = set(rst_ids_prob.index)
 
@@ -512,37 +478,27 @@ class ModelClass():
 
         TRAIN_v1 = NEW_TRAIN
         TRAIN_v2 = TRAIN.loc[(TRAIN.num_images>0)] #Tiene que ser TRAIN, dado que no queremos los items de relleno o nuevos
+
         DEV = NEW_DEV
+        DEV_v2 = NEW_DEV
+
         TEST = NEW_TEST
-
-
-        #print(TRAIN_v1.loc[TRAIN_v1.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
-        #print(DEV.loc[DEV.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
-        #print(TEST.loc[TEST.id_restaurant==RST_ERROR ,["id_user","id_restaurant","like"]])
-
-        #exit()
-
+        TEST_v2 = NEW_TEST
 
         # -------------------------------------------------------------------------------------------------------------------
         # Añadir vectores de imágenes
 
         TRAIN_v1['vector'] = 0
-
         TRAIN_v2 = IMG.merge(TRAIN_v2, left_on='review', right_on='reviewId', how='inner')
 
+        DEV_v2 = IMG.merge(DEV_v2, left_on='review', right_on='reviewId', how='inner')
+        TEST_v2 = IMG.merge(TEST_v2, left_on='review', right_on='reviewId', how='inner')
 
-        ##DEV = IMG.merge(DEV, left_on='review', right_on='reviewId', how='inner')
-        ##TEST = IMG.merge(TEST, left_on='review', right_on='reviewId', how='inner')
+        DEV_v2 = DEV_v2.drop(columns=['restaurantId', 'url', 'text',  'title', 'date', 'images', 'num_images', 'rating', 'language', 'review', 'image'])
+        TEST_v2 = TEST_v2.drop(columns=['restaurantId', 'url', 'text', 'title', 'date', 'images', 'num_images', 'rating', 'language',  'review', 'image'])
 
-        TRAIN_v1 = TRAIN_v1.drop(
-            columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images',
-                     'num_images', 'rating', 'language'])
-        TRAIN_v2 = TRAIN_v2.drop(
-            columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images',
-                     'num_images', 'rating', 'language', 'review', 'image'])
-
-        #DEV = DEV.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
-        #TEST = TEST.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'real_id_x', 'real_id_y', 'images','num_images', 'index', 'rating', 'language', 'review'])
+        TRAIN_v1 = TRAIN_v1.drop(columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images', 'num_images', 'rating', 'language'])
+        TRAIN_v2 = TRAIN_v2.drop(columns=['restaurantId', 'userId', 'url', 'text',  'title', 'date', 'images', 'num_images', 'rating', 'language', 'review', 'image'])
 
         self.printW("Las reviews v2 salen repetidas en función del número de imagenes")
 
@@ -556,31 +512,40 @@ class ModelClass():
         MaxMSE = np.apply_along_axis(lambda x: np.max(x), 0, IMG_2)
         MinMSE = np.apply_along_axis(lambda x: np.min(x), 0, IMG_2)
 
+
+        # Igualar TrainV2 a TrainV1
+        # ---------------------------------------------------------------------------------------------------------------
+        '''
+        def myfn(data): return (pd.Series({"len": len(data)}))
+        TST = TRAIN_v2.groupby(['id_user', 'id_restaurant']).apply(myfn).reset_index()
+        print(np.mean(TST.len))
+        '''
+
+        left_items = len(TRAIN_v1)-len(TRAIN_v2)
+        sampled_items = TRAIN_v2.sample(left_items, replace=True,random_state=self.SEED)
+        TRAIN_v2 = TRAIN_v2.append(sampled_items, ignore_index=True)
+
         # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
 
         TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED).reset_index(drop=True)
-        #DEV = utils.shuffle(DEV, random_state=self.SEED)
-        #TEST = utils.shuffle(TEST, random_state=self.SEED)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
-
-        '''
 
         os.makedirs(file_path)
 
         self.toPickle(file_path, "TRAIN_v1", TRAIN_v1)
         self.toPickle(file_path, "TRAIN_v2", TRAIN_v2)
         self.toPickle(file_path, "DEV", DEV)
+        self.toPickle(file_path, "DEV_v2", DEV_v2)
         self.toPickle(file_path, "TEST", TEST)
+        self.toPickle(file_path, "TEST_v2", TEST_v2)
         self.toPickle(file_path, "REST_TMP", len(REST_TMP))
         self.toPickle(file_path, "USR_TMP", len(USR_TMP))
         self.toPickle(file_path, "IMG", len(IMG.iloc[0].vector))
         self.toPickle(file_path, "MSE", [MinMSE, MaxMSE, MeanMSE])
-        
-        '''
 
-        return (TRAIN_v1, TRAIN_v2, DEV, TEST, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
+        return (TRAIN_v1, TRAIN_v2, DEV,DEV_v2, TEST,TEST_v2 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
         self.printW("FN SIN IMPLEMENTAR")

@@ -51,9 +51,6 @@ class ModelV1(ModelClass):
             b1 = tf.Variable(tf.zeros([hidden_size]), name="b1")
 
 
-            #T2 = tf.Variable(tf.truncated_normal([hidden0_size, hidden_size], mean=0.0, stddev=1.0 / math.sqrt(hidden_size)),name="T2")
-            #b2 = tf.Variable(tf.zeros([hidden_size]), name="b2")
-
             # Salida ---------------------------------------------------------------------------------------------------------------------
 
             B1 = tf.Variable(tf.truncated_normal([hidden_size, 1], mean=0.0, stddev=1.0 / math.sqrt(1)),name="B1")
@@ -73,16 +70,6 @@ class ModelV1(ModelClass):
             h0 = tf.nn.dropout(h0, keep_prob=dpout)
             h0 = tf.nn.relu(h0,name="matmul_h0_relu")
 
-            #h1 = tf.matmul(h0,T2, name="matmul_h1") +  b2
-
-            #h1_mean, h1_var = tf.nn.moments(h1, axes=[0])
-            #h1_scale = tf.Variable(tf.ones([hidden_size]))
-            #h1_beta = tf.Variable(tf.zeros([hidden_size]))
-            #h1 = tf.nn.batch_normalization(h1, mean=h1_mean, variance=h1_var, offset=h1_beta, scale=h1_scale, variance_epsilon=1e-5)
-
-            #h1 = tf.nn.dropout(h1, keep_prob=dpout)
-            #h1 = tf.nn.relu(h1)
-
             out_bin = tf.matmul(h0, B1, name="out_bin")
 
             # multiregresión
@@ -100,9 +87,29 @@ class ModelV1(ModelClass):
             batch_rmse =tf.square(tf.subtract(img_labels, out_img), name='batch_rmse')
             loss_rmse = tf.sqrt(tf.reduce_mean(batch_rmse), name='loss_rmse')
 
+            #Regularizar las losses ------------------------------------------------------------------------------------------------------
+
+            if(self.CONFIG['regularization']==2):
+                rgl_e1 = tf.nn.l2_loss(E1)
+                rgl_e2 = tf.nn.l2_loss(E2)
+
+                rgl_t1 = tf.nn.l2_loss(T1)
+                rgl_b1 = tf.nn.l2_loss(B1)
+                rgl_r1 = tf.nn.l2_loss(R1)
+
+                beta = self.CONFIG['regularization_beta']
+
+                loss_softplus = loss_softplus +(beta*rgl_e1)+(beta*rgl_e2)+(beta*rgl_t1)+(beta*rgl_b1)
+                loss_rmse = loss_rmse +(beta*rgl_e1)+(beta*rgl_e2)+(beta*rgl_t1)+(beta*rgl_r1)
+
+            elif(self.CONFIG['regularization']!=0):
+                self.printE("Regularización no implementada")
+                exit()
+
+
             # Minimizar la loss
             train_step_bin = tf.train.AdamOptimizer(name='train_step_bin',learning_rate=self.CONFIG['learning_rate']).minimize(loss=loss_softplus, global_step=global_step_bin)
-            train_step_img = tf.train.AdamOptimizer(name='train_step_img',learning_rate=self.CONFIG['learning_rate']).minimize(loss=loss_rmse, global_step=global_step_img)
+            train_step_img = tf.train.AdamOptimizer(name='train_step_img',learning_rate=self.CONFIG['learning_rate_img']).minimize(loss=loss_rmse, global_step=global_step_img)
 
             # Crear objeto encargado de almacenar la red
             saver = tf.train.Saver(max_to_keep=1)
@@ -145,7 +152,8 @@ class ModelV1(ModelClass):
             self.MODEL = self.getModel()
 
             #Imprimir la configuración actual
-            self.printConfig(filter=['min_usr_revs','min_rest_revs','train_pos_rate','emb_size','hidden_size','learning_rate','dropout','seed'])
+            #self.printConfig(filter=['min_usr_revs','min_rest_revs','train_pos_rate','emb_size','hidden_size','learning_rate','dropout','new_train_examples','use_rest_provs'])
+            self.printConfig()
 
             #Configurar y crear sesion
             config = tf.ConfigProto()
@@ -179,19 +187,6 @@ class ModelV1(ModelClass):
 
                         train_loss.extend(batch_softplus[:,0])
 
-                    '''
-                    train_test_DF = self.TRAIN_V1.loc[self.TRAIN_V1.id_user.isin([6])]
-                    train_test = np.matrix(train_test_DF[['id_user', 'id_restaurant', 'like']])
-
-                    feed_dict = {"user_rest_input:0": train_test[:, [0, 1]], "bin_labels:0": train_test[:, [2]], 'dpout:0': 1.0}
-                    probs = self.SESSION.run('batch_bin_prob:0', feed_dict=feed_dict)
-
-                    train_test_DF.loc[:,"PRBS"] = probs
-                    train_test_DF = train_test_DF.sort_values("PRBS", ascending=False)
-
-                    #print(probs)
-                    print(train_test_DF[["id_user","id_restaurant","reviewId","like","PRBS"]])
-                    '''
 
                     # Probar en DEV ########################################################################################
                     dev_res = pd.DataFrame()
@@ -212,87 +207,8 @@ class ModelV1(ModelClass):
                         dev_res = dev_res.append(batch_dtfm,ignore_index=True)
 
 
-
-                    if(e==5):
-                        b1, E1, E2, T1, B1_1 = self.SESSION.run(['b1:0', 'E1:0', 'E2:0', 'T1:0', 'B1_1:0', ])
-
-                        np.savetxt("b1.csv", b1, delimiter="\t")
-                        np.savetxt("E1.csv", E1, delimiter="\t")
-                        np.savetxt("E2.csv", E2, delimiter="\t")
-                        np.savetxt("T1.csv", T1, delimiter="\t")
-                        np.savetxt("B1_1.csv", B1_1, delimiter="\t")
-
-                        dev_res.to_csv("DEV.csv")
-
-                        exit()
-
-                    '''
-                    id_user = 17
-
-                    #self.DEV = self.DEV.loc[(self.DEV.id_user==0)&(self.DEV.id_restaurant.isin([350,1689]))]
-                    self.DEV = self.DEV.loc[(self.DEV.id_user==id_user)]
-                    batch_dtfm = np.matrix(self.DEV[['id_user', 'id_restaurant', 'like']])
-
-                    feed_dict = {"user_rest_input:0": batch_dtfm[:, [0, 1]], "bin_labels:0": batch_dtfm[:, [2]],'dpout:0': 1.0}
-                    bias_h0,concat,batch_softplus,batch_bin_prob,out_bin, h0, r0 = self.SESSION.run(['bias_h0:0','concat_h0:0','batch_softplus:0','batch_bin_prob:0','out_bin:0','matmul_h0:0',"matmul_h0_relu:0"],feed_dict=feed_dict)
-
-                    print(out_bin)
-
-
-                    b1, E1, E2, T1, B1_1 = self.SESSION.run(['b1:0', 'E1:0', 'E2:0', 'T1:0', 'B1_1:0', ])
-
-                    np.savetxt("b1.csv", b1, delimiter="\t")
-                    np.savetxt("E1.csv", E1, delimiter="\t")
-                    np.savetxt("E2.csv", E2, delimiter="\t")
-                    np.savetxt("T1.csv", T1, delimiter="\t")
-                    np.savetxt("B1_1.csv", B1_1, delimiter="\t")
-
-
-                    '''
-
-                    #print(dev_res.loc[dev_res.id_user==id_user])
-
-                    #print(bias_h0)
-
-                    #exit()
-
-
-
-
-                    #row = list(range(1000,6000))
-
-                    #print(h0[row,:],h0.shape)
-                    #print(r0[row,:],r0.shape)
-                    #print(out_bin[row,0],out_bin.shape)
-                    #print(batch_bin_prob[row,0],batch_bin_prob.shape)
-                    #print(batch_softplus[row,0],batch_softplus.shape)
-
-                    #b1,E1, E2, T1, B1_1 = self.SESSION.run(['b1:0','E1:0','E2:0','T1:0','B1_1:0', ])
-
-                    '''
-                    if(e==9):
-                        np.savetxt("b1.csv", b1, delimiter="\t")
-                        np.savetxt("E1.csv", E1, delimiter="\t")
-                        np.savetxt("E2.csv", E2, delimiter="\t")
-                        np.savetxt("T1.csv", T1, delimiter="\t")
-                        np.savetxt("B1_1.csv", B1_1, delimiter="\t")
-                    '''
-
-                    #b1,usr_emb, rest_emb, hidden, bin_class = self.SESSION.run(['b1:0','E1:0','E2:0','T1:0','B1_1:0'])
-
-                    '''
-                    print(np.linalg.norm(usr_emb))
-                    print(np.linalg.norm(rest_emb))
-                    print(np.linalg.norm(hidden))
-                    print(np.linalg.norm(bin_class))
-                    print(np.linalg.norm(b1))
-                    '''
-                    #print(out_bin)
-                    #exit()
-
                     hits,avg_pos,median_pos = self.getTopN(dev_res)
                     hits = list(hits.values())
-
 
                     train_loss_comb.append(np.average(train_loss))
                     dev_loss_comb.append(np.average(dev_loss))
@@ -305,16 +221,15 @@ class ModelV1(ModelClass):
                     log_items.append(bcolors.ENDC)
                     log_items.extend(np.round([avg_pos,median_pos],decimals=4))
                     log_line = "\t".join(map(lambda x:str(x),log_items))
+                    log_line = log_line.replace("\t\t","\t")
                     print(log_line)
 
-                    '''
+
                     # Si en las n epochs anteriores la pendiente es menor que valor, parar
                     if (len(stop_param_comb) >= start_n_epochs + last_n_epochs):
                         slope = self.getSlope(stop_param_comb[-last_n_epochs:]);
                         if (slope > self.CONFIG['gs_max_slope']):
                             break
-
-                    '''
 
     def gridSearchV2(self, params, max_epochs=500):
 
@@ -372,7 +287,7 @@ class ModelV1(ModelClass):
                     train_img_loss = []
 
                     train_bin_batches = np.array_split(self.TRAIN_V1, len(self.TRAIN_V1) // self.CONFIG['batch_size'])
-                    train_img_batches = np.array_split(self.TRAIN_V2, len(train_bin_batches))
+                    train_img_batches = np.array_split(self.TRAIN_V2, len(self.TRAIN_V2) // self.CONFIG['batch_size'])
 
                     for bn in range(len(train_bin_batches)):
 
@@ -383,17 +298,32 @@ class ModelV1(ModelClass):
                         feed_dict_img = {"user_rest_input:0": batch_train_img[:, [0, 1]], "img_labels:0": np.row_stack(batch_train_img[:, [2]][:,0]),'dpout:0': self.CONFIG['dropout']}
 
                         _, batch_softplus = self.SESSION.run(['train_step_bin:0', 'batch_softplus:0'],feed_dict=feed_dict_bin)
-                        _, batch_rmse, loss_rmse = self.SESSION.run(['train_step_img:0', 'batch_rmse:0','loss_rmse:0'],feed_dict=feed_dict_img)
+                        _, batch_rmse, loss_rmse,out_img = self.SESSION.run(['train_step_img:0', 'batch_rmse:0','loss_rmse:0','out_img:0'],feed_dict=feed_dict_img)
 
                         train_bin_loss.extend(batch_softplus[:, 0])
                         train_img_loss.extend(np.concatenate( batch_rmse, axis=0 ).tolist())
 
+                        pred_mean_image = np.mean(out_img, 0)
+                        dt = np.row_stack(batch_train_img[:, [2]][:, 0])
+
+                        if (bn % 100 == 0):
+                            dm = distance_matrix(dt, out_img)
+
+                            pos = []
+
+                            for r in range(len(dm)):
+                                np.argsort(dm[r, :])
+                                real_pos = np.where(np.argsort(dm[r, :]) == r)[0][0] + 1
+                                pos.append(real_pos)
+
+                            print(np.mean(pos), np.median(pos))
 
                     # Probar en DEV ########################################################################################
                     dev_res = pd.DataFrame()
                     dev_loss = []
 
-                    for batch_d in np.array_split(self.DEV, 40):
+                    for batch_d in np.array_split(self.DEV, 10):
+
                         batch_dtfm = batch_d.copy()
                         batch_dtfm = batch_dtfm[['id_user', 'id_restaurant', 'like']]
 
@@ -410,13 +340,19 @@ class ModelV1(ModelClass):
                     hits = list(hits.values())
 
                     train_loss_comb.append(np.average(train_bin_loss))
+                    train_img_loss_comb.append(np.sqrt(np.average(train_img_loss)))
+
                     dev_loss_comb.append(np.average(dev_loss))
                     stop_param_comb.append(avg_pos)
 
-                    log_items = [e, self.CONFIG['emb_size'], self.CONFIG['learning_rate'], train_loss_comb[-1],np.sqrt(np.mean(train_img_loss)), dev_loss_comb[-1]]
-                    log_items.extend(hits)
-                    log_items.extend([avg_pos, median_pos])
+                    log_items = [e, self.CONFIG['emb_size'], self.CONFIG['learning_rate']]
+                    log_items.extend(np.round([train_bin_loss_comb[-1], train_img_loss_comb[-1], dev_loss_comb[-1]], decimals=4))
+                    log_items.append(bcolors.OKBLUE)
+                    log_items.extend(np.round(hits, decimals=4))
+                    log_items.append(bcolors.ENDC)
+                    log_items.extend(np.round([avg_pos, median_pos], decimals=4))
                     log_line = "\t".join(map(lambda x: str(x), log_items))
+                    log_line = log_line.replace("\t\t", "\t")
                     print(log_line)
 
                     # Si en las n epochs anteriores la pendiente es menor que valor, parar

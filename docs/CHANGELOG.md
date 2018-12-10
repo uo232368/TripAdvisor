@@ -375,4 +375,19 @@ Se probaron diferentes tamaños de embedding y de capas ocultas (resumen en `doc
 * 512+512 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out` 
 * 1024+1024 -> 1024 -> ~1500 `out/12_11_2018/arch/img_bin_512_128.out`
 
+### Evaluación de las imágenes en DEV
+No se cuentan los restaurantes que no aparecen en TRAIN y si en DEV (no se aprendió nada de ellos)
+
+Para los que si tienen datos en TRAIN:
+* Se busca, entre los vectores (de las imágenes) del restaurante en TRAIN, el más cercano a la predicción y se utiliza este como predicción del modelo.
+* Con la "predicción" anterior, se calcula la distancia con las imágenes de ese usuario y restaurante en DEV.
+* Se toma la menor distancia y se calcula finalmente la media de todas las distancias mínimas.
+
+
+
+
+
+
+
+
 

@@ -20,6 +20,7 @@ parser.add_argument('-gpu', type=str,help="Gpu")
 parser.add_argument('-lr', nargs='+', type=float, help='Lista de learning-rates a probar')
 parser.add_argument('-emb', nargs='+', type=int, help='Lista de embeddings a probar')
 parser.add_argument('-hidd', nargs='+', type=int, help='Lista de hidden a probar')
+parser.add_argument('-hidd2', nargs='+', type=int, help='Lista de hidden2 a probar')
 parser.add_argument('-top', nargs='+', type=int, help='Lista de tops a calcular')
 
 args = parser.parse_args()
@@ -32,7 +33,8 @@ gpu = 0 if args.gpu == None else args.gpu
 dpout = 1.0 if args.d == None else args.d
 lrates = [1e-3] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
-hidden_size = [0] if args.hidd == None else args.hidd
+hidden_size = [128] if args.hidd == None else args.hidd
+hidden2_size = [256] if args.hidd2 == None else args.hidd2
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
@@ -47,8 +49,11 @@ config = {"min_rest_revs":0,
           "train_pos_rate":1.0,
           "dev_test_pos_rate":0.0,
           "top": [1,5,10,15,20],
+
           "emb_size":embsize[0],
           "hidden_size": hidden_size[0],# 0 para eliminar
+          "hidden2_size": hidden2_size[0],  # 0 para eliminar
+
           "learning_rate": lrates[0],
           "learning_rate_img": lrates[0],
           "dropout": dpout,  # Prob de mantener
@@ -81,17 +86,30 @@ if (model == 2):
     }
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
-
-    print(modelv2.V_IMG)
-
-
-    exit()
+    modelv2.basicModel(test=False)
 
     #modelv2.gridSearchV1(params, max_epochs=500)
-    modelv2.gridSearchV2(params, max_epochs=500)
+    #modelv2.gridSearchV2(params, max_epochs=500)
 
+    #TODO: VER ERROR UTILIZANDO SOLO RESTAURANTES DE 0 FOTOS; 1 FOTO... y comparar con los mismo en el modelo básico
+    #TODO: Ejecutar prueba que falta
 
-#ToDo: Normalizar capa de intermedia (BatchNormalization)
+    '''
+    rsts = modelv2.DEV_V2.id_restaurant.unique()
+    lens = []
+
+    for rst in rsts:
+        dta = modelv2.TRAIN_V2.loc[(modelv2.TRAIN_V2.id_restaurant==rst)]
+        if(len(dta)>0): dta = np.unique(np.row_stack(dta.vector.values),axis=0)
+        lens.append(len(dta))
+
+    lens = np.array(lens)
+
+    for i in range(0,200):
+        print(str(i)+"\t"+str(len(np.where(lens>=i)[0]))+"\t"+str(len(np.where(lens==i)[0])))
+    
+    '''
+
 
 #ToDo: Test emb imagen con hilos == sin hilos
 

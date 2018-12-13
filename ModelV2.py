@@ -99,6 +99,9 @@ class ModelV2(ModelClass):
             loss_softplus = tf.reduce_mean(batch_softplus, name='loss_softplus')
 
             batch_rmse =tf.square(tf.subtract(img_labels, out_img), name='batch_rmse')
+
+            my_rmse =  tf.reduce_mean(batch_rmse,1, name='my_rmse')
+
             loss_rmse = tf.sqrt(tf.reduce_mean(batch_rmse), name='loss_rmse')
 
             #Regularizar las losses ------------------------------------------------------------------------------------------------------
@@ -126,7 +129,7 @@ class ModelV2(ModelClass):
 
         return graph
 
-    def basicModel(self, test=False):
+    def basicModel(self, test=False,mode="random"):
 
         TRAIN_DATA = self.TRAIN_V2
         filtern = 0
@@ -142,8 +145,20 @@ class ModelV2(ModelClass):
 
         #Para cada restaurante del TRAIN, seleccionar una foto aleatoria como predicción
         def random_prediction(data):
+            data = data.drop(columns = ['id_user','reviewId'])
             train_imgs = np.unique(np.row_stack(data.vector), axis=0)
-            smple = data.sample(1)
+
+            smple = data.iloc[0,:]
+
+            if(mode=="random"):
+                smple = data.sample(1)
+
+            elif(mode=="centroid"):#centroid
+                cntroid = np.mean(train_imgs,axis=0)
+                dm = distance_matrix([cntroid], train_imgs)[0]
+                min_indx = np.where(dm==min(dm))[0][0]
+                smple['vector'] = train_imgs[min_indx,:]
+
             smple['train_items'] = len(train_imgs)
             return smple
 
@@ -172,12 +187,12 @@ class ModelV2(ModelClass):
 
                 dev_img_dists.append(min_d)
 
-        '''
+
         for t in range(0, 400):
             print(str(t) + "\t" + str(np.mean(ret.loc[ret.items_train >= t].min_dist.values)))
-        '''
 
-        self.printG("Modelo básico en "+eval_name+": "+str(np.average(dev_img_dists)))
+
+        self.printG("Modelo básico ("+mode+") en "+eval_name+": "+str(np.average(dev_img_dists)))
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
@@ -295,7 +310,7 @@ class ModelV2(ModelClass):
         # Generar combinaciones y seleccionar aleatoriamente X
         # ---------------------------------------------------------------------------------------------------------------
 
-        start_n_epochs = 5
+        start_n_epochs = 2
         last_n_epochs = 5
 
         combs = []
@@ -344,6 +359,7 @@ class ModelV2(ModelClass):
                 init = tf.global_variables_initializer()
                 init.run(session=self.SESSION)
 
+
                 for e in range(max_epochs):
 
                     # Entrenar el modelo ###################################################################################
@@ -365,7 +381,6 @@ class ModelV2(ModelClass):
 
                         print(len(self.TRAIN_V2))
 
-
                     train_bin_batches = np.array_split(self.TRAIN_V1, len(self.TRAIN_V1) // self.CONFIG['batch_size'])
                     train_img_batches = np.array_split(self.TRAIN_V2, len(train_bin_batches))
 
@@ -378,14 +393,17 @@ class ModelV2(ModelClass):
                         feed_dict_img = {"user_rest_input:0": batch_train_img[:, [0, 1]], "img_labels:0": np.row_stack(batch_train_img[:, [2]][:,0]),'dpout:0': self.CONFIG['dropout']}
 
                         _, batch_softplus = self.SESSION.run(['train_step_bin:0', 'batch_softplus:0'],feed_dict=feed_dict_bin)
-                        _, batch_rmse, loss_rmse,out_img = self.SESSION.run(['train_step_img:0', 'batch_rmse:0','loss_rmse:0','out_img:0'],feed_dict=feed_dict_img)
+                        _, my_rmse, loss_rmse,out_img = self.SESSION.run(['train_step_img:0', 'my_rmse:0','loss_rmse:0','out_img:0'],feed_dict=feed_dict_img)
 
                         train_bin_loss.extend(batch_softplus[:, 0])
-                        train_img_loss.extend(np.concatenate( batch_rmse, axis=0 ).tolist())
+
+                        train_img_loss.extend( my_rmse )
 
                         pred_mean_image = np.mean(out_img, 0)
                         dt = np.row_stack(batch_train_img[:, [2]][:,0])
 
+
+                        '''
                         if(bn%100==0):
                             dm = distance_matrix(dt, out_img)
 
@@ -399,10 +417,13 @@ class ModelV2(ModelClass):
                                 pos.append(real_pos)
 
                             print(np.mean(pos), np.median(pos))
+                        '''
+
 
                     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
                     # Probar en DEV (TOP-N) ############################################################################
+
                     dev_bin_res = pd.DataFrame()
                     dev_loss = []
 
@@ -465,8 +486,10 @@ class ModelV2(ModelClass):
 
                     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
+                    '''
                     for t in range(0,400):
                         print(str(t) + "\t" + str(np.mean(ret.loc[ret.items_train >= t].min_dist.values)))
+                    '''
 
                     train_bin_loss_comb.append(np.average(train_bin_loss))
                     train_img_loss_comb.append(np.sqrt(np.average(train_img_loss)))

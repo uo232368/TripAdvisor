@@ -767,6 +767,7 @@ class ModelClass():
 
         tmp = self.CONFIG
         tmp['seed']=self.SEED
+        tmp['city']=self.CITY
 
         print(hashlib.md5(str(tmp).encode('utf-8')).hexdigest())
 

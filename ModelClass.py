@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os, time
 import warnings
+import re
 
 import numpy as np
 import pandas as pd
@@ -8,6 +9,7 @@ import pickle
 import math
 import signal, sys
 import hashlib
+import itertools as it
 
 import random as rn
 
@@ -26,7 +28,15 @@ from scipy.spatial import distance_matrix
 from scipy.stats import linregress
 from sklearn import metrics
 from sklearn import utils
-
+from sklearn.cluster import MiniBatchKMeans, KMeans
+from sklearn.manifold import TSNE
+'''
+import ssl
+import urllib
+import matplotlib
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import axes3d, Axes3D
+'''
 
 ########################################################################################################################
 
@@ -204,8 +214,29 @@ class ModelClass():
 
         self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
 
+        # Obtener ID para ONE-HOT de usuarios y restaurantes
+        # ---------------------------------------------------------------------------------------------------------------
+
+        USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
+        REST_TMP = pd.DataFrame(columns=["real_id", "id_restaurant"])
+
+        # Obtener tabla real_id -> id para usuarios
+        USR_TMP.real_id = RVW.sort_values("userId").userId.unique()
+        USR_TMP.id_user = range(0, len(USR_TMP))
+
+        # Obtener tabla real_id -> id para restaurantes
+        REST_TMP.real_id = RVW.sort_values("restaurantId").restaurantId.unique()
+        REST_TMP.id_restaurant = range(0, len(REST_TMP))
+
+        # Mezclar datos
+        RET = RVW.merge(USR_TMP, left_on='userId', right_on='real_id', how='inner')
+        RET = RET.merge(REST_TMP, left_on='restaurantId', right_on='real_id', how='inner')
+
+        RVW = RET[['date', 'images', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'id_user', 'id_restaurant', 'like']]
+
         print("USUARIOS:"+str(len(RVW.userId.unique())))
         print("RESTAURANTES:"+str(len(RVW.restaurantId.unique())))
+
 
         return RVW, IMG
 
@@ -252,28 +283,7 @@ class ModelClass():
 
         # ---------------------------------------------------------------------------------------------------------------
 
-        USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
-        REST_TMP = pd.DataFrame(columns=["real_id", "id_restaurant"])
-
         RVW, IMG = self.getFilteredData();
-
-        # Obtener ID para ONE-HOT de usuarios y restaurantes
-        # ---------------------------------------------------------------------------------------------------------------
-
-        # Obtener tabla real_id -> id para usuarios
-        USR_TMP.real_id = RVW.sort_values("userId").userId.unique()
-        USR_TMP.id_user = range(0, len(USR_TMP))
-
-        # Obtener tabla real_id -> id para restaurantes
-        REST_TMP.real_id = RVW.sort_values("restaurantId").restaurantId.unique()
-        REST_TMP.id_restaurant = range(0, len(REST_TMP))
-
-        # Mezclar datos
-        RET = RVW.merge(USR_TMP, left_on='userId', right_on='real_id', how='inner')
-        RET = RET.merge(REST_TMP, left_on='restaurantId', right_on='real_id', how='inner')
-
-        RVW = RET[['date', 'images', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'id_user', 'id_restaurant', 'like']]
-
 
         # Mover ejemplos positivos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
@@ -548,8 +558,132 @@ class ModelClass():
         return (TRAIN_v1, TRAIN_v2, DEV,DEV_v2, TEST,TEST_v2 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
-        self.printW("FN SIN IMPLEMENTAR")
-        exit()
+        raise NotImplementedError
+
+    def dev(self):
+        raise NotImplementedError
+
+    def test(self):
+        raise NotImplementedError
+
+    def gridSearchPrint(self,epoch,train,dev):
+        raise NotImplementedError
+
+    def gridSearch(self, params, max_epochs = 50, start_n_epochs = 5, last_n_epochs = 5):
+
+        def createCombs():
+
+            def flatten(lst):
+                return sum(([x] if not isinstance(x, list) else flatten(x)
+                            for x in lst), [])
+
+            combs = []
+            level = 0
+            for v in params.values():
+                if (len(combs)==0):
+                    combs = v
+                else:
+                    combs = list(it.product(combs, v))
+                level+=1
+
+                if(level>1):
+                    for i in range(len(combs)):
+                        combs[i] = flatten(combs[i])
+
+            return pd.DataFrame(combs, columns=params.keys())
+
+        def configNet(comb):
+            comb.pop("Index")
+
+            for k in comb.keys():
+                assert (k in self.CONFIG.keys())
+                self.CONFIG[k]=comb[k]
+
+        #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#
+
+        combs = createCombs()
+        self.printW("Existen "+str(len(combs))+" combinaciones posibles")
+
+        for c in combs.itertuples():
+
+            stop_param = []
+
+            c = dict(c._asdict())
+
+            #Configurar la red
+            configNet(c)
+
+            #Crear el modelo
+            self.MODEL = self.getModel()
+
+            #Imprimir la configuración
+            self.printConfig(filter=c.keys())
+
+            #Configurar y crear sesion
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+
+            with tf.Session(graph=self.MODEL, config=config) as session:
+
+                #Almacenar session
+                self.SESSION = session
+
+                #Inicializar variables
+                init = tf.global_variables_initializer()
+                init.run(session=self.SESSION)
+
+                #Para cada epoch...
+                for e in range(max_epochs):
+                    #TRAIN
+                    train_ret = self.train()
+
+                    #DEV
+                    dev_ret, stop = self.dev()
+
+                    stop_param.append(stop)
+
+                    #Imprimir linea
+                    self.gridSearchPrint(e,train_ret,dev_ret)
+
+                    # Si en las n epochs anteriores la pendiente es menor que valor, parar
+                    if (len(stop_param) >= start_n_epochs + last_n_epochs):
+                        slope = self.getSlope(stop_param[-last_n_epochs:]);
+                        if (slope > self.CONFIG['gs_max_slope']): break
+
+    def finalTrain(self, epochs = 1):
+
+        # Unir Train y DEV
+
+        self.TRAIN_V1 = self.TRAIN_V1.append(self.DEV, sort=False)
+        self.TRAIN_V2 = self.TRAIN_V2.append(self.DEV_V2, sort=False)
+        self.DEV = None
+        self.DEV_V2 = None
+
+        # Configurar y crear sesion
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+
+        with tf.Session(graph=self.MODEL, config=config) as session:
+            # Almacenar session
+            self.SESSION = session
+
+            # Inicializar variables
+            init = tf.global_variables_initializer()
+            init.run(session=self.SESSION)
+
+            # Para cada epoch...
+            for e in range(epochs):
+                print(str(e)+"/"+str(epochs))
+
+                # TRAIN
+                train_ret = self.train()
+
+
+            #Test final
+            test_ret = self.test()
+
+            # Imprimir linea
+            self.gridSearchPrint(epochs,train_ret, test_ret)
 
     #- STATS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
@@ -647,12 +781,151 @@ class ModelClass():
 
         file.close()
 
+    def intraRestImage(self):
+        '''
+        Calcula la imágen centroide de cada restaurante (los de más de 10 fotos).
+        Calcula las distancias de todos con todos y retorna los restaurantes con los centroides más parecidos (menos distantes)
+        :return:
+        '''
+
+        def myfn2(data):
+            rst_imgs = np.unique(np.row_stack(data.vector), axis=0)
+
+            if (len(rst_imgs) >= 10):
+                cnt = np.mean(rst_imgs, axis=0)
+                return pd.Series({"vector": cnt})
+
+        RVW, _ = self.getFilteredData()
+
+        RVW['url_rst'] = RVW.url.apply(lambda x: re.sub(r"\-r\d+", "", x))
+
+        rt = self.TRAIN_V2.groupby(['id_restaurant']).apply(myfn2).reset_index()
+        rt = rt.loc[~rt.vector.isna()]
+
+        matrix = np.row_stack(rt.vector)
+        dists_v = scipy.spatial.distance.pdist(matrix)
+
+        min_d = np.sort(dists_v)[0]
+
+        dists = scipy.spatial.distance.squareform(dists_v)
+        i, j = np.where(dists == min_d)
+
+        rids = rt.iloc[i, :].id_restaurant.values
+
+        urls = np.unique(RVW.loc[RVW.id_restaurant.isin(rids)].url_rst.values)
+
+        for u in urls: print(u)
+
+    def imageDistance(self):
+
+        def saveImage(path, img_src):
+            # si está descargada, skip
+            if (os.path.isfile(path)): return True
+
+            gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)  # Only for gangstars
+
+            try:
+                a = urllib.request.urlopen(img_src, context=gcontext)
+            except:
+                return False
+
+            if (a.getcode() != 200):
+                return False
+
+            try:
+                f = open(path, 'wb')
+                f.write(a.read())
+                f.close()
+                return path
+            except Exception as e:
+                print(e)
+                return False
+
+        RVW, IMG = self.getFilteredData()
+        RVW = RVW.loc[RVW.num_images > 0]
+        RVW = IMG.merge(RVW, left_on='review', right_on='reviewId', how='inner')
+
+        RVW = RVW.sample(50000).reset_index()
+        matrix = np.row_stack(RVW.vector)
+
+        X_embedded = TSNE(n_components=2,verbose=1).fit_transform(matrix)
+
+        Clusters = 200
+
+        kmeans = MiniBatchKMeans(n_clusters=Clusters,random_state = self.SEED, verbose=1,batch_size=512)
+        model = kmeans.fit(X_embedded)
+        RVW['cluster'] = model.labels_
+
+        fig = plt.figure()
+        #ax = Axes3D(fig)
+
+        mx_x, mx_y = np.max(X_embedded,0)
+        mn_x, mn_y = np.min(X_embedded,0)
+
+        s1 = (mx_x - mn_x) / (np.sqrt(Clusters) * 2)
+        s2 = (mx_y - mn_y) / (np.sqrt(Clusters) * 2)
+
+        plt.xlim(mn_x, mx_x+s1)
+        plt.ylim(mn_y-s2, mx_y)
+
+        #ax.scatter3D(X_embedded[:,0],X_embedded[:,1],X_embedded[:,2], c=model.labels_)
+        #img = mpimg.imread('stinkbug.png')
+
+        ret = pd.DataFrame(columns = ["pos","url"])
+
+        for i,g in RVW.groupby('cluster'):
+            indxs = g.index.values
+
+            tsne = X_embedded[indxs,:]
+            tsne = np.mean(tsne, axis=0)
+
+            img = g.sample(1)
+            url = img.images.values[0][img.image.values[0]-1]['image_url_lowres']
+
+            img_name = hashlib.md5(str(url).encode('utf-8')).hexdigest()
+            path = "tmp_img/" + str(img_name) + ".jpg"
+            saveImage(path, url)
+
+            ret = ret.append({"pos":tsne,"url":path},ignore_index=True)
+
+            img = matplotlib.pyplot.imread(path)
+            #plt.imshow(img,extent=(tsne[0]+2,tsne[0],tsne[1],-tsne[1]+2),origin="lower")
+            # (left, right, bottom, top)
+
+
+            plt.imshow(img,extent=(tsne[0],tsne[0]+s1,tsne[1]-s2,tsne[1]),origin="upper")
+
+        plt.show()
+        exit()
+
+        matplotlib.pyplot.imread()
+
+
+        plt.scatter(X_embedded[:,0],X_embedded[:,1], c=model.labels_)
+        plt.show()
+
+        exit()
+
+        print()
+
+
+
+        cluster_data = RVW.loc[RVW.cluster == 0]
+
+        for i,d in cluster_data.iterrows():
+            url = d.images[d.image-1]['image_url_lowres']
+
+            img_name = hashlib.md5(str(url).encode('utf-8')).hexdigest()
+            saveImage("tmp_img/"+str(img_name)+".jpg",url)
+
+        print(kmeans)
+
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
-    def getTopN(self, results):
+    def getTopN(self, results, data):
 
-        users = self.DEV.id_user.values
-        likes = self.DEV.like.values
+        users = data.id_user.values
+        likes = data.like.values
 
         results = results.sort_values(['id_user', 'prediction'], ascending=[True, True]).reset_index(drop=True)
 
@@ -769,9 +1042,11 @@ class ModelClass():
         tmp['seed']=self.SEED
         tmp['city']=self.CITY
 
+        print("-" * 50)
+
         print(hashlib.md5(str(tmp).encode('utf-8')).hexdigest())
 
-        print("-" * 25)
+        print("-" * 50)
 
         for key, value in tmp.items():
 
@@ -785,7 +1060,7 @@ class ModelClass():
                 print(line)
 
 
-        print("-"*25)
+        print("-"*50)
 
     def printE(self,text):
         print(bcolors.FAIL+str("[ERROR] ")+str(text)+bcolors.ENDC)

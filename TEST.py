@@ -1,5 +1,44 @@
 import numpy as np
 import pandas as pd
+from ModelV2 import *
+
+config = {"min_rest_revs":0,
+          "min_usr_revs":3,
+          "new_train_examples":-2, # -1 para auto, -2 para (rest/user)*100 y 0 para ninguno
+
+          "regularization":0, # 0 para desactivar
+          "regularization_beta": 2.5e-6,
+          "use_rest_provs": False,
+          "top_n_new_items": 99,
+          "train_pos_rate":1.0,
+          "dev_test_pos_rate":0.0,
+          "top": [1,5,10,15,20],
+
+          "emb_size":512,
+          "hidden_size": 128,# 0 para eliminar
+          "hidden2_size": 0,  # 0 para eliminar
+
+          "learning_rate":  1e-3,
+          "learning_rate_img": 1e-3,
+          "dropout": 1,  # Prob de mantener
+
+          "use_images": 0,
+          "epochs":1,
+          "batch_size": 512,
+          "gs_max_slope":-1e-8}
+
+params = {
+    "learning_rate": [1e-3],
+    "emb_size": [512],
+    "hidden_size": [128],
+    "use_images":[0,1]
+}
+
+modelv2 = ModelV2(city="Gijon", option=2, config=config, seed=100)
+modelv2.gridSearch(params, max_epochs=50)
+modelv2.finalTrain(epochs)
+
+exit()
 
 '''
 def sigmoid(x, derivative=False):

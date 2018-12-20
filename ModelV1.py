@@ -207,7 +207,7 @@ class ModelV1(ModelClass):
                         dev_res = dev_res.append(batch_dtfm,ignore_index=True)
 
 
-                    hits,avg_pos,median_pos = self.getTopN(dev_res)
+                    hits,avg_pos,median_pos = self.getTopN(dev_res, data=self.DEV)
                     hits = list(hits.values())
 
                     train_loss_comb.append(np.average(train_loss))
@@ -336,7 +336,7 @@ class ModelV1(ModelClass):
 
                         dev_res = dev_res.append(batch_dtfm, ignore_index=True)
 
-                    hits, avg_pos, median_pos = self.getTopN(dev_res)
+                    hits, avg_pos, median_pos = self.getTopN(dev_res, data=self.DEV)
                     hits = list(hits.values())
 
                     train_loss_comb.append(np.average(train_bin_loss))

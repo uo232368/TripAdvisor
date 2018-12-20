@@ -4,6 +4,7 @@ import argparse
 
 from ModelV1 import *
 from ModelV2 import *
+from ModelV3 import *
 
 
 ########################################################################################################################
@@ -14,6 +15,7 @@ parser.add_argument('-m', type=int,help="Modelo a utilizar")
 parser.add_argument('-d', type=float,help="DropOut")
 parser.add_argument('-i', type=int,help="Codificación utilizada para las imágenes")
 parser.add_argument('-s', type=int,help="Semilla")
+parser.add_argument('-e', type=int,help="Epochs")
 parser.add_argument('-c', type=str,help="Ciudad", )
 parser.add_argument('-gpu', type=str,help="Gpu")
 parser.add_argument('-lr', nargs='+', type=float, help='Lista de learning-rates a probar')
@@ -22,21 +24,26 @@ parser.add_argument('-hidd', nargs='+', type=int, help='Lista de hidden a probar
 parser.add_argument('-hidd2', nargs='+', type=int, help='Lista de hidden2 a probar')
 parser.add_argument('-top', nargs='+', type=int, help='Lista de tops a calcular')
 
+parser.add_argument('-imgs', type=int,help="Usar imágenes", )
+
 parser.add_argument('-rst', type=int,help="min_rest_revs")
 parser.add_argument('-usr', type=int,help="min_usr_revs")
 
 args = parser.parse_args()
 
-model= 2 if args.m == None else args.m
+model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
+epochs= 13 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
-city = "Barcelona" if args.c == None else args.c
-gpu = 1 if args.gpu == None else args.gpu
-dpout = 1.0 if args.d == None else args.d
+city = "Gijon" if args.c == None else args.c
+gpu = 0 if args.gpu == None else args.gpu
+dpout = .5 if args.d == None else args.d
 lrates = [1e-3] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 hidden2_size = [0] if args.hidd2 == None else args.hidd2
+
+use_images = 1 if args.imgs == None else args.imgs
 
 min_rest_revs = 0 if args.rst == None else args.rst
 min_usr_revs = 3 if args.usr == None else args.usr
@@ -64,39 +71,38 @@ config = {"min_rest_revs":min_rest_revs,
           "learning_rate_img": lrates[0],
           "dropout": dpout,  # Prob de mantener
 
-          #Para train
-          "epochs":5,
+          "use_images":use_images,
+          "epochs":epochs,
           "batch_size": 512,
           "gs_max_slope":-1e-8}
 
 ########################################################################################################################
 
-
-#DEEP
-if (model == 1):
-
-    params = {
-        "learning_rate": lrates,
-        "emb_size": embsize,
-    }
-    modelv1 = ModelV1(city=city, option=option, config=config, seed=seed)
-    modelv1.gridSearchV1(params, max_epochs=500)
-    #modelv1.gridSearchV2(params, max_epochs=500)
-
 #DOTPROD
+if (model == 3):
+    config["hidden_size"] = 1024
+    config["hidden2_size"] = 128
+    modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
+    modelv3.gridSearch()
+
 if (model == 2):
 
     params = {
-        "learning_rate": lrates,
-        "emb_size": embsize,
+        "dropout":[dpout],
+        "use_images": [use_images]
     }
 
     modelv2 = ModelV2(city=city, option=option, config=config, seed=seed)
+
     #modelv2.basicModel(test=False, mode="random")
     #modelv2.basicModel(test=False, mode="centroid")
 
-    #modelv2.gridSearchV1(params, max_epochs=500)
-    modelv2.gridSearchV2(params, max_epochs=500)
+    #modelv2.imageDistance()
+    #modelv2.intraRestImage()
+
+    #modelv2.gridSearch(params, max_epochs=100)
+
+    modelv2.finalTrain(epochs = epochs)
 
     exit()
 
@@ -121,18 +127,7 @@ if (model == 2):
     exit()
     '''
 
-    #OBTENER LA DISTANCIA ENTRE RESTAURANTES (MEDIA/MODA/MEDIANA/MAX/MIN)
 
-    '''
-    def myfn2(data):
-        rst_imgs = np.unique(np.row_stack(data.vector), axis=0)
-        cnt = np.mean(rst_imgs,axis=0)
-        return pd.Series({"vector":cnt})
-
-    rt = modelv2.TRAIN_V2.groupby(['id_restaurant']).apply(myfn2).reset_index()
-
-    print(rt)
-    '''
 
     #OBTENER, DE TODAS LAS FOTOS, LA MEDIA/MODA/MEDIANA/MAX/MIN DE LA DISTANCIA ENTRE ELLAS
     #train_imgs = np.unique(np.row_stack(modelv2.TRAIN_V2.vector), axis=0)

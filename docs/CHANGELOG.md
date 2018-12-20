@@ -327,6 +327,8 @@ Usuarios con más de 3 revews positivas, separando de la siguiente forma:
 * Se vió que añadir más de n items no vistos por usuario mejora los resultados.
 Por tanto N = (N_RST/N_USR)*100
 Ver: docs/12_11_2018/12_11_2018_no_vistos.xlsx
+
+No añadir items es bueno, pero peor que lo anterior.
 ```
 #### Compensar TRAIN1 Y TRAIN2
 Para igualar el tamaño de los datos de TRAINv1 y TRAINv2, se rellena este último (dado que es de menor tamaño) con ejemplos seleccionados aleatoriamente de este propio conjunto.
@@ -384,10 +386,15 @@ Para los que si tienen datos en TRAIN:
 * Se toma la menor distancia y se calcula finalmente la media de todas las distancias mínimas.
 
 
+## Actualización [17/12/2018]
+Tras ver que el rendimiento de la predicción de imágenes no es muy bueno (utlizar un modelo "tonto" que predice siempre la imágen centroide del restaurante mejora los resultados del nuestro), se decide simplificar la tarea a resolver, siendo ahora:  
 
+`¿Añadir las imágenes mejora la tarea de recomendación?`
 
+Se cree que una mejor forma para realizar una recomendación de imágenes es lo indicado en `docs/17_12_2018/recomendar_imágenes.pdf`
 
-
-
-
+### Pruebas
+Se hacen diferentes pruebas variando usuarios, restaurantes y lugares con el fin de ver si añadir o no imágenes mejora la clasificación binaria.  
+Estas pruebas se pueden ver en `docs/17_12_2018/17_12_2018_tests.xlsx` y están hechas con el mismo modelo (con mismos hiper-parámetros) sobre el conjunto de validación.  
+En todas ellas se puede ver una mejora del rendimiento a la hora de añadir las imágenes. También se ve un decremento del rendimiento cuando se reduce el número de usuarios y restaurantes.
 

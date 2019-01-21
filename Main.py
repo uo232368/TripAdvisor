@@ -35,19 +35,18 @@ model= 3 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 epochs= 13 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
-city = "Gijon" if args.c == None else args.c
-gpu = 0 if args.gpu == None else args.gpu
+city = "Barcelona" if args.c == None else args.c
+gpu = 1 if args.gpu == None else args.gpu
 dpout = .5 if args.d == None else args.d
 lrates = [1e-3] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 hidden2_size = [0] if args.hidd2 == None else args.hidd2
 
-use_images = 1 if args.imgs == None else args.imgs
+use_images = 0 if args.imgs == None else args.imgs
 
 min_rest_revs = 0 if args.rst == None else args.rst
 min_usr_revs = 3 if args.usr == None else args.usr
-
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
@@ -80,10 +79,21 @@ config = {"min_rest_revs":min_rest_revs,
 
 #DOTPROD
 if (model == 3):
+
+    use_images=1
+    lrates = [1e-06]
+    dpout = [0.5]
     config["hidden_size"] = 1024
     config["hidden2_size"] = 128
+
+    params = {
+        "dropout":dpout,
+        "use_images": [use_images],
+        "learning_rate": lrates
+    }
+
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
-    modelv3.gridSearch()
+    modelv3.gridSearch(params,max_epochs=1000)
 
 if (model == 2):
 
@@ -100,14 +110,12 @@ if (model == 2):
     #modelv2.imageDistance()
     #modelv2.intraRestImage()
 
-    #modelv2.gridSearch(params, max_epochs=100)
+    modelv2.gridSearch(params, max_epochs=100)
 
-    modelv2.finalTrain(epochs = epochs)
+    #modelv2.finalTrain(epochs = epochs)
 
     exit()
 
-    #TODO: Distancia MEDIA/MODA/MAX/MIN entre todas las fotos de train
-    #TODO: Distancia MEDIA/MODA/MAX/MIN entre todas las fotos cada restaurante
 
     '''
     #OBTENER, PARA CADA RESTAURANTE DEL TRAIN, LA MEDIA/MODA/MEDIANA/MAX/MIN DE LA DISTANCIA ENTRE SUS FOTOS
@@ -142,8 +150,6 @@ if (model == 2):
 
     exit()
 
-
-    #TODO: Ejecutar prueba que falta
 
     '''
     rsts = modelv2.DEV_V2.id_restaurant.unique()

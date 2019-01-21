@@ -30,13 +30,12 @@ from sklearn import metrics
 from sklearn import utils
 from sklearn.cluster import MiniBatchKMeans, KMeans
 from sklearn.manifold import TSNE
-'''
+
 import ssl
 import urllib
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
-'''
 
 ########################################################################################################################
 
@@ -117,10 +116,12 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train1, train2, dev,dev2, test,test2, n_rest, n_usr, v_img, mse_data = self.getData()
+        train1, train2, train3, dev, dev2, test,test2, n_rest, n_usr, v_img, mse_data = self.getData()
 
         self.TRAIN_V1 = train1
         self.TRAIN_V2 = train2
+        self.TRAIN_V3 = train3
+
         self.DEV = dev
         self.DEV_V2 = dev2
         self.TEST = test
@@ -238,7 +239,7 @@ class ModelClass():
         print("RESTAURANTES:"+str(len(RVW.restaurantId.unique())))
 
 
-        return RVW, IMG
+        return RVW, IMG, USR_TMP,REST_TMP
 
     def getData(self):
 
@@ -258,11 +259,15 @@ class ModelClass():
 
         file_path += "/"
 
+
+        
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
 
             TRAIN_v1 = self.getPickle(file_path, "TRAIN_v1")
             TRAIN_v2 = self.getPickle(file_path, "TRAIN_v2")
+            TRAIN_v3 = self.getPickle(file_path, "TRAIN_v3")
+
             DEV = self.getPickle(file_path, "DEV")
             DEV_v2 = self.getPickle(file_path, "DEV_v2")
             TEST = self.getPickle(file_path, "TEST")
@@ -276,17 +281,23 @@ class ModelClass():
 
             self.getCardinality(TRAIN_v1.like, title="TRAIN_v1", verbose=True)
             self.getCardinality(TRAIN_v2.like, title="TRAIN_v2", verbose=True)
+            self.getCardinality(TRAIN_v3.like, title="TRAIN_v3", verbose=True)
             self.getCardinality(DEV.like, title="DEV", verbose=True)
+            self.getCardinality(DEV_v2.like, title="DEV_v2", verbose=True)
             self.getCardinality(TEST.like, title="TEST", verbose=True)
+            self.getCardinality(TEST_v2.like, title="TEST_v2", verbose=True)
 
-            return (TRAIN_v1, TRAIN_v2, DEV,DEV_v2, TEST,TEST_v2, REST_TMP, USR_TMP, IMG, MSE)
+            return (TRAIN_v1, TRAIN_v2,TRAIN_v3, DEV,DEV_v2, TEST,TEST_v2, REST_TMP, USR_TMP, IMG, MSE)
+
+
 
         # ---------------------------------------------------------------------------------------------------------------
 
-        RVW, IMG = self.getFilteredData();
+        RVW, IMG, USR_TMP, REST_TMP = self.getFilteredData();
 
         # Mover ejemplos positivos a donde corresponde
         # ---------------------------------------------------------------------------------------------------------------
+
         TRAIN = pd.DataFrame()
         DEV = pd.DataFrame()
         TEST = pd.DataFrame()
@@ -535,10 +546,52 @@ class ModelClass():
         sampled_items = TRAIN_v2.sample(left_items, replace=True,random_state=self.SEED)
         TRAIN_v2 = TRAIN_v2.append(sampled_items, ignore_index=True)
 
+        # Crear nuevos conjuntos
+        # ---------------------------------------------------------------------------------------------------------------
+
+        #restaurante -> Review
+        INXS = RVW[["id_restaurant","reviewId"]].drop_duplicates()
+        IMGS = IMG.merge(INXS, left_on='review', right_on='reviewId', how='inner')
+
+        # Coger los reales del TRAINv1 y añadirles imagen
+        TRAIN_v3 = TRAIN_v1.loc[TRAIN_v1.reviewId>=0]
+        TRAIN_v3 = TRAIN_v3.drop(columns=['vector'])
+        TRAIN_v3 = IMG.merge(TRAIN_v3, left_on='review', right_on='reviewId', how='right')
+        TRAIN_v3.vector = TRAIN_v3.vector.fillna(0)
+        TRAIN_v3 = TRAIN_v3.drop(columns=['image','review'])
+
+        def add_img(data):
+            id = data.id_restaurant.values[0]
+            rst_imgs = IMGS.loc[IMGS.id_restaurant == id]
+
+            if (len(rst_imgs) == 0):
+                data['vector'] = 0
+            else:
+                imgs = rst_imgs.sample(len(data), replace=True)
+                data['vector'] = imgs['vector'].values
+
+            return data
+
+        #Añadir imagen a los falsos del v1
+        #TV3_tmp = TRAIN_v1.loc[TRAIN_v1.reviewId < 0].groupby("id_restaurant").apply(add_img)
+
+        self.printE("ERROR")#ToDo: esto está comentado!!!!!
+
+        TV3_tmp = TRAIN_v1.loc[TRAIN_v1.reviewId < 0]
+        TRAIN_v3 = TRAIN_v3.append(TV3_tmp, ignore_index = True).reset_index()
+
+        #Cambiar los 0's por vectores
+        def fill_zeros(data):
+            if(type(data) is int):return np.zeros(len(IMG.iloc[0].vector))
+            else: return data
+
+        TRAIN_v3['vector'] = TRAIN_v3.vector.apply(fill_zeros)
+
         # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
 
         TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED).reset_index(drop=True)
+        TRAIN_v3 = utils.shuffle(TRAIN_v3, random_state=self.SEED).reset_index(drop=True)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
 
@@ -546,6 +599,7 @@ class ModelClass():
 
         self.toPickle(file_path, "TRAIN_v1", TRAIN_v1)
         self.toPickle(file_path, "TRAIN_v2", TRAIN_v2)
+        self.toPickle(file_path, "TRAIN_v3", TRAIN_v3)
         self.toPickle(file_path, "DEV", DEV)
         self.toPickle(file_path, "DEV_v2", DEV_v2)
         self.toPickle(file_path, "TEST", TEST)
@@ -555,7 +609,7 @@ class ModelClass():
         self.toPickle(file_path, "IMG", len(IMG.iloc[0].vector))
         self.toPickle(file_path, "MSE", [MinMSE, MaxMSE, MeanMSE])
 
-        return (TRAIN_v1, TRAIN_v2, DEV,DEV_v2, TEST,TEST_v2 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
+        return (TRAIN_v1, TRAIN_v2,TRAIN_v3, DEV,DEV_v2, TEST,TEST_v2 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
         raise NotImplementedError
@@ -652,10 +706,10 @@ class ModelClass():
 
     def finalTrain(self, epochs = 1):
 
-        # Unir Train y DEV
+        # Unir Train y DEV (SOLO LOS REALES, TODOS CAMBIARÍAN MUCHO EL TRAIN)
 
-        self.TRAIN_V1 = self.TRAIN_V1.append(self.DEV, sort=False)
-        self.TRAIN_V2 = self.TRAIN_V2.append(self.DEV_V2, sort=False)
+        self.TRAIN_V1 = self.TRAIN_V1.append(self.DEV.loc[self.DEV.like==1], sort=False)
+        self.TRAIN_V2 = self.TRAIN_V2.append(self.DEV_V2.loc[self.DEV_V2.like==1], sort=False)
         self.DEV = None
         self.DEV_V2 = None
 
@@ -733,7 +787,7 @@ class ModelClass():
 
         file = open("tail_graph_"+self.CITY.lower()+".tsv", "w")
 
-        RVW, IMG = self.getFilteredData();
+        RVW, IMG, USR_TMP, REST_TMP = self.getFilteredData();
 
         def count(data): return(pd.Series({'reviews':len(data)}))
         RES = RVW.groupby('restaurantId').apply(count)
@@ -761,7 +815,7 @@ class ModelClass():
 
         file = open("users_graph_"+self.CITY.lower()+".tsv", "w")
 
-        RVW, IMG = self.getFilteredData();
+        RVW, IMG, USR_TMP, REST_TMP = self.getFilteredData();
 
         def myfn(r):
             pos = sum(r.like)
@@ -795,7 +849,7 @@ class ModelClass():
                 cnt = np.mean(rst_imgs, axis=0)
                 return pd.Series({"vector": cnt})
 
-        RVW, _ = self.getFilteredData()
+        RVW, _,_,_ = self.getFilteredData()
 
         RVW['url_rst'] = RVW.url.apply(lambda x: re.sub(r"\-r\d+", "", x))
 
@@ -841,11 +895,11 @@ class ModelClass():
                 print(e)
                 return False
 
-        RVW, IMG = self.getFilteredData()
+        RVW, IMG,_,_ = self.getFilteredData()
         RVW = RVW.loc[RVW.num_images > 0]
         RVW = IMG.merge(RVW, left_on='review', right_on='reviewId', how='inner')
 
-        RVW = RVW.sample(50000).reset_index()
+        RVW = RVW.sample(len(RVW)).reset_index()
         matrix = np.row_stack(RVW.vector)
 
         X_embedded = TSNE(n_components=2,verbose=1).fit_transform(matrix)
@@ -895,7 +949,11 @@ class ModelClass():
 
             plt.imshow(img,extent=(tsne[0],tsne[0]+s1,tsne[1]-s2,tsne[1]),origin="upper")
 
-        plt.show()
+        fig1 = plt.gcf()
+        #plt.show()
+        #plt.draw()
+        fig1.savefig('T-SNE.pdf', dpi=500)
+
         exit()
 
         matplotlib.pyplot.imread()
@@ -927,9 +985,11 @@ class ModelClass():
         users = data.id_user.values
         likes = data.like.values
 
+        results = utils.shuffle(results) #Para evitar que el 1 sea el primero cuando todos son 0.5
+
         results = results.sort_values(['id_user', 'prediction'], ascending=[True, True]).reset_index(drop=True)
 
-        def getHits(data):
+        def getMultipleHits(data):
 
             data = data.reset_index()
 
@@ -966,10 +1026,26 @@ class ModelClass():
 
             return ret
 
-        results = results.groupby('id_user').apply(getHits).reset_index()
-        results = results.drop(columns=["level_1"])
+        #Si solo hay un 1 positivo por usuario en DEV/TEST
+        if(self.CONFIG['train_pos_rate']==1.0):
+            results['local_indx'] = list(range(1, 101)) * sum(likes)
+            like_pos = results.loc[results.like == 1].copy()
+            like_pos['real_pos'] = 101 - like_pos['local_indx']
 
-        res= (results.iloc[:,1:-1].sum()/sum(likes))*100.0
+            results = like_pos[['real_pos']].copy()
+
+            for t in self.CONFIG['top']:
+                results['hit_' + str(t)] = results['real_pos'] <= t;
+                results['hit_' + str(t)] = results['hit_' + str(t)].astype(int)
+
+            res = (results.iloc[:, 1:].sum() / sum(likes)) * 100.0
+
+        #Si solo hay más de 1 positivo por usuario en DEV/TEST
+        else:
+            #Mejorable??
+            results = results.groupby('id_user').apply(getMultipleHits).reset_index(drop=True)
+            res= (results.iloc[:,0:-1].sum()/sum(likes))*100.0
+
         #recall = hits / sum(likes)
         #precision = recall / self.CONFIG['top']
 
@@ -982,6 +1058,9 @@ class ModelClass():
 
         f = np.vectorize(lambda x: 1 if(x<.5) else 0)
         pred_tmp = f(np.array(pred[:,0]))
+
+        self.printE("REVISAR")
+        exit()
 
         TN, FP, FN, TP = metrics.confusion_matrix(real,pred_tmp).ravel()
 

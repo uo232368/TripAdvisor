@@ -393,8 +393,14 @@ Tras ver que el rendimiento de la predicción de imágenes no es muy bueno (utli
 
 Se cree que una mejor forma para realizar una recomendación de imágenes es lo indicado en `docs/17_12_2018/recomendar_imágenes.pdf`
 
+Este nuevo método (Modelv3) se desarollará en una actualización futura.
+
 ### Pruebas
 Se hacen diferentes pruebas variando usuarios, restaurantes y lugares con el fin de ver si añadir o no imágenes mejora la clasificación binaria.  
 Estas pruebas se pueden ver en `docs/17_12_2018/17_12_2018_tests.xlsx` y están hechas con el mismo modelo (con mismos hiper-parámetros) sobre el conjunto de validación.  
 En todas ellas se puede ver una mejora del rendimiento a la hora de añadir las imágenes. También se ve un decremento del rendimiento cuando se reduce el número de usuarios y restaurantes.
+
+
+
+
 

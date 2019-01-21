@@ -400,7 +400,15 @@ Se hacen diferentes pruebas variando usuarios, restaurantes y lugares con el fin
 Estas pruebas se pueden ver en `docs/17_12_2018/17_12_2018_tests.xlsx` y están hechas con el mismo modelo (con mismos hiper-parámetros) sobre el conjunto de validación.  
 En todas ellas se puede ver una mejora del rendimiento a la hora de añadir las imágenes. También se ve un decremento del rendimiento cuando se reduce el número de usuarios y restaurantes.
 
+## Actualización [16/01/2019]
+Nuevo modelo v3
 
+Train v3 => Al final no se añaden imágenes en los "no vistos" para no confundir al modelo. Al añadirlas, la mayoría de ejemplos que tenían imágen eran estos ejemplos falsos, lo cual decrementaba el rendimiento.
+
+Se hace un gs para ver el mejor LR con y sin imágenes.
+
+
+REHACER LA TABLA PREVIA CON EL NUEVO MODELO.
 
 
 

@@ -55,8 +55,8 @@ class ModelV3_1(ModelClass):
 
             # Operaciones -----------------------------------------------------------------------------------------------------------------
 
-            user_emb = tf.nn.embedding_lookup(E1, user_rest_input[:,0])
-            rest_emb = tf.nn.embedding_lookup(E2, user_rest_input[:,1])
+            user_emb = tf.nn.embedding_lookup(E1, user_rest_input[:,0], name="user_emb") #user_emb/Identity:0
+            rest_emb = tf.nn.embedding_lookup(E2, user_rest_input[:,1], name="rest_emb") #rest_emb/Identity:0
 
             user_emb = tf.nn.dropout(user_emb,keep_prob=dpout);
             rest_emb = tf.nn.dropout(rest_emb,keep_prob=dpout);
@@ -123,6 +123,7 @@ class ModelV3_1(ModelClass):
                                  'dpout:0': self.CONFIG['dropout']}
 
             _, R0,E1,E2,batch_softplus,batch_bin_prob = self.SESSION.run(['train_step_bin:0','R0:0','E1:0','E2:0','batch_softplus:0','batch_bin_prob:0'], feed_dict=feed_dict_bin)
+            # ue, re, im = self.SESSION.run(['user_emb/Identity:0','rest_emb/Identity:0','img_input'], feed_dict=feed_dict_bin)
 
             if(self.CURRENT_EPOCH==30):
                 sufx = ""

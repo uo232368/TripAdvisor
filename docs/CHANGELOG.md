@@ -467,5 +467,5 @@ Partiendo de los datos anteriores (`TRAIN_v3`, `DEV_v3` y `TEST_v3`) se plantea:
 Tras evaluar la acuraccy en `TRAIN_v3_1` y `DEV_v3_1` se obtuvieron unos resultados de 99% y 92% respectivamente.
 Tras evaluar con el conjunto `TEST_v3` se obtuvieron los mismos resultados que en la actualización previa.
 
-Analizando este comportamiento se descubrió que el modelo no tenía en cuenta las imágenes (valor de pesos reducido) y se vió que eliminando las imágenes (poniendo 0's) se obtenían los mismos e incluso mejores resultados en acurracy.
+Analizando este comportamiento se descubrió que el modelo no tenía en cuenta las imágenes (valor de pesos reducido; ver imágen `out/31_01_2019/R0.png`) y se vió que eliminando las imágenes (poniendo 0's) se obtenían los mismos e incluso mejores resultados en acurracy.
 

@@ -12,6 +12,7 @@ import hashlib
 import itertools as it
 
 import random as rn
+from PIL import Image
 
 import keras
 import tensorflow as tf
@@ -30,6 +31,8 @@ from sklearn import metrics
 from sklearn import utils
 from sklearn.cluster import MiniBatchKMeans, KMeans
 from sklearn.manifold import TSNE
+from sklearn.model_selection import train_test_split
+
 
 import ssl
 import urllib
@@ -116,16 +119,21 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train1, train2, train3, dev, dev2, test,test2, n_rest, n_usr, v_img, mse_data = self.getData()
+        train1, train2, train3,train3_1, dev, dev2,dev3,dev3_1, test,test2,test3, n_rest, n_usr, v_img, mse_data = self.getData()
 
         self.TRAIN_V1 = train1
         self.TRAIN_V2 = train2
         self.TRAIN_V3 = train3
+        self.TRAIN_V3_1 = train3_1
 
         self.DEV = dev
         self.DEV_V2 = dev2
+        self.DEV_V3 = dev3
+        self.DEV_V3_1 = dev3_1
+
         self.TEST = test
         self.TEST_V2 = test2
+        self.TEST_V3 = test3
 
         self.N_RST = n_rest
         self.N_USR = n_usr
@@ -151,7 +159,7 @@ class ModelClass():
         self.printW("FN SIN IMPLEMENTAR")
         exit()
 
-    def getFilteredData(self):
+    def getFilteredData(self,verbose=True):
 
         IMG = pd.read_pickle(self.PATH + "img-option" + str(self.OPTION) + ".pkl")
         RVW = pd.read_pickle(self.PATH + "reviews.pkl")
@@ -175,12 +183,12 @@ class ModelClass():
 
         RST_LST = RST_LST.loc[(RST_LST.like >= self.CONFIG['min_rest_revs']), "restaurantId"].values
 
-        self.printW("Eliminado "+str(old_rest_len-len(RST_LST))+" restaurantes (con menos de " + str(self.CONFIG['min_rest_revs']) + " reviews) de un total de "+str(old_rest_len)+" ("+str(1-(len(RST_LST)/old_rest_len))+" %)")
+        if(verbose):self.printW("Eliminado "+str(old_rest_len-len(RST_LST))+" restaurantes (con menos de " + str(self.CONFIG['min_rest_revs']) + " reviews) de un total de "+str(old_rest_len)+" ("+str(1-(len(RST_LST)/old_rest_len))+" %)")
 
         old_rvw_len = len(RVW)
         RVW = RVW.loc[RVW.restaurantId.isin(RST_LST)]
 
-        self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
+        if (verbose):self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
 
 
         # Eliminar usuarios con menos de min_revs
@@ -207,13 +215,13 @@ class ModelClass():
         USR_LST = USR_LST.loc[(USR_LST.like >= self.CONFIG['min_usr_revs']), "userId"].values
         #USR_LST = USR_LST.loc[(USR_LST.like == self.CONFIG['min_usr_revs']), "userId"].values;self.printE("SOLO 5 REVIEWS") # <===============
 
-        self.printW("Eliminado "+str(old_usr_len-len(USR_LST))+" usuarios (con menos de " + str(self.CONFIG['min_usr_revs']) + " reviews positivas) de un total de "+str(old_usr_len)+" ("+str(1-(len(USR_LST)/old_usr_len))+" %)")
+        if (verbose):self.printW("Eliminado "+str(old_usr_len-len(USR_LST))+" usuarios (con menos de " + str(self.CONFIG['min_usr_revs']) + " reviews positivas) de un total de "+str(old_usr_len)+" ("+str(1-(len(USR_LST)/old_usr_len))+" %)")
 
         old_rvw_len = len(RVW)
 
         RVW = RVW.loc[RVW.userId.isin(USR_LST)]
 
-        self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
+        if (verbose):self.printW("\t- Se pasa de "+str(old_rvw_len)+" reviews a "+str(len(RVW))+" reviews.")
 
         # Obtener ID para ONE-HOT de usuarios y restaurantes
         # ---------------------------------------------------------------------------------------------------------------
@@ -235,8 +243,9 @@ class ModelClass():
 
         RVW = RET[['date', 'images', 'language', 'rating', 'restaurantId', 'reviewId', 'text', 'title', 'url', 'userId', 'num_images', 'id_user', 'id_restaurant', 'like']]
 
-        print("USUARIOS:"+str(len(RVW.userId.unique())))
-        print("RESTAURANTES:"+str(len(RVW.restaurantId.unique())))
+        if (verbose):
+            print("USUARIOS:"+str(len(RVW.userId.unique())))
+            print("RESTAURANTES:"+str(len(RVW.restaurantId.unique())))
 
 
         return RVW, IMG, USR_TMP,REST_TMP
@@ -260,18 +269,23 @@ class ModelClass():
         file_path += "/"
 
 
-        
+
         if (os.path.exists(file_path)):
             self.printW("Cargando datos generados previamente...")
 
             TRAIN_v1 = self.getPickle(file_path, "TRAIN_v1")
             TRAIN_v2 = self.getPickle(file_path, "TRAIN_v2")
             TRAIN_v3 = self.getPickle(file_path, "TRAIN_v3")
+            TRAIN_v3_1 = self.getPickle(file_path, "TRAIN_v3_1")
 
             DEV = self.getPickle(file_path, "DEV")
             DEV_v2 = self.getPickle(file_path, "DEV_v2")
+            DEV_v3 = self.getPickle(file_path, "DEV_v3")
+            DEV_v3_1 = self.getPickle(file_path, "DEV_v3_1")
+
             TEST = self.getPickle(file_path, "TEST")
             TEST_v2 = self.getPickle(file_path, "TEST_v2")
+            TEST_v3 = self.getPickle(file_path, "TEST_v3")
 
             REST_TMP = self.getPickle(file_path, "REST_TMP")
             USR_TMP = self.getPickle(file_path, "USR_TMP")
@@ -282,12 +296,18 @@ class ModelClass():
             self.getCardinality(TRAIN_v1.like, title="TRAIN_v1", verbose=True)
             self.getCardinality(TRAIN_v2.like, title="TRAIN_v2", verbose=True)
             self.getCardinality(TRAIN_v3.like, title="TRAIN_v3", verbose=True)
+            self.getCardinality(TRAIN_v3_1.like, title="TRAIN_v3_1", verbose=True)
+
             self.getCardinality(DEV.like, title="DEV", verbose=True)
             self.getCardinality(DEV_v2.like, title="DEV_v2", verbose=True)
+            self.getCardinality(DEV_v3.like, title="DEV_v3", verbose=True)
+            self.getCardinality(DEV_v3_1.like, title="DEV_v3_1", verbose=True)
+
             self.getCardinality(TEST.like, title="TEST", verbose=True)
             self.getCardinality(TEST_v2.like, title="TEST_v2", verbose=True)
+            self.getCardinality(TEST_v3.like, title="TEST_v3", verbose=True)
 
-            return (TRAIN_v1, TRAIN_v2,TRAIN_v3, DEV,DEV_v2, TEST,TEST_v2, REST_TMP, USR_TMP, IMG, MSE)
+            return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3, REST_TMP, USR_TMP, IMG, MSE)
 
 
 
@@ -533,7 +553,6 @@ class ModelClass():
         MaxMSE = np.apply_along_axis(lambda x: np.max(x), 0, IMG_2)
         MinMSE = np.apply_along_axis(lambda x: np.min(x), 0, IMG_2)
 
-
         # Igualar TrainV2 a TrainV1
         # ---------------------------------------------------------------------------------------------------------------
         '''
@@ -546,7 +565,7 @@ class ModelClass():
         sampled_items = TRAIN_v2.sample(left_items, replace=True,random_state=self.SEED)
         TRAIN_v2 = TRAIN_v2.append(sampled_items, ignore_index=True)
 
-        # Crear nuevos conjuntos
+        # Crear TRAINv3
         # ---------------------------------------------------------------------------------------------------------------
 
         #restaurante -> Review
@@ -558,7 +577,6 @@ class ModelClass():
         TRAIN_v3 = TRAIN_v3.drop(columns=['vector'])
         TRAIN_v3 = IMG.merge(TRAIN_v3, left_on='review', right_on='reviewId', how='right')
         TRAIN_v3.vector = TRAIN_v3.vector.fillna(0)
-        TRAIN_v3 = TRAIN_v3.drop(columns=['image','review'])
 
         def add_img(data):
             id = data.id_restaurant.values[0]
@@ -572,13 +590,15 @@ class ModelClass():
 
             return data
 
-        #Añadir imagen a los falsos del v1
+        #[DESCARTADO] Añadir imagen a los falsos del v1
         #TV3_tmp = TRAIN_v1.loc[TRAIN_v1.reviewId < 0].groupby("id_restaurant").apply(add_img)
 
-        self.printE("ERROR")#ToDo: esto está comentado!!!!!
-
+        #Añadir los falsos del v1
         TV3_tmp = TRAIN_v1.loc[TRAIN_v1.reviewId < 0]
         TRAIN_v3 = TRAIN_v3.append(TV3_tmp, ignore_index = True).reset_index()
+
+        TRAIN_v3["image"] = ~TRAIN_v3.review.isnull()
+        TRAIN_v3 = TRAIN_v3.drop(columns=['review'])
 
         #Cambiar los 0's por vectores
         def fill_zeros(data):
@@ -587,11 +607,79 @@ class ModelClass():
 
         TRAIN_v3['vector'] = TRAIN_v3.vector.apply(fill_zeros)
 
+        # Hacer DEV_v3 y TEST_v3
+        # --------------------------------------------------------------------------------------------------------------
+        # restaurante -> Review
+        INXS = RVW[["id_restaurant","id_user", "reviewId","like"]].drop_duplicates()
+        IMGS = IMG.merge(INXS, left_on='review', right_on='reviewId', how='inner')
+
+        #Obtener los restaurantes con 5 o más imágenes en total.
+        RST_DEV = RVW.groupby("id_restaurant").apply(lambda x: pd.Series({"id_restaurant": x.id_restaurant.values[0], "imgs": sum(x.num_images.values)}))
+        RST_DEV = RST_DEV.loc[RST_DEV.imgs >= 5, "id_restaurant"].values
+
+        #De los que tienen imágen del DEV, obtener los que están el la lista anterior
+        DEV_v3 = DEV_v2.loc[DEV_v2.id_restaurant.isin(RST_DEV)]
+
+        #De los que tienen imágen del TEST, obtener los que están el la lista anterior
+        TEST_v3 = TEST_v2.loc[TEST_v2.id_restaurant.isin(RST_DEV)]
+
+        # Añadir el resto de imágenes del restaurante
+        def addImgRest(data):
+            id_r = data.id_restaurant.values[0]
+            id_u = data.id_user.values[0]
+            id_rev = data.reviewId.values[0]
+
+            tmp = IMGS.loc[IMGS.id_restaurant == id_r]
+            tmp['is_dev'] = 0
+            tmp['like'] = 0
+            tmp['id_user'] = id_u
+
+            tmp.loc[tmp.reviewId.isin(data.reviewId.values), "is_dev"] = 1
+
+            tmp['reviewId'] = id_rev
+
+            tmp = tmp.drop(['review'], axis=1)
+
+            return tmp
+
+        #Finalmente, añadir al conjunto todas las imágenes del restaurante, indicando cuales son las de DEV
+        DEV_v3 = DEV_v3.groupby("reviewId").apply(addImgRest).reset_index(drop=True)
+        DEV_v3 = DEV_v3[['id_user', 'id_restaurant', 'reviewId', 'is_dev', 'vector','like']]
+
+        #Finalmente, añadir al conjunto todas las imágenes del restaurante, indicando cuales son las de DEV
+        TEST_v3 = TEST_v3.groupby("reviewId").apply(addImgRest).reset_index(drop=True)
+        TEST_v3 = TEST_v3[['id_user', 'id_restaurant', 'reviewId', 'is_dev', 'vector','like']]
+
+        # Crear TRAIN_V3_1 y DEV_V3_1
+        # --------------------------------------------------------------------------------------------------------------
+
+        #Utilizar los ejemplos de TRAIN que posean imágenes
+        TRAIN_v3_1 = TRAIN_v3.loc[TRAIN_v3.image==True]
+
+        #Añadir los positivos de DEV
+        DVP = DEV_v3.loc[DEV_v3.is_dev == 1, ['index', 'id_restaurant', 'like','id_user', 'reviewId', 'vector']]
+        DVP['like'] =1
+        TRAIN_v3_1 = TRAIN_v3_1.append(DVP)
+
+        #Separar en TRAIN y DEV
+        T, D = train_test_split(TRAIN_v3_1, test_size=0.3, random_state=self.SEED)
+        TRAIN_v3_1 = T
+        DEV_v3_1 = D
+
+        #Triplicar los negativos de TRAIN
+        TRAIN_v3_1 = TRAIN_v3_1.append(TRAIN_v3_1.loc[TRAIN_v3_1.like==0])
+        TRAIN_v3_1 = TRAIN_v3_1.append(TRAIN_v3_1.loc[TRAIN_v3_1.like==0])
+
+        TRAIN_v3_1 = TRAIN_v3_1.sample(frac=1)
+        DEV_v3_1 = DEV_v3_1.sample(frac=1)
+
+
         # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
 
         TRAIN_v1 = utils.shuffle(TRAIN_v1, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v3 = utils.shuffle(TRAIN_v3, random_state=self.SEED).reset_index(drop=True)
+        TRAIN_v3_1 = utils.shuffle(TRAIN_v3_1, random_state=self.SEED).reset_index(drop=True)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
 
@@ -600,16 +688,23 @@ class ModelClass():
         self.toPickle(file_path, "TRAIN_v1", TRAIN_v1)
         self.toPickle(file_path, "TRAIN_v2", TRAIN_v2)
         self.toPickle(file_path, "TRAIN_v3", TRAIN_v3)
+        self.toPickle(file_path, "TRAIN_v3_1", TRAIN_v3_1)
+
         self.toPickle(file_path, "DEV", DEV)
         self.toPickle(file_path, "DEV_v2", DEV_v2)
+        self.toPickle(file_path, "DEV_v3", DEV_v3)
+        self.toPickle(file_path, "DEV_v3_1", DEV_v3_1)
+
         self.toPickle(file_path, "TEST", TEST)
         self.toPickle(file_path, "TEST_v2", TEST_v2)
+        self.toPickle(file_path, "TEST_v3", TEST_v3)
+
         self.toPickle(file_path, "REST_TMP", len(REST_TMP))
         self.toPickle(file_path, "USR_TMP", len(USR_TMP))
         self.toPickle(file_path, "IMG", len(IMG.iloc[0].vector))
         self.toPickle(file_path, "MSE", [MinMSE, MaxMSE, MeanMSE])
 
-        return (TRAIN_v1, TRAIN_v2,TRAIN_v3, DEV,DEV_v2, TEST,TEST_v2 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
+        return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
         raise NotImplementedError
@@ -688,6 +783,10 @@ class ModelClass():
 
                 #Para cada epoch...
                 for e in range(max_epochs):
+
+                    #Almacenar parámetros del GS
+                    self.CURRENT_EPOCH = e
+
                     #TRAIN
                     train_ret = self.train()
 
@@ -1105,6 +1204,21 @@ class ModelClass():
             return r.slope
 
     #-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+
+    def matrixToImage(self, matrix, path = "matrix"):
+
+        w, h = matrix.shape
+
+        matrix = np.abs(matrix)
+        max_v = np.max(matrix)
+        min_v = np.min(matrix)
+
+        matrix = (matrix-min_v) / (max_v-min_v)
+        matrix = matrix * 255
+
+        img = Image.fromarray(matrix)
+        img = img.convert('L')
+        img.save(path+".png")
 
     def toPickle(self,path,name,data):
         with open(path+name, 'wb') as handle:

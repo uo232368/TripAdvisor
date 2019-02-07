@@ -407,8 +407,65 @@ Train v3 => Al final no se añaden imágenes en los "no vistos" para no confundi
 
 Se hace un gs para ver el mejor LR con y sin imágenes.
 
+## Análisis
 
-REHACER LA TABLA PREVIA CON EL NUEVO MODELO.
+El nuevo conjunto de entrenamiento TRAIN_v3:
+* El 8,13% de las reviews tiene imagen (77% + / 22% -)
+* El 91,8% de las reviews no tiene imagen (12% + / 87% -)
 
+### Evaluación
 
+La recomendación de restaurantes como hasta ahora (TOP N entre 100 ejemplos (1+ y 99-))
+
+La recomendación de imágenes de restaurantes:
+
+* Con los ejemplos positivos de DEV que tienen foto
+* Obtener una probabilidad para TODAS (TRAIN + DEV + TEST) las fotos del restaurante y quedarse con la de mayor probabilidad.
+* Calcular las distancias entre la foto recomendada con la o las de DEV que se estén evaluando.
+* Quedarse con la distancia mínima.
+* Obtener tambien la distancia mínima a la foto más cercana al centroide, a una aleatoria completamente, a la de mayor y a la de menor distancias (4 sistemas "tontos")
+* Finalmente se obtiene una distancia mínima media.
+
+No se evaluarán todos los restaurantes de DEV con foto, solo aquellos que, en total, tengan más de 5 fotos.
+
+### Resultados
+
+Durante el grid search se obtuvieron mejores resultados para el sistema "tonto" del centroide que para el de nuestra tarea.
+Se probó a entrenar solamente con los ejemplos con imágen para ver si se reducía la distancia mínima, pero nada:
+
+| MEAN    | MEDIAN | MIN_D   | RNDM    | CNTR   | MAX     | MIN |
+|---------|--------|---------|---------|--------|---------|-----|
+| 33.1981 | 27.0   | 12.6405 | 12.0552 | 9.9794 | 18.4548 | 0.0 |
+| 33.1732 | 27.0   | 12.5208 | 12.0901 | 9.9794 | 18.4548 | 0.0 |
+| 34.3079 | 29.0   | 12.349  | 11.9695 | 9.9794 | 18.4548 | 0.0 |
+| 35.5677 | 30.0   | 12.1322 | 12.0573 | 9.9794 | 18.4548 | 0.0 |
+| 36.1027 | 31.0   | 12.064  | 12.0371 | 9.9794 | 18.4548 | 0.0 |
+| 36.8609 | 32.0   | 12.1859 | 12.0895 | 9.9794 | 18.4548 | 0.0 |
+| 36.6867 | 32.0   | 11.982  | 12.1196 | 9.9794 | 18.4548 | 0.0 |
+| 37.4171 | 33.0   | 12.0466 | 12.0924 | 9.9794 | 18.4548 | 0.0 |
+| 37.4498 | 33.0   | 11.9151 | 12.0216 | 9.9794 | 18.4548 | 0.0 |
+| 38.6722 | 34.0   | 12.0348 | 12.0939 | 9.9794 | 18.4548 | 0.0 |
+| 39.161  | 34.0   | 11.9669 | 12.1394 | 9.9794 | 18.4548 | 0.0 |
+| 39.4348 | 35.0   | 11.9934 | 12.1029 | 9.9794 | 18.4548 | 0.0 |
+| 39.4147 | 35.0   | 11.9448 | 12.0788 | 9.9794 | 18.4548 | 0.0 |
+| 39.1515 | 35.0   | 11.9733 | 12.0675 | 9.9794 | 18.4548 | 0.0 |
+| 40.0274 | 36.0   | 12.046  | 12.1146 | 9.9794 | 18.4548 | 0.0 |
+
+## Actualización [31/01/2019]
+Se decide hacer una prueba "interna" para ver si se puede conseguir aprender la clasificación binaria (me gusta y no me gusta).
+
+Partiendo de los datos anteriores (`TRAIN_v3`, `DEV_v3` y `TEST_v3`) se plantea:
+* Juntar `TRAIN_v3` (sólo los que tienen imagen) y los positivos de `DEV_v3`.
+* Dividir el conjunto anterior en `TRAIN_v3_1` y `DEV_v3_1` (70%/30%).
+* Triplicar los negativos del `TRAIN_v3_1`.
+* Hacer grid-search con `TRAIN_v3_1` y `DEV_v3_1`.
+* Entrenar con los mejores parámetros combinando `TRAIN_v3_1` y `DEV_v3_1`.
+* Finalmente, hacer test con el conjunto `TEST_v3` calculando la distancia mínima (Ver evaluación en actualización previa).
+
+### Resultados
+
+Tras evaluar la acuraccy en `TRAIN_v3_1` y `DEV_v3_1` se obtuvieron unos resultados de 99% y 92% respectivamente.
+Tras evaluar con el conjunto `TEST_v3` se obtuvieron los mismos resultados que en la actualización previa.
+
+Analizando este comportamiento se descubrió que el modelo no tenía en cuenta las imágenes (valor de pesos reducido) y se vió que eliminando las imágenes (poniendo 0's) se obtenían los mismos e incluso mejores resultados en acurracy.
 

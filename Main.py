@@ -5,6 +5,7 @@ import argparse
 from ModelV1 import *
 from ModelV2 import *
 from ModelV3 import *
+from ModelV3_1 import *
 
 
 ########################################################################################################################
@@ -31,19 +32,19 @@ parser.add_argument('-usr', type=int,help="min_usr_revs")
 
 args = parser.parse_args()
 
-model= 3 if args.m == None else args.m
+model= 31 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 epochs= 13 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
 gpu = 1 if args.gpu == None else args.gpu
-dpout = .5 if args.d == None else args.d
+dpout = 0.5 if args.d == None else args.d
 lrates = [1e-3] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 hidden2_size = [0] if args.hidd2 == None else args.hidd2
 
-use_images = 0 if args.imgs == None else args.imgs
+use_images = 1 if args.imgs == None else args.imgs
 
 min_rest_revs = 0 if args.rst == None else args.rst
 min_usr_revs = 3 if args.usr == None else args.usr
@@ -77,23 +78,80 @@ config = {"min_rest_revs":min_rest_revs,
 
 ########################################################################################################################
 
-#DOTPROD
-if (model == 3):
+if(model == 31):
 
-    use_images=1
-    lrates = [1e-06]
-    dpout = [0.5]
     config["hidden_size"] = 1024
     config["hidden2_size"] = 128
 
     params = {
-        "dropout":dpout,
+        "dropout":[dpout],
+        "use_images": [use_images],
+        "learning_rate": lrates
+    }
+
+    modelv31 = ModelV3_1(city=city, option=option, config=config, seed=seed)
+
+    print("-" * 50)
+    print(len(modelv31.TRAIN_V3_1), len(modelv31.TRAIN_V3_1.loc[modelv31.TRAIN_V3_1.like == 1]) / len(modelv31.TRAIN_V3_1),len(modelv31.TRAIN_V3_1.loc[modelv31.TRAIN_V3_1.like == 0]) / len(modelv31.TRAIN_V3_1))
+    print(len(modelv31.DEV_V3_1), len(modelv31.DEV_V3_1.loc[modelv31.DEV_V3_1.like == 1]) / len(modelv31.DEV_V3_1),len(modelv31.DEV_V3_1.loc[modelv31.DEV_V3_1.like == 0]) / len(modelv31.DEV_V3_1))
+    print("-" * 50)
+
+    params = {"dropout": [.5],"use_images": [1],"learning_rate": [1e-3]}
+    modelv31.gridSearch(params, max_epochs=3000, last_n_epochs=10)
+
+    config["dropout"] = params["dropout"]
+    config["use_images"] = params["use_images"]
+    config["learning_rate"] = params["learning_rate"]
+
+    # modelv3.finalTrain_PRUEBA(epochs = 56)
+
+    exit()
+
+    # TRAIN3 + DEV3 ==> 71309 + y 17489 - ===> 80.3% / 19.7%
+
+
+if (model == 3):
+
+    #use_images=1
+    #lrates = [1e-06]
+    #dpout = [0.5]
+
+    config["hidden_size"] = 1024
+    config["hidden2_size"] = 128
+
+    params = {
+        "dropout":[dpout],
         "use_images": [use_images],
         "learning_rate": lrates
     }
 
     modelv3 = ModelV3(city=city, option=option, config=config, seed=seed)
-    modelv3.gridSearch(params,max_epochs=1000)
+
+
+    '''
+    T = modelv3.TRAIN_V3[["vector","like"]]
+    T['sum']= T.vector.apply(lambda x : sum(x))
+    T_img = T.loc[T['sum'] > 0]
+    print(len(T_img),len(T_img.loc[T_img.like==1]),len(T_img.loc[T_img.like==0])) # 76163 58674 17489
+    T_noi = T.loc[T['sum']==0]
+    print(len(T_noi),len(T_noi.loc[T_noi.ike==1]),len(T_noi.loc[T_noi.like==0])) # 859522 109265 750257
+    '''
+    '''
+    El 8,13% de las reviews tiene imagen (77% + / 22% -)
+    El 91,8% de las reviews no tiene imagen (12% + / 87% -)
+    '''
+
+    '''
+    def maxdist(data):
+        dev = np.row_stack(data.vector.values)
+        dsts = scipy.spatial.distance.pdist(dev, 'euclidean')
+        return pd.Series({"max":np.max(dsts)})
+
+    EMDUYSU = modelv3.DEV_V3.groupby('reviewId').apply(maxdist).reset_index(drop=True)
+    EMDUYSU = np.mean(EMDUYSU['max']) #21.317396829939234
+    '''
+
+    modelv3.gridSearch(params,max_epochs=3000)
 
 if (model == 2):
 

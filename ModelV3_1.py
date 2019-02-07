@@ -3,7 +3,7 @@ from ModelClass import *
 
 ########################################################################################################################
 
-class ModelV3(ModelClass):
+class ModelV3_1(ModelClass):
 
     def __init__(self,city,option,config,seed = 2):
 
@@ -98,12 +98,14 @@ class ModelV3(ModelClass):
 
         tss = time.time()
 
+        train_img_res = pd.DataFrame()
+
         train_bin_loss = []
-        train_bin_batches = np.array_split(self.TRAIN_V3, len(self.TRAIN_V3) // self.CONFIG['batch_size'])
+        train_bin_batches = np.array_split(self.TRAIN_V3_1, len(self.TRAIN_V3_1) // self.CONFIG['batch_size'])
 
         for bn in range(len(train_bin_batches)):
 
-            batch_dtfm_imgs_ret = train_bin_batches[bn][['id_user', 'id_restaurant','vector','like']]
+            batch_dtfm_imgs_ret = train_bin_batches[bn][['id_user', 'id_restaurant','vector','like']].copy()
             batch_train_bin = batch_dtfm_imgs_ret.values
 
             # Si se entrena con las imágenes
@@ -120,14 +122,68 @@ class ModelV3(ModelClass):
                                  "bin_labels:0": batch_train_bin[:, [3]],
                                  'dpout:0': self.CONFIG['dropout']}
 
-            _, batch_softplus,batch_bin_prob = self.SESSION.run(['train_step_bin:0', 'batch_softplus:0','batch_bin_prob:0'], feed_dict=feed_dict_bin)
+            _, R0,E1,E2,batch_softplus,batch_bin_prob = self.SESSION.run(['train_step_bin:0','R0:0','E1:0','E2:0','batch_softplus:0','batch_bin_prob:0'], feed_dict=feed_dict_bin)
+
+            if(self.CURRENT_EPOCH==30):
+                sufx = ""
+                #self.matrixToImage(E1, path="out/31_01_2019/E1"+sufx)
+                #self.matrixToImage(E2, path="out/31_01_2019/E2"+sufx)
+                self.matrixToImage(R0, path="out/31_01_2019/R0"+sufx)
 
             train_bin_loss.extend(batch_softplus[:, 0])
 
+            batch_dtfm_imgs_ret['prediction'] = batch_bin_prob[:, 0]
+            train_img_res = train_img_res.append(batch_dtfm_imgs_ret, ignore_index=True)
 
-        return (np.mean(train_bin_loss))
+        real = train_img_res["like"].values
+        pred = (train_img_res["prediction"].values > .5) * 1
+
+        ac = metrics.accuracy_score(real, pred)
+
+        return (np.mean(train_bin_loss),ac)
 
     def dev(self):
+
+        dev_loss = []
+        dev_img_res = pd.DataFrame()
+
+        for batch_di in np.array_split(self.DEV_V3_1, 10):
+            batch_dtfm_imgs_ret = batch_di.copy()
+            batch_dtfm_imgs = batch_di[['id_user', 'id_restaurant', 'vector', 'like']]
+            batch_dm = batch_dtfm_imgs.values
+
+            feed_dict = {"user_rest_input:0": batch_dm[:, [0, 1]],
+                         "img_input:0": np.row_stack(batch_dm[:, [2]][:, 0]),
+                         "bin_labels:0": batch_dm[:, [3]],
+                         'dpout:0':  1.0}
+
+            batch_bin_prob, batch_softplus = self.SESSION.run(['batch_bin_prob:0', 'batch_softplus:0'], feed_dict=feed_dict)
+            batch_dtfm_imgs_ret['prediction'] = batch_bin_prob[:, 0]
+
+            dev_loss.extend(batch_softplus[:, 0])
+
+            dev_img_res = dev_img_res.append(batch_dtfm_imgs_ret, ignore_index=True)
+
+        real = dev_img_res["like"].values
+        pred = (dev_img_res["prediction"].values>.5)*1
+
+        '''
+        f1 = metrics.f1_score(real, pred)
+        pc = metrics.recall_score(real, pred)
+        rc = metrics.precision_score(real, pred)
+        '''
+
+        ac = metrics.accuracy_score(real, pred)
+
+        return ((np.average(dev_loss),ac), 1-ac)
+
+    def test(self):
+
+        dev_img_loss = []
+        dev_img_loss_rndm = []
+        dev_img_loss_max = []
+        dev_img_loss_min = []
+        dev_img_loss_cnt = []
 
         def getDist(dev,r,mode = "best"):
 
@@ -176,103 +232,73 @@ class ModelV3(ModelClass):
 
             return np.min(dsts)
 
-        # Recomendación de restaurantes --------------------------------------------------------------------------------
+        # Recomendación de imágenes --------------------------------------------------------------------------------
+        test_img_res = pd.DataFrame()
 
-        dev_bin_res = pd.DataFrame()
+        for batch_di in np.array_split(self.TEST_V3, 10):
+            batch_dtfm_imgs_ret = batch_di.copy()
+            batch_dtfm_imgs = batch_di[['id_user', 'id_restaurant', 'vector', 'like']]
+            batch_dm = batch_dtfm_imgs.values
 
-        dev_loss = []
-        dev_img_loss = []
-        dev_img_loss_rndm = []
-        dev_img_loss_max = []
-        dev_img_loss_min = []
-        dev_img_loss_cnt = []
-
-        for batch_d in np.array_split(self.DEV, 30):
-            batch_dtfm = batch_d.copy()
-            batch_dtfm = batch_dtfm[['id_user', 'id_restaurant', 'like']]
-
-            batch_dm = batch_dtfm.values
             feed_dict = {"user_rest_input:0": batch_dm[:, [0, 1]],
-                         "img_input:0": np.zeros((len(batch_d), self.V_IMG)),
-                         "bin_labels:0": batch_dm[:, [2]],
+                         "img_input:0": np.row_stack(batch_dm[:, [2]][:, 0]),
+                         "bin_labels:0": batch_dm[:, [3]],
                          'dpout:0': 1.0}
 
             batch_bin_prob, batch_softplus = self.SESSION.run(['batch_bin_prob:0', 'batch_softplus:0'], feed_dict=feed_dict)
+            batch_dtfm_imgs_ret['prediction'] = batch_bin_prob[:, 0]
 
-            batch_dtfm['prediction'] = batch_bin_prob[:, 0]
-            dev_loss.extend(batch_softplus[:, 0])
+            test_img_res = test_img_res.append(batch_dtfm_imgs_ret, ignore_index=True)
 
-            dev_bin_res = dev_bin_res.append(batch_dtfm, ignore_index=True)
+        for i, r in test_img_res.groupby("reviewId"):
+            r = r.sort_values("prediction")
 
-        hits, avg_pos, median_pos = self.getTopN(dev_bin_res, data=self.DEV)
-        hits = list(hits.values())
+            best = r.iloc[-1, :]['vector']
+            rndm = r.sample(1)['vector'].values[0]
 
-        # Si se entrena con las imágenes
-        if (self.CONFIG['use_images'] == 1):
+            dev = r.loc[r.is_dev == 1, 'vector'].values
 
-            # Recomendación de imágenes --------------------------------------------------------------------------------
-            dev_img_res = pd.DataFrame()
+            min_dst = getDist(dev, r, mode="best")
+            min_dst_rnd = getDist(dev, r, mode="random")
+            min_dst_cnt = getDist(dev, r, mode="centroid")
+            min_dst_max = getDist(dev, r, mode="max")
+            min_dst_min = getDist(dev, r, mode="min")
 
-            for batch_di in np.array_split(self.DEV_V3, 10):
-                batch_dtfm_imgs_ret = batch_di.copy()
-                batch_dtfm_imgs = batch_di[['id_user', 'id_restaurant','vector','like']]
-                batch_dm = batch_dtfm_imgs.values
+            dev_img_loss.append(min_dst)
+            dev_img_loss_rndm.append(min_dst_rnd)
+            dev_img_loss_cnt.append(min_dst_cnt)
+            dev_img_loss_max.append(min_dst_max)
+            dev_img_loss_min.append(min_dst_min)
 
-                feed_dict = {"user_rest_input:0": batch_dm[:, [0, 1]],
-                                 "img_input:0": np.row_stack(batch_dm[:, [2]][:, 0]),
-                                 "bin_labels:0": batch_dm[:, [3]],
-                                 'dpout:0': 1.0}
+        return (dev_img_loss,dev_img_loss_rndm,dev_img_loss_cnt,dev_img_loss_max,dev_img_loss_min)
 
-                batch_bin_prob, batch_softplus = self.SESSION.run(['batch_bin_prob:0', 'batch_softplus:0'], feed_dict=feed_dict)
-                batch_dtfm_imgs_ret['prediction'] = batch_bin_prob[:, 0]
+    def TrainPrint(self,epoch, train_ret, test_ret):
 
-                dev_img_res = dev_img_res.append(batch_dtfm_imgs_ret, ignore_index=True)
+        if(len(test_ret)==0):print(train_ret[1]);return()
 
-            for i,r in dev_img_res.groupby("reviewId"):
-                r = r.sort_values("prediction")
+        header = ["E","ACC_T","MIN_D", "RNDM", "CNTR", "MAX  ", "MIN  "]
+        header_line = "\t".join(header)
+        print(header_line)
 
-                best = r.iloc[-1,:]['vector']
-                rndm = r.sample(1)['vector'].values[0]
+        log_items = [epoch + 1]
+        log_items.append(train_ret[1])
 
-                dev = r.loc[r.is_dev==1,'vector'].values
+        log_items.append(bcolors.OKBLUE)
+        log_items.extend(np.round([np.mean(test_ret[0]),np.mean(test_ret[1]),np.mean(test_ret[2]),np.mean(test_ret[3]),np.mean(test_ret[4])], decimals=4))
+        log_items.append(bcolors.ENDC)
 
-                min_dst = getDist(dev,r,mode = "best")
-
-                if(self.GS_EPOCH==0):
-                    min_dst_rnd = getDist(dev,r,mode = "random")
-                    min_dst_cnt = getDist(dev,r,mode = "centroid")
-                    min_dst_max = getDist(dev,r,mode = "max")
-                    min_dst_min = getDist(dev,r,mode = "min")
-
-                else: min_dst_rnd = min_dst_cnt = min_dst_max = min_dst_min = -1
-
-                dev_img_loss.append(min_dst)
-                dev_img_loss_rndm.append(min_dst_rnd)
-                dev_img_loss_cnt.append(min_dst_cnt)
-                dev_img_loss_max.append(min_dst_max)
-                dev_img_loss_min.append(min_dst_min)
-
-        return ((np.average(dev_loss), hits, avg_pos, median_pos,dev_img_loss,dev_img_loss_rndm,dev_img_loss_cnt,dev_img_loss_max,dev_img_loss_min), avg_pos)
+        log_line = "\t".join(map(lambda x: str(x), log_items))
+        log_line = log_line.replace("\t\t", "\t")
+        print(log_line)
 
     def gridSearchPrint(self,epoch,train,dev):
 
-        if(epoch==0):
-            header = ["E","T_LOSS","D_LOSS","","TOP_1","TOP_5","TOP_10","TOP_15","TOP_20","","MEAN","MEDIAN"]
-            if (self.CONFIG['use_images'] == 1): header.extend(["MIN_D","RNDM","CNTR","MAX  ","MIN  "])
-            header_line = "\t".join(header)
-            print(header_line)
+        log_items = [epoch + 1]
 
-        log_items = [epoch+1]
-
-        log_items.extend(np.round([train, dev[0]], decimals=4))
+        log_items.extend(np.round([train[0], dev[0]], decimals=4))
         log_items.append(bcolors.OKBLUE)
-        log_items.extend(np.round(dev[1], decimals=4))
+        log_items.extend(np.round([train[1],dev[1]], decimals=4))
         log_items.append(bcolors.ENDC)
-
-        log_items.extend(np.round([dev[2], dev[3]], decimals=4))
-
-        # Si se entrena con las imágenes
-        if (self.CONFIG['use_images'] == 1): log_items.extend(np.round([np.mean(dev[4]),np.mean(dev[5]),np.mean(dev[6]),np.mean(dev[7]),np.mean(dev[8])],decimals=4))
 
         log_line = "\t".join(map(lambda x: str(x), log_items))
         log_line = log_line.replace("\t\t", "\t")

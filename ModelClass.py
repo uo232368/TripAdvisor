@@ -119,12 +119,13 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train1, train2, train3,train3_1, dev, dev2,dev3,dev3_1, test,test2,test3, n_rest, n_usr, v_img, mse_data = self.getData()
+        train1, train2, train3,train3_1,train4, dev, dev2,dev3,dev3_1, test,test2,test3, n_rest, n_usr, v_img, mse_data = self.getData()
 
         self.TRAIN_V1 = train1
         self.TRAIN_V2 = train2
         self.TRAIN_V3 = train3
         self.TRAIN_V3_1 = train3_1
+        self.TRAIN_V4 = train4
 
         self.DEV = dev
         self.DEV_V2 = dev2
@@ -277,6 +278,7 @@ class ModelClass():
             TRAIN_v2 = self.getPickle(file_path, "TRAIN_v2")
             TRAIN_v3 = self.getPickle(file_path, "TRAIN_v3")
             TRAIN_v3_1 = self.getPickle(file_path, "TRAIN_v3_1")
+            TRAIN_v4 = self.getPickle(file_path, "TRAIN_v4")
 
             DEV = self.getPickle(file_path, "DEV")
             DEV_v2 = self.getPickle(file_path, "DEV_v2")
@@ -307,7 +309,7 @@ class ModelClass():
             self.getCardinality(TEST_v2.like, title="TEST_v2", verbose=True)
             self.getCardinality(TEST_v3.like, title="TEST_v3", verbose=True)
 
-            return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3, REST_TMP, USR_TMP, IMG, MSE)
+            return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1,TRAIN_v4, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3, REST_TMP, USR_TMP, IMG, MSE)
 
 
 
@@ -673,6 +675,42 @@ class ModelClass():
         TRAIN_v3_1 = TRAIN_v3_1.sample(frac=1)
         DEV_v3_1 = DEV_v3_1.sample(frac=1)
 
+        # Crear TRAIN_V4 DEV_V4 y TEST_V4
+        # --------------------------------------------------------------------------------------------------------------
+
+        IMGS = IMG.merge(RVW[["id_restaurant", "id_user", "reviewId"]], left_on='review', right_on='reviewId',
+                         how='inner')
+        TRAIN_v4 = modelv4.TRAIN_V3.loc[modelv4.TRAIN_V3.image == True]
+
+        def myfn(data):
+
+            neg = 5
+
+            id_r = data.id_restaurant.values[0]
+            id_u = data.id_user.values[0]
+            id_rv = data.reviewId.values[0]
+
+            img_best = data.vector.values[0]
+
+            images = IMGS.loc[(IMGS.id_restaurant == id_r) & (IMGS.id_user != id_u), "vector"]
+
+            if (len(images) == 0): return
+
+            images = np.row_stack(images.values)
+
+            dists = scipy.spatial.distance.cdist([img_best], images, "euclidean")
+            indx = np.argsort(dists)[0][-neg:]
+            img_worst = images[indx, :]
+
+            ret = pd.DataFrame([data.squeeze()] * len(img_worst))
+            ret["worst"] = img_worst.tolist()
+            ret = ret.drop(columns=["item", "image", "like"])
+
+            return (ret)
+
+        TRAIN_v4 = TRAIN_v4 = TRAIN_v4.drop(columns=["index"]).reset_index(drop=True)
+        TRAIN_v4["item"] = TRAIN_v4.index
+        TRAIN_v4 = TRAIN_v4.groupby("item").apply(myfn).reset_index(drop=True)
 
         # MEZCLAR DATOS ------------------------------------------------------------------------------------------------
 
@@ -680,6 +718,7 @@ class ModelClass():
         TRAIN_v2 = utils.shuffle(TRAIN_v2, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v3 = utils.shuffle(TRAIN_v3, random_state=self.SEED).reset_index(drop=True)
         TRAIN_v3_1 = utils.shuffle(TRAIN_v3_1, random_state=self.SEED).reset_index(drop=True)
+        TRAIN_v4 = utils.shuffle(TRAIN_v4, random_state=self.SEED).reset_index(drop=True)
 
         # ALMACENAR PICKLE ------------------------------------------------------------------------------------------------
 
@@ -689,6 +728,7 @@ class ModelClass():
         self.toPickle(file_path, "TRAIN_v2", TRAIN_v2)
         self.toPickle(file_path, "TRAIN_v3", TRAIN_v3)
         self.toPickle(file_path, "TRAIN_v3_1", TRAIN_v3_1)
+        self.toPickle(file_path, "TRAIN_v4", TRAIN_v4)
 
         self.toPickle(file_path, "DEV", DEV)
         self.toPickle(file_path, "DEV_v2", DEV_v2)
@@ -704,7 +744,7 @@ class ModelClass():
         self.toPickle(file_path, "IMG", len(IMG.iloc[0].vector))
         self.toPickle(file_path, "MSE", [MinMSE, MaxMSE, MeanMSE])
 
-        return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
+        return (TRAIN_v1, TRAIN_v2,TRAIN_v3,TRAIN_v3_1,TRAIN_v4, DEV,DEV_v2,DEV_v3,DEV_v3_1, TEST,TEST_v2,TEST_v3 ,len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector), [MinMSE, MaxMSE, MeanMSE])
 
     def train(self):
         raise NotImplementedError

@@ -469,3 +469,25 @@ Tras evaluar con el conjunto `TEST_v3` se obtuvieron los mismos resultados que e
 
 Analizando este comportamiento se descubrió que el modelo no tenía en cuenta las imágenes (valor de pesos reducido; ver imágen `out/31_01_2019/R0.png`) y se vió que eliminando las imágenes (poniendo 0's) se obtenían los mismos e incluso mejores resultados en acurracy.
 
+## Actualización [08/02/2019]
+Ante los resultados previos se decide cambiar el concepto del aprendizaje, pasando de aprender `(u,r,foto) => Me gusta / No me gusta` a aprender `(u,r,foto de u en r, foto de otro u en r)`.
+Esto implica pasar de un problema de clasificación binaria a un problema de aprendizaje de preferencias. Destacar en este caso que no se aprende el `este usuario que hizo esta foto en este restaurante le gusta / no le gusta` sinó que se aprende `este usurio prefiere esta foto a esta`.
+
+### Modelo
+Inicialmente se creará un modelo lineal (ModelV4) en el que se obtendrá un embedding para el usuario y otro para el restaurante en espacio `512`.
+Este modelo recibirá tambien 2 imágenes, las cuales se cambiarán de espacio mediante una matriz que las llevará a espacio `1024`.
+
+A partir de los embeddigs anteriores (usuario,restaurante, imágen +, imágen -) se calcurarán 2 productos escalares:
+* **h(m) = < concat(u,r), imagen mejor >**  
+* **h(p) =< concat(u,r), imagen peor >** 
+ 
+y la loss a minimizar será: `loss = max(0,1-(h(m)-h(p)))`
+
+### Creación de ejemplos
+
+Para cada terna (usuario, restaurante, imagen) única:
+* Crear 5 ejemplos con las 5 fotos más distantes del restaurante respecto de la actual.
+
+
+
+

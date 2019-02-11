@@ -6,6 +6,7 @@ from ModelV1 import *
 from ModelV2 import *
 from ModelV3 import *
 from ModelV3_1 import *
+from ModelV4 import *
 
 
 ########################################################################################################################
@@ -32,7 +33,7 @@ parser.add_argument('-usr', type=int,help="min_usr_revs")
 
 args = parser.parse_args()
 
-model= 31 if args.m == None else args.m
+model= 4 if args.m == None else args.m
 option = 2 if args.i == None else args.i
 epochs= 13 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
@@ -77,8 +78,57 @@ config = {"min_rest_revs":min_rest_revs,
           "gs_max_slope":-1e-8}
 
 ########################################################################################################################
+if (model == 4):
 
-if(model == 31):
+    #ToDo: Revisar la loss y el producto escalar y tal
+    #ToDo: Crear conjunto
+    #ToDo: Documentar
+
+    params = { "learning_rate": lrates }
+
+    modelv4 = ModelV4(city=city, option=option, config=config, seed=seed)
+
+    RVW, IMG, USR_TMP, REST_TMP = modelv4.getFilteredData()
+
+    IMGS = IMG.merge(RVW[["id_restaurant","id_user", "reviewId"]], left_on='review', right_on='reviewId', how='inner')
+    TRAIN_V4 = modelv4.TRAIN_V3.loc[modelv4.TRAIN_V3.image == True]
+
+    def myfn(data):
+
+        neg = 5
+
+        id_r = data.id_restaurant.values[0]
+        id_u = data.id_user.values[0]
+        id_rv = data.reviewId.values[0]
+
+        img_best = data.vector.values[0]
+
+        images = IMGS.loc[(IMGS.id_restaurant == id_r) & (IMGS.id_user != id_u), "vector"]
+
+        if(len(images) == 0): return
+
+        images = np.row_stack(images.values)
+
+        dists = scipy.spatial.distance.cdist([img_best], images, "euclidean")
+        indx = np.argsort(dists)[0][-neg:]
+        img_worst = images[indx,:]
+
+        ret = pd.DataFrame([data.squeeze()]*len(img_worst))
+        ret["worst"] = img_worst.tolist()
+        ret = ret.drop(columns=["item","image","like"])
+
+        return(ret)
+
+    TRAIN_V4 = TRAIN_V4 = TRAIN_V4.drop(columns=["index"]).reset_index(drop=True)
+    TRAIN_V4 = TRAIN_V4.iloc[:10,:]
+    TRAIN_V4["item"] = TRAIN_V4.index
+    TRAIN_V4 = TRAIN_V4.groupby("item").apply(myfn).reset_index(drop=True)
+
+    exit()
+    modelv4.gridSearch(params,max_epochs=3000)
+
+
+if (model == 31):
 
     config["hidden_size"] = 1024
     config["hidden2_size"] = 128
@@ -108,7 +158,6 @@ if(model == 31):
     exit()
 
     # TRAIN3 + DEV3 ==> 71309 + y 17489 - ===> 80.3% / 19.7%
-
 
 if (model == 3):
 
@@ -224,7 +273,6 @@ if (model == 2):
         print(str(i)+"\t"+str(len(np.where(lens>=i)[0]))+"\t"+str(len(np.where(lens==i)[0])))
     
     '''
-
 
 #ToDo: Test emb imagen con hilos == sin hilos
 

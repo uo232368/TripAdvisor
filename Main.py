@@ -40,7 +40,7 @@ seed = 100 if args.s == None else args.s
 city = "Barcelona" if args.c == None else args.c
 gpu = 1 if args.gpu == None else args.gpu
 dpout = 0.5 if args.d == None else args.d
-lrates = [1e-3] if args.lr == None else args.lr
+lrates = [1e-4] if args.lr == None else args.lr
 embsize = [512] if args.emb == None else args.emb
 hidden_size = [128] if args.hidd == None else args.hidd
 hidden2_size = [0] if args.hidd2 == None else args.hidd2
@@ -52,17 +52,9 @@ min_usr_revs = 3 if args.usr == None else args.usr
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
-config = {"min_rest_revs":min_rest_revs,
-          "min_usr_revs":min_usr_revs,
-          "new_train_examples":-2, # -1 para auto, -2 para (rest/user)*100 y 0 para ninguno
-
-          "regularization":0, # 0 para desactivar
-          "regularization_beta": 2.5e-6,
-          "use_rest_provs": False,
-          "top_n_new_items": 99,
-          "train_pos_rate":1.0,
-          "dev_test_pos_rate":0.0,
-          "top": [1,5,10,15,20],
+config = {"top": [1,5,10,15,20],
+          "min_usr_rvws":3,
+          "neg_examples":5,
 
           "emb_size":embsize[0],
           "hidden_size": hidden_size[0],# 0 para eliminar
@@ -88,44 +80,49 @@ if (model == 4):
 
     modelv4 = ModelV4(city=city, option=option, config=config, seed=seed)
 
-    RVW, IMG, USR_TMP, REST_TMP = modelv4.getFilteredData()
+    def trainFn(data):
+        return(pd.Series({"id_restaurant":data.id_restaurant.values[0],"#reviews":len(data.reviewId.unique()),"#comp":len(data)}))
+    train = modelv4.TRAIN.groupby("id_restaurant").apply(trainFn).reset_index(drop=True)
 
-    IMGS = IMG.merge(RVW[["id_restaurant","id_user", "reviewId"]], left_on='review', right_on='reviewId', how='inner')
-    TRAIN_V4 = modelv4.TRAIN_V3.loc[modelv4.TRAIN_V3.image == True]
+    def devFn(data):
+        return(pd.Series({"id_restaurant":data.id_restaurant.values[0],"#reviews":len(data.reviewId.unique()),"#comp":len(data)}))
 
-    def myfn(data):
-
-        neg = 5
-
-        id_r = data.id_restaurant.values[0]
-        id_u = data.id_user.values[0]
-        id_rv = data.reviewId.values[0]
-
-        img_best = data.vector.values[0]
-
-        images = IMGS.loc[(IMGS.id_restaurant == id_r) & (IMGS.id_user != id_u), "vector"]
-
-        if(len(images) == 0): return
-
-        images = np.row_stack(images.values)
-
-        dists = scipy.spatial.distance.cdist([img_best], images, "euclidean")
-        indx = np.argsort(dists)[0][-neg:]
-        img_worst = images[indx,:]
-
-        ret = pd.DataFrame([data.squeeze()]*len(img_worst))
-        ret["worst"] = img_worst.tolist()
-        ret = ret.drop(columns=["item","image","like"])
-
-        return(ret)
-
-    TRAIN_V4 = TRAIN_V4 = TRAIN_V4.drop(columns=["index"]).reset_index(drop=True)
-    TRAIN_V4 = TRAIN_V4.iloc[:10,:]
-    TRAIN_V4["item"] = TRAIN_V4.index
-    TRAIN_V4 = TRAIN_V4.groupby("item").apply(myfn).reset_index(drop=True)
+    dev = modelv4.DEV.groupby("id_restaurant").apply(devFn).reset_index(drop=True)
 
     exit()
-    modelv4.gridSearch(params,max_epochs=3000)
+
+
+    '''
+
+    RVW, IMG, USR_TMP, REST_TMP = modelv4.getFilteredData()
+
+
+    rst = 3481 #1174
+    usr = 1981
+    rvw = [126730978]
+
+    RST = RVW.loc[RVW.id_restaurant==rst]
+    RST_RVWS = RST.reviewId.values
+    RST_IMGS = IMG.loc[IMG.review.isin(RST_RVWS)]
+    RST_IMGS = IMG.merge(RST[["reviewId", "images","id_user"]], right_on="reviewId", left_on="review")
+    RST_IMGS["images"] = RST_IMGS.apply(lambda x: x.images[x.image - 1]['image_url_lowres'], axis=1)
+    RST_IMGS["name"] = RST_IMGS.images.apply(lambda x: hashlib.md5(str(x).encode('utf-8')).hexdigest())
+    IMG["first"] = IMG.vector.apply(lambda x: x[0])
+
+    dir = "tmp_img/" + str(rst)
+    os.makedirs(dir, exist_ok=True)
+
+    print(RST_IMGS.loc[RST_IMGS.reviewId==rvw,"name"].values)
+
+    for i, d in RST_IMGS.iterrows():
+        print(d.images, d['name'], d.vector)
+        urllib.request.urlretrieve(d.images, dir + "/" + d['name'] + ".jpg")
+
+    exit()
+
+    '''
+
+    modelv4.gridSearch(params,max_epochs=3000, start_n_epochs=100)
 
 
 if (model == 31):

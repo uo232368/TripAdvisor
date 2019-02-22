@@ -2,11 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/ModelV4.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/T-SNE.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/img_emb/Test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ModelClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ModelV4.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV4.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/download/DownloadData.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/DownloadData.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/download/TripAdvisor.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/TripAdvisor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_emb/ImageEmbedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/img_emb/ImageEmbedding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_emb/Option2.py" beforeDir="false" afterPath="$PROJECT_DIR$/img_emb/Option2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/img_emb/nohup.out" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,7 +25,7 @@
     <session id="1862562037">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="67" />
+          <entry key="project.closed" value="81" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.1" value="13" />
           <entry key="project.open.time.10" value="2" />
@@ -26,65 +33,71 @@
           <entry key="project.open.time.12" value="2" />
           <entry key="project.open.time.13" value="2" />
           <entry key="project.open.time.14" value="2" />
-          <entry key="project.open.time.16" value="3" />
-          <entry key="project.open.time.18" value="1" />
-          <entry key="project.open.time.19" value="1" />
+          <entry key="project.open.time.16" value="4" />
+          <entry key="project.open.time.18" value="2" />
+          <entry key="project.open.time.19" value="3" />
           <entry key="project.open.time.2" value="5" />
           <entry key="project.open.time.20" value="1" />
-          <entry key="project.open.time.3" value="20" />
+          <entry key="project.open.time.22" value="1" />
+          <entry key="project.open.time.23" value="1" />
+          <entry key="project.open.time.3" value="21" />
           <entry key="project.open.time.38" value="1" />
-          <entry key="project.open.time.4" value="32" />
-          <entry key="project.open.time.5" value="4" />
-          <entry key="project.open.time.7" value="2" />
+          <entry key="project.open.time.4" value="43" />
+          <entry key="project.open.time.5" value="6" />
+          <entry key="project.open.time.6" value="1" />
+          <entry key="project.open.time.7" value="5" />
           <entry key="project.open.time.8" value="3" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="101" />
+          <entry key="project.opened" value="125" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="Python Console" value="12057" />
+          <entry key="Python Console" value="15250" />
           <entry key="dummy" value="7" />
-          <entry key="md" value="7889" />
-          <entry key="py" value="50634" />
+          <entry key="md" value="9008" />
+          <entry key="py" value="59083" />
           <entry key="sh" value="951" />
-          <entry key="txt" value="510" />
+          <entry key="txt" value="513" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="951" />
-          <entry key="Markdown" value="7889" />
-          <entry key="PLAIN_TEXT" value="517" />
-          <entry key="Python" value="62691" />
+          <entry key="Markdown" value="9008" />
+          <entry key="PLAIN_TEXT" value="520" />
+          <entry key="Python" value="74333" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
+          <entry key="DV_PRUEBA" value="1" />
           <entry key="csv" value="2" />
           <entry key="gitignore" value="1" />
           <entry key="gs" value="162" />
-          <entry key="md" value="24" />
+          <entry key="jpg" value="28" />
+          <entry key="md" value="26" />
           <entry key="out" value="17" />
-          <entry key="png" value="22" />
-          <entry key="py" value="260" />
-          <entry key="sh" value="32" />
+          <entry key="png" value="29" />
+          <entry key="py" value="346" />
+          <entry key="sh" value="33" />
           <entry key="txt" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="Bash" value="32" />
-          <entry key="Image" value="22" />
-          <entry key="Markdown" value="24" />
-          <entry key="PLAIN_TEXT" value="184" />
-          <entry key="Python" value="260" />
+          <entry key="Bash" value="33" />
+          <entry key="Image" value="57" />
+          <entry key="Markdown" value="26" />
+          <entry key="PLAIN_TEXT" value="185" />
+          <entry key="Python" value="346" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
         <counts>
           <entry key="git.branch.checkout.remote" value="1" />
           <entry key="git.branch.compare" value="1" />
+          <entry key="git.branch.create.new" value="1" />
         </counts>
       </usages-collector>
     </session>
@@ -164,134 +177,30 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="403">
-              <caret line="126" column="10" lean-forward="true" selection-start-line="126" selection-start-column="10" selection-end-line="126" selection-end-column="10" />
+            <state relative-caret-position="618">
+              <caret line="90" selection-start-line="90" selection-end-line="90" />
               <folding>
-                <element signature="e#25#40#0" expanded="true" />
-                <element signature="e#2110#2939#0" />
-                <element signature="e#3580#4186#0" />
+                <marker date="1550835534417" expanded="true" signature="2989:3116" ph="..." />
+                <marker date="1550835534417" expanded="true" signature="3222:3443" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelClass.py">
+        <entry file="file://$PROJECT_DIR$/ModelV4.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="674">
-              <caret line="746" column="63" selection-start-line="746" selection-start-column="55" selection-end-line="746" selection-end-column="63" />
+            <state relative-caret-position="108">
+              <caret line="163" column="80" selection-start-line="163" selection-start-column="23" selection-end-line="163" selection-end-column="80" />
               <folding>
-                <element signature="e#1111#1294#0" />
-                <element signature="e#1468#2603#0" />
-                <element signature="e#1531#2043#0" />
-                <element signature="e#1923#1957#0" />
-                <element signature="e#2099#2603#0" />
-                <element signature="e#2815#4752#0" />
-                <element signature="e#3627#3667#0" />
-                <element signature="e#4806#4837#0" />
-                <element signature="e#4871#4919#0" />
-                <element signature="e#4974#9308#0" />
-                <element signature="e#5388#5445#0" />
-                <element signature="e#6328#6369#0" />
-                <element signature="e#6500#7097#1" />
-                <element signature="e#7106#7161#0" />
-                <element signature="e#8063#8115#0" />
-                <element signature="e#9145#9264#0" />
-                <element signature="e#9342#9373#0" />
-                <element signature="e#12274#12320#0" />
-                <element signature="e#13113#13874#0" />
-                <element signature="e#13521#13660#0" />
-                <element signature="e#13696#13852#0" />
-                <element signature="e#14295#14341#0" />
-                <element signature="e#14600#14661#0" />
-                <element signature="e#15053#15210#0" />
-                <element signature="e#16082#17091#0" />
-                <element signature="e#16224#16373#0" />
-                <element signature="e#17339#17397#0" />
-                <element signature="e#17741#18880#0" />
-                <element signature="e#17975#18125#0" />
-                <element signature="e#18984#19026#0" />
-                <element signature="e#19212#19272#0" />
-                <element signature="e#19508#20584#0" />
-                <element signature="e#19742#19892#0" />
-                <element signature="e#20691#20735#0" />
-                <element signature="e#21224#21341#0" />
-                <element signature="e#22847#22874#0" />
-                <element signature="e#23005#23202#1" />
-                <element signature="e#23420#23435#0" />
-                <element signature="e#24089#24415#0" />
-                <element signature="e#24288#24390#0" />
-                <element signature="e#24425#24472#0" />
-                <element signature="e#24925#25017#0" />
-                <element signature="e#25091#25115#0" />
-                <element signature="e#26133#26589#0" />
-                <element signature="e#27177#27206#0" />
-                <element signature="e#28531#29279#0" />
-                <element signature="e#30100#30125#0" />
-                <element signature="e#30154#30179#0" />
-                <element signature="e#30209#30234#0" />
-                <element signature="e#30291#30316#0" />
-                <element signature="e#30417#32959#0" />
-                <element signature="e#30449#31034#0" />
-                <element signature="e#30483#30588#0" />
-                <element signature="e#30494#30583#0" />
-                <element signature="e#30689#30971#0" />
-                <element signature="e#30891#30971#0" />
-                <element signature="e#31077#31217#0" />
-                <element signature="e#31146#31217#0" />
-                <element signature="e#31493#32959#0" />
-                <element signature="e#31978#32959#0" />
-                <element signature="e#32282#32959#0" />
-                <element signature="e#32836#32959#0" />
-                <element signature="e#33008#34035#0" />
-                <element signature="e#33514#34035#0" />
-                <element signature="e#33788#33883#0" />
-                <element signature="e#34196#35314#0" />
-                <element signature="e#34894#35292#0" />
-                <element signature="e#35353#36066#0" />
-                <element signature="e#35499#35539#0" />
-                <element signature="e#35882#36023#0" />
-                <element signature="e#36106#36726#0" />
-                <element signature="e#36261#36385#0" />
-                <element signature="e#36612#36704#0" />
-                <element signature="e#36766#37879#0" />
-                <element signature="e#36766#37008#1" />
-                <element signature="e#37047#37239#0" />
-                <element signature="e#37158#37239#0" />
-                <element signature="e#37919#40974#0" />
-                <element signature="e#37961#38555#0" />
-                <element signature="e#38358#38466#0" />
-                <element signature="e#38518#38555#0" />
-                <element signature="e#39421#39500#0" />
-                <element signature="e#39654#40378#0" />
-                <element signature="e#40168#40245#0" />
-                <element signature="e#40413#40424#0" />
-                <element signature="e#40773#40951#0" />
-                <element signature="e#41145#43591#0" />
-                <element signature="e#41468#42473#0" />
-                <element signature="e#41811#42447#0" />
-                <element signature="e#41811#41841#0" />
-                <element signature="e#42208#42288#0" />
-                <element signature="e#42594#43087#0" />
-                <element signature="e#42887#43019#0" />
-                <element signature="e#43178#43348#0" />
-                <element signature="e#43358#43385#0" />
-                <element signature="e#43668#43905#0" />
-                <element signature="e#43947#44029#0" />
-                <element signature="e#44085#44391#0" />
-                <element signature="e#44437#44600#0" />
-                <element signature="e#44672#44877#0" />
-                <element signature="e#44920#44985#0" />
-                <element signature="e#45172#45465#0" />
-                <element signature="e#45514#45623#0" />
-                <element signature="e#45668#45764#0" />
-                <element signature="e#45813#46290#0" />
-                <element signature="e#46060#46266#0" />
-                <element signature="e#46169#46219#0" />
-                <element signature="e#46327#46385#0" />
-                <element signature="e#46422#46483#0" />
-                <element signature="e#46520#46580#0" />
-                <element signature="e#46629#46796#0" />
+                <element signature="e#261#383#0" />
+                <element signature="e#418#3151#0" />
+                <element signature="e#3183#4338#0" />
+                <element signature="e#4404#5135#0" />
+                <element signature="e#5317#6889#0" />
+                <element signature="e#7410#7776#0" />
+                <element signature="e#7826#8140#0" />
+                <element signature="e#14319#23802#0" />
               </folding>
             </state>
           </provider>
@@ -300,9 +209,9 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="SPLIT">
-              <first_editor relative-caret-position="486">
-                <caret line="488" column="87" selection-start-line="488" selection-start-column="87" selection-end-line="488" selection-end-column="87" />
+            <state split_layout="FIRST">
+              <first_editor relative-caret-position="446">
+                <caret line="497" lean-forward="true" selection-start-line="497" selection-end-line="497" />
               </first_editor>
               <second_editor />
             </state>
@@ -310,12 +219,83 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelV4.py">
+        <entry file="file://$PROJECT_DIR$/ModelClass.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="442">
-              <caret line="29" column="102" selection-start-line="29" selection-start-column="102" selection-end-line="29" selection-end-column="102" />
+            <state relative-caret-position="516">
+              <caret line="244" selection-start-line="244" selection-end-line="244" />
               <folding>
-                <element signature="e#261#383#0" />
+                <element signature="e#1122#1305#0" />
+                <element signature="e#1479#2614#0" />
+                <element signature="e#1542#2054#0" />
+                <element signature="e#1934#1968#0" />
+                <element signature="e#2110#2614#0" />
+                <element signature="e#2826#4417#0" />
+                <element signature="e#3638#3678#0" />
+                <element signature="e#4471#4502#0" />
+                <element signature="e#4536#4584#0" />
+                <element signature="e#4638#4686#0" />
+                <element signature="e#4719#4767#0" />
+                <element signature="e#4798#4823#0" />
+                <element signature="e#4852#4877#0" />
+                <element signature="e#4907#4932#0" />
+                <element signature="e#4989#5014#0" />
+                <element signature="e#5147#5732#0" />
+                <element signature="e#5181#5286#0" />
+                <element signature="e#5192#5281#0" />
+                <element signature="e#5387#5669#0" />
+                <element signature="e#5589#5669#0" />
+                <element signature="e#5775#5915#0" />
+                <element signature="e#5844#5915#0" />
+                <element signature="e#7534#7657#0" />
+                <element signature="e#7706#8733#0" />
+                <element signature="e#8212#8733#0" />
+                <element signature="e#8486#8581#0" />
+                <element signature="e#8894#10012#0" />
+                <element signature="e#9592#9990#0" />
+                <element signature="e#10051#10764#0" />
+                <element signature="e#10197#10237#0" />
+                <element signature="e#10580#10721#0" />
+                <element signature="e#10804#11424#0" />
+                <element signature="e#10959#11083#0" />
+                <element signature="e#11310#11402#0" />
+                <element signature="e#11464#12577#0" />
+                <element signature="e#11464#11706#1" />
+                <element signature="e#11745#11937#0" />
+                <element signature="e#11856#11937#0" />
+                <element signature="e#12617#15720#0" />
+                <element signature="e#12659#13253#0" />
+                <element signature="e#13056#13164#0" />
+                <element signature="e#13216#13253#0" />
+                <element signature="e#14167#14246#0" />
+                <element signature="e#14400#15124#0" />
+                <element signature="e#14914#14991#0" />
+                <element signature="e#15159#15170#0" />
+                <element signature="e#15519#15697#0" />
+                <element signature="e#15891#18337#0" />
+                <element signature="e#16214#17219#0" />
+                <element signature="e#16557#17193#0" />
+                <element signature="e#16557#16587#0" />
+                <element signature="e#16954#17034#0" />
+                <element signature="e#17340#17833#0" />
+                <element signature="e#17633#17765#0" />
+                <element signature="e#17924#18094#0" />
+                <element signature="e#18104#18131#0" />
+                <element signature="e#18414#18651#0" />
+                <element signature="e#18693#18775#0" />
+                <element signature="e#18831#19137#0" />
+                <element signature="e#19183#19346#0" />
+                <element signature="e#19418#19623#0" />
+                <element signature="e#19666#19731#0" />
+                <element signature="e#19918#20211#0" />
+                <element signature="e#20260#20369#0" />
+                <element signature="e#20414#20510#0" />
+                <element signature="e#20559#21036#0" />
+                <element signature="e#20806#21012#0" />
+                <element signature="e#20915#20965#0" />
+                <element signature="e#21073#21131#0" />
+                <element signature="e#21168#21229#0" />
+                <element signature="e#21266#21326#0" />
+                <element signature="e#21375#21542#0" />
               </folding>
             </state>
           </provider>
@@ -332,13 +312,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>]</find>
-      <find>SESSION</find>
-      <find>train_img_loss</find>
-      <find>pred_mean_image</find>
-      <find>dt =</find>
-      <find>dt</find>
-      <find>-imgs 1</find>
       <find>-e \$\{EPOCHS\[\d\]\}</find>
       <find>h2_img</find>
       <find>merge</find>
@@ -346,7 +319,6 @@
       <find>python3.6</find>
       <find>ses</find>
       <find>V_IMG</find>
-      <find>train_pos_rate</find>
       <find>TRAIN_POS_RATE</find>
       <find>inputs</find>
       <find>/usr/bin/</find>
@@ -362,6 +334,14 @@
       <find>concept-mode</find>
       <find>dist</find>
       <find>TRAIN_V4</find>
+      <find>min_usr_revs</find>
+      <find>train_pos_rate</find>
+      <find>hashlib</find>
+      <find>hashlib.md5(</find>
+      <find>hdf</find>
+      <find>d3e</find>
+      <find>get_fi</find>
+      <find>set_session</find>
     </findStrings>
     <replaceStrings>
       <replace>self.CONFIG[</replace>
@@ -387,7 +367,7 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="model_v3" />
       </map>
     </option>
   </component>
@@ -395,10 +375,6 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/Option2.py" />
-        <option value="$PROJECT_DIR$/img_emb/Option2.py" />
-        <option value="$PROJECT_DIR$/data/download/TripAdvisor.py" />
-        <option value="$PROJECT_DIR$/data/download/DownloadData.py" />
-        <option value="$PROJECT_DIR$/img_emb/ImageEmbedding.py" />
         <option value="$PROJECT_DIR$/stats/MainModel.py" />
         <option value="$PROJECT_DIR$/MainModel.py" />
         <option value="$PROJECT_DIR$/Test.py" />
@@ -418,16 +394,22 @@
         <option value="$PROJECT_DIR$/ModelV3.1.py" />
         <option value="$PROJECT_DIR$/ModelV3.py" />
         <option value="$PROJECT_DIR$/ModelV3_1.py" />
-        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
+        <option value="$PROJECT_DIR$/img_emb/Test.py" />
+        <option value="$PROJECT_DIR$/img_emb/Option2.py" />
+        <option value="$PROJECT_DIR$/data/download/DownloadData.py" />
+        <option value="$PROJECT_DIR$/data/download/TripAdvisor.py" />
+        <option value="$PROJECT_DIR$/img_emb/ImageEmbedding.py" />
+        <option value="$PROJECT_DIR$/ModelClass.py" />
+        <option value="$PROJECT_DIR$/img_emb/Autoencoder.py" />
         <option value="$PROJECT_DIR$/ModelV4.py" />
         <option value="$PROJECT_DIR$/Main.py" />
-        <option value="$PROJECT_DIR$/ModelClass.py" />
+        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="1920" />
-    <option name="y" value="23" />
+    <option name="y" value="27" />
     <option name="width" value="1920" />
     <option name="height" value="1137" />
   </component>
@@ -475,7 +457,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -483,15 +464,11 @@
               <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
               <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -504,11 +481,11 @@
       <recent name="$PROJECT_DIR$/img_emb" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/img_emb/test_images/goiko" />
+      <recent name="$PROJECT_DIR$/img_emb/.temp/models" />
       <recent name="$PROJECT_DIR$/out/17_12_2018/TRAIN+POS" />
       <recent name="$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV" />
       <recent name="$PROJECT_DIR$/out/17_12_2018/TEST_0.5" />
-      <recent name="$PROJECT_DIR$/out/17_12_2018/DEV_0.5" />
-      <recent name="$PROJECT_DIR$/out/12_11_2018/arch" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -524,6 +501,69 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.Main">
+    <configuration name="Autoencoder" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TripAdvisor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/img_emb" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/img_emb/Autoencoder.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="DownloadData" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TripAdvisor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/data/download" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/download/DownloadData.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ImageEmbedding" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="TripAdvisor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/img_emb" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/img_emb/ImageEmbedding.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Main" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="TripAdvisor" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -545,7 +585,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="ModelClass" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="ModelV4" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="TripAdvisor" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -557,70 +597,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ModelClass.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="ModelV3" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="TripAdvisor" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ModelV3.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="TEST" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="TripAdvisor" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TEST.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="TripAdvisor" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/../Image-Super-Resolution" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/../Image-Super-Resolution/main.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ModelV4.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -631,18 +608,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.Main" />
-      <item itemvalue="Python.ModelClass" />
-      <item itemvalue="Python.TEST" />
-      <item itemvalue="Python.ModelV3" />
-      <item itemvalue="Python.main" />
+      <item itemvalue="Python.ImageEmbedding" />
+      <item itemvalue="Python.DownloadData" />
+      <item itemvalue="Python.Autoencoder" />
+      <item itemvalue="Python.ModelV4" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.Main" />
-        <item itemvalue="Python.ModelV3" />
-        <item itemvalue="Python.main" />
-        <item itemvalue="Python.TEST" />
-        <item itemvalue="Python.ModelClass" />
+        <item itemvalue="Python.Autoencoder" />
+        <item itemvalue="Python.ModelV4" />
+        <item itemvalue="Python.ImageEmbedding" />
+        <item itemvalue="Python.DownloadData" />
       </list>
     </recent_temporary>
   </component>
@@ -944,7 +921,14 @@
       <option name="project" value="LOCAL" />
       <updated>1549544873500</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="Cambios del 08/03/2019">
+      <created>1549888390943</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1549888390943</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TodoView">
@@ -957,16 +941,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1920" y="23" width="1920" height="1137" extended-state="0" />
+    <frame x="1920" y="27" width="1920" height="1137" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.104898825" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.1042654" />
       <window_info id="Structure" order="1" sideWeight="0.504717" side_tool="true" weight="0.11005793" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32821497" />
-      <window_info anchor="bottom" x="4" y="138" width="1920" height="1017" id="Run" order="2" sideWeight="0.62453926" weight="0.59404993" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6340179" visible="true" weight="0.34069097" />
+      <window_info anchor="bottom" x="4" y="138" width="1920" height="1017" id="Run" order="2" sideWeight="0.62453926" weight="0.4980806" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6340179" visible="true" weight="0.34644914" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.32725528" />
@@ -1022,7 +1006,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Cambio en forma de generar datos (Teniendo en cuenta las dos fases)" />
     <MESSAGE value="· Reparadas funciones&#10;· Añadida herencia&#10;· Modelos v2 y v3" />
     <MESSAGE value="GridSearch" />
     <MESSAGE value="Añadida documentación y test de semilla" />
@@ -1047,7 +1030,8 @@
     <MESSAGE value="Cambios del 17/12/2018 (Creación gridSearch común)" />
     <MESSAGE value="Cambios del 16/01/2019 (Nuevo modelo)" />
     <MESSAGE value="Cambios del 31/01/2019 (Prueba &quot;interna&quot;)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cambios del 31/01/2019 (Prueba &quot;interna&quot;)" />
+    <MESSAGE value="Cambios del 08/03/2019" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambios del 08/03/2019" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1061,6 +1045,36 @@
           <url>file://$PROJECT_DIR$/ModelV3_1.py</url>
           <line>131</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/data/download/TripAdvisor.py</url>
+          <line>337</line>
+          <option name="timeStamp" value="110" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ModelV4.py</url>
+          <line>471</line>
+          <option name="timeStamp" value="114" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ModelV4.py</url>
+          <line>469</line>
+          <option name="timeStamp" value="115" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ModelV4.py</url>
+          <line>172</line>
+          <option name="timeStamp" value="124" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ModelV4.py</url>
+          <line>164</line>
+          <option name="timeStamp" value="125" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/Main.py</url>
+          <line>87</line>
+          <option name="timeStamp" value="129" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -1090,380 +1104,341 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_1_img.gs">
+    <entry file="file://$PROJECT_DIR$/ModelV2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-133" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_2_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-102" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_3_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-153" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_4_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-167" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_5_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-116" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_6_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-116" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_7_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-102" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/DEV_0.5/Madrid_DEV_8_img.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-102" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_1_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_2.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_2_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_3.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_3_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_4.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_4_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_1.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_5.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_5_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_6.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_6_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_8_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Madrid_TEST_8.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Barcelona_TEST_1.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/17_12_2018/TRAIN+DEV/TEST_0.5/Barcelona_TEST_1_img.gs">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/matplotlib/pyplot.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="686" column="4" selection-start-line="686" selection-start-column="4" selection-end-line="686" selection-end-column="4" />
+        <state relative-caret-position="-793">
+          <caret line="72" column="19" selection-start-line="72" selection-start-column="12" selection-end-line="72" selection-end-column="19" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tessstttyyy.png" />
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/keras/engine/base_layer.py">
+    <entry file="file://$PROJECT_DIR$/tmp_img/pizzeta-de-nutella-con.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/copa-de-helado-de-yogur.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/5.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/0.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/1.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/2.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/3.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/4.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/6.jpg" />
+    <entry file="file://$PROJECT_DIR$/tmp_img/r.jpg" />
+    <entry file="file:///usr/lib/python3.6/os.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="803" column="6" selection-start-line="803" selection-start-column="6" selection-end-line="803" selection-end-column="6" />
+        <state relative-caret-position="187">
+          <caret line="194" column="39" selection-start-line="194" selection-start-column="31" selection-end-line="194" selection-end-column="39" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/layers/normalization.py">
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras/applications/resnet50.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="308" column="17" lean-forward="true" selection-start-line="308" selection-start-column="17" selection-end-line="308" selection-end-column="17" />
+        <state relative-caret-position="85">
+          <caret line="10" column="26" selection-start-line="10" selection-start-column="26" selection-end-line="10" selection-end-column="26" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/tensorflow/python/ops/nn_impl.py">
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras/utils/data_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="221" selection-start-line="221" selection-end-line="221" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras_applications/resnet50.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras_applications/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="8" selection-start-line="8" selection-end-line="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras/applications/inception_resnet_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="10" column="36" lean-forward="true" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.5/site-packages/keras_applications/inception_resnet_v2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="349" column="75" selection-start-line="349" selection-start-column="21" selection-end-line="349" selection-end-column="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/r-14d3a3aae25efc1697d677d1d36a1bd8.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-01449176de080477a50584543097318a.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-7971402c27cd69dd27f8cdbf5316e934.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-a88cbb2c6f2a36a6028a6a6b901863c7.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-c8c0ef5866d3c1330ffa94fca422b7a9.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-ec76f6e3770537ab3abc8a1037a294d9.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-f454beb2f0a22c632c792a6813eac553.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-747e87275a054768cc774d0b52afe3fc.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-475a99c198ff32667638fa0f0566712e.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-5c60bdb4e120a522dd0ca2bf1308f033.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp_img/1174/lj-2bacc66ffe10eb170c107d01c2906371.jpg">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/groupby/groupby.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="109">
+          <caret line="917" selection-start-line="917" selection-end-line="917" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/download/DownloadData.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="126" column="19" selection-start-line="126" selection-start-column="19" selection-end-line="126" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/download/TripAdvisor.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="651" column="4" selection-start-line="651" selection-start-column="4" selection-end-line="651" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/stats/user_stats_oviedo.csv">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/frame.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="6210" selection-start-line="6210" selection-end-line="6210" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/train.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="748">
-          <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" column="104" selection-start-line="13" selection-start-column="104" selection-end-line="13" selection-end-column="104" />
+          <caret line="273" column="29" selection-start-line="273" selection-start-column="29" selection-end-line="273" selection-end-column="29" />
+          <folding>
+            <element signature="e#9704#10311#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/gridsearch.sh">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/img_emb/Option2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="13" selection-start-line="13" selection-end-line="13" />
+        <state relative-caret-position="559">
+          <caret line="77" column="71" selection-start-line="77" selection-start-column="55" selection-end-line="77" selection-end-column="71" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/out/16_01_2019/Barcelona_DEV_IMGS.gs">
+    <entry file="file://$PROJECT_DIR$/img_emb/ImageEmbedding.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-594" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/out/16_01_2019/Barcelona_DEV.gs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3315" />
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="289">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
+        <state relative-caret-position="121">
+          <caret line="26" column="17" selection-start-line="26" selection-start-column="17" selection-end-line="26" selection-end-column="17" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../Image-Super-Resolution/main.py" />
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/PIL/Image.py">
+    <entry file="file://$PROJECT_DIR$/img_emb/Test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="883" column="64" selection-start-line="883" selection-start-column="52" selection-end-line="883" selection-end-column="64" />
+        <state relative-caret-position="306">
+          <caret line="40" column="31" lean-forward="true" selection-start-line="40" selection-end-line="41" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/numpy/core/shape_base.py">
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras_preprocessing/image/dataframe_iterator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="233" selection-start-line="233" selection-end-line="233" />
+        <state relative-caret-position="189">
+          <caret line="83" column="8" selection-start-line="83" selection-start-column="8" selection-end-line="83" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/R0.png" />
-    <entry file="file://$PROJECT_DIR$/ModelV3.py">
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras_preprocessing/image/directory_iterator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1283">
-          <caret line="127" column="40" selection-start-line="127" selection-start-column="40" selection-end-line="127" selection-end-column="40" />
+        <state relative-caret-position="130">
+          <caret line="104" selection-start-line="104" selection-end-line="104" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV3_1.py">
+    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/keras_preprocessing/image/image_data_generator.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="114" column="45" lean-forward="true" selection-start-line="114" selection-start-column="45" selection-end-line="114" selection-end-column="45" />
+        <state relative-caret-position="-610">
+          <caret line="438" column="28" selection-start-line="438" selection-start-column="28" selection-end-line="438" selection-end-column="28" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV1.py">
+    <entry file="file://$PROJECT_DIR$/img_emb/a.png" />
+    <entry file="file:///usr/lib/python3.6/codecs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-68">
-          <caret line="50" column="22" lean-forward="true" selection-start-line="50" selection-end-line="51" />
+        <state relative-caret-position="5236">
+          <caret line="308" selection-start-line="308" selection-end-line="308" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="482">
-          <caret line="72" column="35" selection-start-line="72" selection-start-column="25" selection-end-line="72" selection-end-column="35" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/E1.png">
+      <provider selected="true" editor-type-id="images" />
     </entry>
-    <entry file="file://$USER_HOME$/.local/lib/python3.6/site-packages/pandas/core/internals.py">
+    <entry file="file://$PROJECT_DIR$/E2.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/E3.png">
+      <provider selected="true" editor-type-id="images" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/img_emb/Autoencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="156">
-          <caret line="4536" selection-start-line="4536" selection-end-line="4536" />
+        <state relative-caret-position="67">
+          <caret line="252" column="11" selection-start-line="252" selection-start-column="11" selection-end-line="252" selection-end-column="11" />
         </state>
       </provider>
     </entry>
     <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="359">
-          <caret line="1663" selection-start-line="1663" selection-end-line="1663" />
+          <caret line="1359" selection-start-line="1359" selection-end-line="1359" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV4.py">
+    <entry file="file://$PROJECT_DIR$/ModelClass.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="442">
-          <caret line="29" column="102" selection-start-line="29" selection-start-column="102" selection-end-line="29" selection-end-column="102" />
+        <state relative-caret-position="516">
+          <caret line="244" selection-start-line="244" selection-end-line="244" />
           <folding>
-            <element signature="e#261#383#0" />
+            <element signature="e#1122#1305#0" />
+            <element signature="e#1479#2614#0" />
+            <element signature="e#1542#2054#0" />
+            <element signature="e#1934#1968#0" />
+            <element signature="e#2110#2614#0" />
+            <element signature="e#2826#4417#0" />
+            <element signature="e#3638#3678#0" />
+            <element signature="e#4471#4502#0" />
+            <element signature="e#4536#4584#0" />
+            <element signature="e#4638#4686#0" />
+            <element signature="e#4719#4767#0" />
+            <element signature="e#4798#4823#0" />
+            <element signature="e#4852#4877#0" />
+            <element signature="e#4907#4932#0" />
+            <element signature="e#4989#5014#0" />
+            <element signature="e#5147#5732#0" />
+            <element signature="e#5181#5286#0" />
+            <element signature="e#5192#5281#0" />
+            <element signature="e#5387#5669#0" />
+            <element signature="e#5589#5669#0" />
+            <element signature="e#5775#5915#0" />
+            <element signature="e#5844#5915#0" />
+            <element signature="e#7534#7657#0" />
+            <element signature="e#7706#8733#0" />
+            <element signature="e#8212#8733#0" />
+            <element signature="e#8486#8581#0" />
+            <element signature="e#8894#10012#0" />
+            <element signature="e#9592#9990#0" />
+            <element signature="e#10051#10764#0" />
+            <element signature="e#10197#10237#0" />
+            <element signature="e#10580#10721#0" />
+            <element signature="e#10804#11424#0" />
+            <element signature="e#10959#11083#0" />
+            <element signature="e#11310#11402#0" />
+            <element signature="e#11464#12577#0" />
+            <element signature="e#11464#11706#1" />
+            <element signature="e#11745#11937#0" />
+            <element signature="e#11856#11937#0" />
+            <element signature="e#12617#15720#0" />
+            <element signature="e#12659#13253#0" />
+            <element signature="e#13056#13164#0" />
+            <element signature="e#13216#13253#0" />
+            <element signature="e#14167#14246#0" />
+            <element signature="e#14400#15124#0" />
+            <element signature="e#14914#14991#0" />
+            <element signature="e#15159#15170#0" />
+            <element signature="e#15519#15697#0" />
+            <element signature="e#15891#18337#0" />
+            <element signature="e#16214#17219#0" />
+            <element signature="e#16557#17193#0" />
+            <element signature="e#16557#16587#0" />
+            <element signature="e#16954#17034#0" />
+            <element signature="e#17340#17833#0" />
+            <element signature="e#17633#17765#0" />
+            <element signature="e#17924#18094#0" />
+            <element signature="e#18104#18131#0" />
+            <element signature="e#18414#18651#0" />
+            <element signature="e#18693#18775#0" />
+            <element signature="e#18831#19137#0" />
+            <element signature="e#19183#19346#0" />
+            <element signature="e#19418#19623#0" />
+            <element signature="e#19666#19731#0" />
+            <element signature="e#19918#20211#0" />
+            <element signature="e#20260#20369#0" />
+            <element signature="e#20414#20510#0" />
+            <element signature="e#20559#21036#0" />
+            <element signature="e#20806#21012#0" />
+            <element signature="e#20915#20965#0" />
+            <element signature="e#21073#21131#0" />
+            <element signature="e#21168#21229#0" />
+            <element signature="e#21266#21326#0" />
+            <element signature="e#21375#21542#0" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="403">
-          <caret line="126" column="10" lean-forward="true" selection-start-line="126" selection-start-column="10" selection-end-line="126" selection-end-column="10" />
+        <state relative-caret-position="618">
+          <caret line="90" selection-start-line="90" selection-end-line="90" />
           <folding>
-            <element signature="e#25#40#0" expanded="true" />
-            <element signature="e#2110#2939#0" />
-            <element signature="e#3580#4186#0" />
+            <marker date="1550835534417" expanded="true" signature="2989:3116" ph="..." />
+            <marker date="1550835534417" expanded="true" signature="3222:3443" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ModelClass.py">
+    <entry file="file://$PROJECT_DIR$/ModelV4.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="746" column="63" selection-start-line="746" selection-start-column="55" selection-end-line="746" selection-end-column="63" />
+        <state relative-caret-position="108">
+          <caret line="163" column="80" selection-start-line="163" selection-start-column="23" selection-end-line="163" selection-end-column="80" />
           <folding>
-            <element signature="e#1111#1294#0" />
-            <element signature="e#1468#2603#0" />
-            <element signature="e#1531#2043#0" />
-            <element signature="e#1923#1957#0" />
-            <element signature="e#2099#2603#0" />
-            <element signature="e#2815#4752#0" />
-            <element signature="e#3627#3667#0" />
-            <element signature="e#4806#4837#0" />
-            <element signature="e#4871#4919#0" />
-            <element signature="e#4974#9308#0" />
-            <element signature="e#5388#5445#0" />
-            <element signature="e#6328#6369#0" />
-            <element signature="e#6500#7097#1" />
-            <element signature="e#7106#7161#0" />
-            <element signature="e#8063#8115#0" />
-            <element signature="e#9145#9264#0" />
-            <element signature="e#9342#9373#0" />
-            <element signature="e#12274#12320#0" />
-            <element signature="e#13113#13874#0" />
-            <element signature="e#13521#13660#0" />
-            <element signature="e#13696#13852#0" />
-            <element signature="e#14295#14341#0" />
-            <element signature="e#14600#14661#0" />
-            <element signature="e#15053#15210#0" />
-            <element signature="e#16082#17091#0" />
-            <element signature="e#16224#16373#0" />
-            <element signature="e#17339#17397#0" />
-            <element signature="e#17741#18880#0" />
-            <element signature="e#17975#18125#0" />
-            <element signature="e#18984#19026#0" />
-            <element signature="e#19212#19272#0" />
-            <element signature="e#19508#20584#0" />
-            <element signature="e#19742#19892#0" />
-            <element signature="e#20691#20735#0" />
-            <element signature="e#21224#21341#0" />
-            <element signature="e#22847#22874#0" />
-            <element signature="e#23005#23202#1" />
-            <element signature="e#23420#23435#0" />
-            <element signature="e#24089#24415#0" />
-            <element signature="e#24288#24390#0" />
-            <element signature="e#24425#24472#0" />
-            <element signature="e#24925#25017#0" />
-            <element signature="e#25091#25115#0" />
-            <element signature="e#26133#26589#0" />
-            <element signature="e#27177#27206#0" />
-            <element signature="e#28531#29279#0" />
-            <element signature="e#30100#30125#0" />
-            <element signature="e#30154#30179#0" />
-            <element signature="e#30209#30234#0" />
-            <element signature="e#30291#30316#0" />
-            <element signature="e#30417#32959#0" />
-            <element signature="e#30449#31034#0" />
-            <element signature="e#30483#30588#0" />
-            <element signature="e#30494#30583#0" />
-            <element signature="e#30689#30971#0" />
-            <element signature="e#30891#30971#0" />
-            <element signature="e#31077#31217#0" />
-            <element signature="e#31146#31217#0" />
-            <element signature="e#31493#32959#0" />
-            <element signature="e#31978#32959#0" />
-            <element signature="e#32282#32959#0" />
-            <element signature="e#32836#32959#0" />
-            <element signature="e#33008#34035#0" />
-            <element signature="e#33514#34035#0" />
-            <element signature="e#33788#33883#0" />
-            <element signature="e#34196#35314#0" />
-            <element signature="e#34894#35292#0" />
-            <element signature="e#35353#36066#0" />
-            <element signature="e#35499#35539#0" />
-            <element signature="e#35882#36023#0" />
-            <element signature="e#36106#36726#0" />
-            <element signature="e#36261#36385#0" />
-            <element signature="e#36612#36704#0" />
-            <element signature="e#36766#37879#0" />
-            <element signature="e#36766#37008#1" />
-            <element signature="e#37047#37239#0" />
-            <element signature="e#37158#37239#0" />
-            <element signature="e#37919#40974#0" />
-            <element signature="e#37961#38555#0" />
-            <element signature="e#38358#38466#0" />
-            <element signature="e#38518#38555#0" />
-            <element signature="e#39421#39500#0" />
-            <element signature="e#39654#40378#0" />
-            <element signature="e#40168#40245#0" />
-            <element signature="e#40413#40424#0" />
-            <element signature="e#40773#40951#0" />
-            <element signature="e#41145#43591#0" />
-            <element signature="e#41468#42473#0" />
-            <element signature="e#41811#42447#0" />
-            <element signature="e#41811#41841#0" />
-            <element signature="e#42208#42288#0" />
-            <element signature="e#42594#43087#0" />
-            <element signature="e#42887#43019#0" />
-            <element signature="e#43178#43348#0" />
-            <element signature="e#43358#43385#0" />
-            <element signature="e#43668#43905#0" />
-            <element signature="e#43947#44029#0" />
-            <element signature="e#44085#44391#0" />
-            <element signature="e#44437#44600#0" />
-            <element signature="e#44672#44877#0" />
-            <element signature="e#44920#44985#0" />
-            <element signature="e#45172#45465#0" />
-            <element signature="e#45514#45623#0" />
-            <element signature="e#45668#45764#0" />
-            <element signature="e#45813#46290#0" />
-            <element signature="e#46060#46266#0" />
-            <element signature="e#46169#46219#0" />
-            <element signature="e#46327#46385#0" />
-            <element signature="e#46422#46483#0" />
-            <element signature="e#46520#46580#0" />
-            <element signature="e#46629#46796#0" />
+            <element signature="e#261#383#0" />
+            <element signature="e#418#3151#0" />
+            <element signature="e#3183#4338#0" />
+            <element signature="e#4404#5135#0" />
+            <element signature="e#5317#6889#0" />
+            <element signature="e#7410#7776#0" />
+            <element signature="e#7826#8140#0" />
+            <element signature="e#14319#23802#0" />
           </folding>
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/DV_PRUEBA">
+      <provider selected="true" editor-type-id="LargeFileEditor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="486">
-            <caret line="488" column="87" selection-start-line="488" selection-start-column="87" selection-end-line="488" selection-end-column="87" />
+        <state split_layout="FIRST">
+          <first_editor relative-caret-position="446">
+            <caret line="497" lean-forward="true" selection-start-line="497" selection-end-line="497" />
           </first_editor>
           <second_editor />
         </state>
       </provider>
     </entry>
+  </component>
+  <component name="masterDetails">
+    <states>
+      <state key="ScopeChooserConfigurable.UI">
+        <settings>
+          <splitter-proportions>
+            <option name="proportions">
+              <list>
+                <option value="0.2" />
+              </list>
+            </option>
+          </splitter-proportions>
+        </settings>
+      </state>
+    </states>
   </component>
 </project>

@@ -488,6 +488,17 @@ y la loss a minimizar será: `loss = max(0,1-(h(m)-h(p)))`
 Para cada terna (usuario, restaurante, imagen) única:
 * Crear 5 ejemplos con las 5 fotos más distantes del restaurante respecto de la actual.
 
+## Actualización [15/02/2019]
+Se vio que los vectores de las fotos son mejores cuando se utilizan las imánenes de menor dimensión, por tanto, se volvieron a generar los vectores con estas imágenes de menor tamaño.
+Este comportamiento es devido, probablemente, a el reescalado que re realiza en la entrada de la red, que al partir de una imágen más reducida no afecta tanto.
+
+## Actualización [20/02/2019]
+Se descubrió que los modelos básicos "centroide" y "random" partian con ventaja sobre nuestro modelo. El modelo utiliza solo las fotos en TRAIN para aprender y nosotros estabamos calculando centroide y random con todas las fotos disponibles.
+Para solucionar este comportamiento, se ha de calcular los centroides de cada restaurante y la foto random de cada uno con los datos que hay en TRAIN y solamente esos.
+
+Al hacer esto se vio que puede haber restaurantes que estén en DEV y no en TRAIN, por tanto hay que cambiar el planteamiento realizado hasta ahora.
+
+
 
 
 

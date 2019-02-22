@@ -30,7 +30,7 @@ class Option2Helper():
                 tmp_ret = pd.read_pickle(Option2.TMP_FOLDER+"/"+f)
                 ret = ret.append(tmp_ret,ignore_index=True)
 
-        if(len(ret)>0):pd.to_pickle(ret,path+"img-option2.pkl")
+        if(len(ret)>0):pd.to_pickle(ret,path+"img-option2-new.pkl")
 
         #Eliminar los ficheros de la carpeta.
         for f in os.listdir(Option2.TMP_FOLDER):

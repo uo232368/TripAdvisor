@@ -10,6 +10,7 @@ from tqdm import tqdm
 import ssl
 from pyquery import PyQuery
 import urllib.request
+import urllib
 import re
 import os
 import json
@@ -135,6 +136,8 @@ class TripAdvisor(threading.Thread):
         self.counter = counter
 
         self.CITY = city
+        self.PATH = "/media/HDD/pperez/TripAdvisor/" + city.lower() + "_data/"
+
         self.GEO_ID = TripAdvisorHelper().getGeoId(CITY=city)
         self.DATA = data
         self.STEP = step
@@ -294,11 +297,13 @@ class TripAdvisor(threading.Thread):
                 print(e)
                 return False
 
-        def download(revId, rev_url, images):
+        def download(revId, rev_url, images, highRes=False):
 
             ret = images
             item = 0
-            path = "images/" + str(revId)
+
+            if(highRes):path = self.PATH+"images/" + str(revId)
+            else:path = self.PATH+"images_lowres/" + str(revId)
 
             if not os.path.exists(path): os.makedirs(path)
 
@@ -308,23 +313,29 @@ class TripAdvisor(threading.Thread):
 
                 # Cambiar la URL de la imagen low-res a la high-res
 
-                url_high_res = url_high_res.replace("/photo-l/", "/photo-o/")
-                url_high_res = url_high_res.replace("/photo-f/", "/photo-o/")
+                if(highRes):
+                    url_high_res = url_high_res.replace("/photo-l/", "/photo-o/")
+                    url_high_res = url_high_res.replace("/photo-f/", "/photo-o/")
 
-                saved = saveImage(name, url_high_res)
-                if (not saved):
-                    # Algunas veces hay que cambiarlo por photo-w
-                    url_high_res = url_high_res.replace("/photo-o/", "/photo-w/")
                     saved = saveImage(name, url_high_res)
                     if (not saved):
-                        # Algunas veces hay que cambiarlo por photo-p
-                        url_high_res = url_high_res.replace("/photo-w/", "/photo-p/")
+                        # Algunas veces hay que cambiarlo por photo-w
+                        url_high_res = url_high_res.replace("/photo-o/", "/photo-w/")
                         saved = saveImage(name, url_high_res)
                         if (not saved):
-                            # Algunas veces hay que cambiarlo por photo-s
-                            url_high_res = url_high_res.replace("/photo-p/", "/photo-s/")
+                            # Algunas veces hay que cambiarlo por photo-p
+                            url_high_res = url_high_res.replace("/photo-w/", "/photo-p/")
                             saved = saveImage(name, url_high_res)
-                            if (not saved): print("\nImg not saved: " + str(url_high_res) + " " + str(rev_url))
+                            if (not saved):
+                                # Algunas veces hay que cambiarlo por photo-s
+                                url_high_res = url_high_res.replace("/photo-p/", "/photo-s/")
+                                saved = saveImage(name, url_high_res)
+                                if (not saved): print("\nImg not saved: " + str(url_high_res) + " " + str(rev_url))
+
+                else:
+                    saved = saveImage(name, url_high_res)
+                    if (not saved):
+                        print("Error-"+str(url_high_res)+"-"+name)
 
                 i['image_path'] = name
                 i['image_high_res'] = url_high_res

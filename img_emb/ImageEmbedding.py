@@ -52,24 +52,46 @@ def loadNet(NET):
 def init():
 
     NET = "RESV2"
-    CITY = "Madrid"
+    CITY = "Barcelona"
+    LOWRES= True
+
     #PATH = "../data/" + CITY.lower() + "_data/"
+    PATH = "/media/HDD/pperez/TripAdvisor/" + CITY.lower() + "_data/"
+    IMG_PATH = PATH + "images/"
+    if(LOWRES):IMG_PATH = PATH+"images_lowres/"
 
 
-    PATH = "/mnt/hdd/pperez/TripAdvisor/" + CITY.lower() + "_data/"
-    IMG_PATH = PATH+"images/"
+    tst = pd.read_pickle(PATH+"img-option2-new.pkl")
+    print(len(tst))
+    exit()
+
+    data = pd.read_pickle(PATH + "reviews.pkl")
+    data["num_images"] = data.images.apply(lambda x: len(x))
+    data = data.loc[data.num_images > 0]
+
+    data = tst.merge(data, right_on="reviewId",left_on="review")
+    data["img_url"] = data.apply(lambda x: x.images[x.image - 1]['image_url_lowres'], axis=1)
+
+    print(tst)
+    exit()
+    
 
     '''
-    n_threads = 25
+
+    n_threads = 25 #25
     threads = []
 
     data = pd.read_pickle(PATH+"reviews.pkl")
     data["num_images"] = data.images.apply(lambda x: len(x))
     data = data.loc[data.num_images > 0]
+
+    #data=data.loc[data.restaurantId=="12874563"]
+
     len_data = len(data)
     len_data_thread = len_data // n_threads
 
     model = loadNet(NET)
+
 
     for i in range(n_threads):
 
@@ -83,13 +105,14 @@ def init():
         threads[i].start()
 
     waitForEnd(threads)
-    '''
 
     OPH = Option2Helper()
     OPH.joinImages(PATH);
 
-    pkl = pd.read_pickle(PATH+"img-option2.pkl")
+    pkl = pd.read_pickle(PATH+"img-option2-new.pkl")
     print(len(pkl))
+    '''
+
 
 if __name__ == "__main__":
 

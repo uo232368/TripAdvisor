@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="" />
+    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,10 +46,10 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="Python Console" value="20927" />
+          <entry key="Python Console" value="20939" />
           <entry key="dummy" value="7" />
-          <entry key="md" value="17596" />
-          <entry key="py" value="78291" />
+          <entry key="md" value="17708" />
+          <entry key="py" value="78513" />
           <entry key="sh" value="2394" />
           <entry key="txt" value="557" />
         </counts>
@@ -53,9 +57,9 @@
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="2394" />
-          <entry key="Markdown" value="17596" />
+          <entry key="Markdown" value="17708" />
           <entry key="PLAIN_TEXT" value="564" />
-          <entry key="Python" value="99218" />
+          <entry key="Python" value="99452" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -65,10 +69,10 @@
           <entry key="gitignore" value="1" />
           <entry key="gs" value="189" />
           <entry key="jpg" value="55" />
-          <entry key="md" value="30" />
+          <entry key="md" value="31" />
           <entry key="out" value="17" />
           <entry key="png" value="29" />
-          <entry key="py" value="580" />
+          <entry key="py" value="581" />
           <entry key="sh" value="63" />
           <entry key="txt" value="2" />
         </counts>
@@ -77,9 +81,9 @@
         <counts>
           <entry key="Bash" value="63" />
           <entry key="Image" value="84" />
-          <entry key="Markdown" value="30" />
+          <entry key="Markdown" value="31" />
           <entry key="PLAIN_TEXT" value="212" />
-          <entry key="Python" value="580" />
+          <entry key="Python" value="581" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages">
@@ -166,8 +170,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="51" column="7" selection-start-line="51" selection-start-column="7" selection-end-line="51" selection-end-column="7" />
+            <state relative-caret-position="550">
+              <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
               <folding>
                 <element signature="e#25#40#0" expanded="true" />
                 <element signature="e#2682#3162#0" />
@@ -177,14 +181,94 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ModelV5.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="263">
-              <caret line="152" column="26" lean-forward="true" selection-start-line="152" selection-start-column="26" selection-end-line="152" selection-end-column="26" />
+            <state relative-caret-position="208">
+              <caret line="215" column="41" lean-forward="true" selection-start-line="215" selection-start-column="41" selection-end-line="215" selection-end-column="41" />
               <folding>
                 <element signature="e#632#915#0" />
+                <element signature="e#7483#10116#0" />
+                <marker date="1553512760584" expanded="true" signature="11590:13380" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/ModelV4.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="172">
+              <caret line="61" column="67" lean-forward="true" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="67" />
+              <folding>
+                <element signature="e#287#414#0" />
+                <element signature="e#3706#4129#0" />
+                <element signature="e#4381#4447#0" />
+                <element signature="e#4912#5085#0" />
+                <element signature="e#5095#5158#0" />
+                <element signature="e#5528#5789#0" />
+                <element signature="e#6487#7876#0" />
+                <element signature="e#6706#7810#0" />
+                <element signature="e#6944#7381#0" />
+                <element signature="e#7647#7676#0" />
+                <element signature="e#7906#12193#0" />
+                <element signature="e#7934#8157#0" />
+                <element signature="e#8636#9309#0" />
+                <element signature="e#8827#9080#0" />
+                <element signature="e#9522#10009#0" />
+                <element signature="e#10109#12116#0" />
+                <element signature="e#11253#11385#0" />
+                <element signature="e#11685#11981#0" />
+                <element signature="e#12251#12796#0" />
+                <element signature="e#12277#12413#0" />
+                <element signature="e#12827#13011#0" />
+                <element signature="e#12863#12943#0" />
+                <element signature="e#13188#14944#0" />
+                <element signature="e#13677#13729#0" />
+                <element signature="e#14759#14900#0" />
+                <element signature="e#14978#27989#0" />
+                <element signature="e#15017#17231#0" />
+                <element signature="e#15054#16246#0" />
+                <element signature="e#15095#15540#0" />
+                <element signature="e#15391#15510#0" />
+                <element signature="e#16343#16424#0" />
+                <element signature="e#17282#21240#0" />
+                <element signature="e#17325#19728#0" />
+                <element signature="e#17626#19473#0" />
+                <element signature="e#17940#18632#0" />
+                <element signature="e#18248#18632#0" />
+                <element signature="e#18697#19189#0" />
+                <element signature="e#18697#18764#0" />
+                <element signature="e#19808#20439#0" />
+                <element signature="e#19879#19919#0" />
+                <element signature="e#20610#21152#0" />
+                <element signature="e#20689#20737#0" />
+                <element signature="e#21287#22738#0" />
+                <element signature="e#21330#21749#0" />
+                <element signature="e#21892#22171#0" />
+                <element signature="e#22331#22629#0" />
+                <element signature="e#22748#22860#0" />
+                <element signature="e#23430#23541#0" />
+                <element signature="e#23795#24340#0" />
+                <element signature="e#24397#24510#0" />
+                <element signature="e#24850#24934#0" />
+                <element signature="e#25118#25132#0" />
+                <element signature="e#26554#26610#0" />
+                <element signature="e#26778#26816#0" />
+                <element signature="e#27028#27080#0" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="244">
+                <caret line="512" column="47" selection-start-line="512" selection-start-column="47" selection-end-line="512" selection-end-column="47" />
+              </first_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -297,8 +381,8 @@
         <option value="$PROJECT_DIR$/pruebas.sh" />
         <option value="$PROJECT_DIR$/img_emb/Autoencoder.py" />
         <option value="$PROJECT_DIR$/Main.py" />
-        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
         <option value="$PROJECT_DIR$/ModelV5.py" />
+        <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
       </list>
     </option>
   </component>
@@ -363,12 +447,6 @@
               <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
               <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
               <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="TripAdvisor" type="b2602c69:ProjectViewProjectNode" />
-              <item name="TripAdvisor" type="462c0819:PsiDirectoryNode" />
-              <item name="docs" type="462c0819:PsiDirectoryNode" />
-              <item name="20_02_2019" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -849,7 +927,14 @@
       <option name="project" value="LOCAL" />
       <updated>1553507850519</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary="Cambios modelo final (con documentación)">
+      <created>1553508197433</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1553508197433</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TodoView">
@@ -865,13 +950,13 @@
     <frame x="1920" y="31" width="1920" height="1128" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.21011059" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.21011059" />
       <window_info id="Structure" order="1" sideWeight="0.504717" side_tool="true" weight="0.11005793" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32821497" />
       <window_info anchor="bottom" x="4" y="138" width="1920" height="1017" id="Run" order="2" sideWeight="0.61769354" weight="0.50338817" />
-      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6219063" weight="0.53630203" />
+      <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6219063" visible="true" weight="0.47434658" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3253796" />
@@ -977,6 +1062,11 @@
           <url>file://$PROJECT_DIR$/ModelV4D2.py</url>
           <line>122</line>
           <option name="timeStamp" value="154" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/ModelV5.py</url>
+          <line>222</line>
+          <option name="timeStamp" value="156" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -1481,18 +1571,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="51" column="7" selection-start-line="51" selection-start-column="7" selection-end-line="51" selection-end-column="7" />
-          <folding>
-            <element signature="e#25#40#0" expanded="true" />
-            <element signature="e#2682#3162#0" />
-            <element signature="e#3307#4373#1" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ModelV4D2.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1524">
@@ -1503,14 +1581,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="550">
+          <caret line="56" lean-forward="true" selection-start-line="56" selection-end-line="56" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+            <element signature="e#2682#3162#0" />
+            <element signature="e#3307#4373#1" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelV5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="215" column="41" lean-forward="true" selection-start-line="215" selection-start-column="41" selection-end-line="215" selection-end-column="41" />
+          <folding>
+            <element signature="e#632#915#0" />
+            <element signature="e#7483#10116#0" />
+            <marker date="1553512760584" expanded="true" signature="11590:13380" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/ModelV4.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="90" column="41" selection-start-line="90" selection-start-column="41" selection-end-line="90" selection-end-column="41" />
+        <state relative-caret-position="172">
+          <caret line="61" column="67" lean-forward="true" selection-start-line="61" selection-start-column="25" selection-end-line="61" selection-end-column="67" />
           <folding>
             <element signature="e#287#414#0" />
-            <element signature="e#449#3618#0" />
-            <element signature="e#551#3596#0" />
             <element signature="e#3706#4129#0" />
             <element signature="e#4381#4447#0" />
             <element signature="e#4912#5085#0" />
@@ -1571,21 +1671,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="278">
-            <caret line="577" column="10" lean-forward="true" selection-start-line="577" selection-start-column="10" selection-end-line="577" selection-end-column="10" />
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="244">
+            <caret line="512" column="47" selection-start-line="512" selection-start-column="47" selection-end-line="512" selection-end-column="47" />
           </first_editor>
           <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="263">
-          <caret line="152" column="26" lean-forward="true" selection-start-line="152" selection-start-column="26" selection-end-line="152" selection-end-column="26" />
-          <folding>
-            <element signature="e#632#915#0" />
-          </folding>
         </state>
       </provider>
     </entry>

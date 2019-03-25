@@ -49,14 +49,14 @@ model= 5 if args.m == None else args.m
 stage= "grid" if args.stage == None else args.stage
 
 embsize = [512] if args.emb == None else args.emb
-gpu = 1 if args.gpu == None else args.gpu
+gpu = 0 if args.gpu == None else args.gpu
 dpout = [0.8] if args.d == None else args.d
 lrates = [1e-5] if args.lr == None else args.lr
 lrDecay = None if args.lrdcay == None else args.lrdcay
 pref = "10+10" if args.pref == None else args.pref
 
 option = 2 if args.i == None else args.i
-ims = 32 if args.ims == None else args.ims
+ims = 64 if args.ims == None else args.ims
 
 epochs= 200 if args.e == None else args.e
 seed = 100 if args.s == None else args.s

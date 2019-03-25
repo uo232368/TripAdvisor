@@ -510,6 +510,8 @@ Cada una de las preferencias tendrá los siguientes componentes:
 La idea es aplicar la misma red a cada uno de los componentes de cada preferencia, por tanto se tendrá un valor para la entrada (u,rb,fb) y otro para (u,rm,fm).
 La red se entrenará con el objetivo de que la salida de la red para la entrada buena (u,rb,fb) sea mayor (+1 de margen) respecto de la mala.
 
+Por tanto la pérdida del modelo sería: `loss = max(0 , 1-(salida_buena-salida_mala)`
+
 ### Arquitectura
 La red realizará el siguiente procedimiento:
 * Entrada: un usuario (one-hot), un restaurante (one-hot) y una foto (1536).

@@ -3,9 +3,11 @@ import os, time
 import warnings
 import re
 import sys
+from tqdm import tqdm
 
 import numpy as np
 import pandas as pd
+
 import pickle
 import math
 import signal, sys
@@ -20,8 +22,8 @@ import tensorflow as tf
 from keras import backend as K
 from keras import losses
 from keras.utils import *
-from keras.models import Model
-from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout
+from keras.models import Model, Sequential
+from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout,Embedding, Flatten
 from keras.utils import to_categorical
 from keras.callbacks import ModelCheckpoint
 
@@ -84,14 +86,17 @@ class LossHistory(keras.callbacks.Callback):
 
 class ModelClass():
 
-    def __init__(self,city,option,config,name,seed = 2 ):
+    def __init__(self,city,option,config,name,date,seed = 2 ):
 
         signal.signal(signal.SIGINT, self.signal_handler)
 
         self.CITY = city
         self.OPTION = option
         self.PATH = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"
-        self.IMG_PATH = self.PATH + "images/"
+        self.DATA_PATH = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/"+name.upper()+"/"
+
+        self.IMG_PATH = self.PATH + "images_lowres/"
+        self.DATE = date
         self.SEED = seed
         self.CONFIG = config
         self.MODEL_NAME = name
@@ -120,11 +125,14 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train, dev,test, n_rest, n_usr, v_img = self.getData()
+        train,train_dev, dev,test,img, n_rest, n_usr, v_img = self.getData()
 
         self.TRAIN = train
+        self.TRAIN_DEV = train_dev
         self.DEV = dev
         self.TEST = test
+
+        self.IMG = img
 
         self.N_RST = n_rest
         self.N_USR = n_usr
@@ -243,7 +251,6 @@ class ModelClass():
 
                     #DEV
                     dev_ret, stop = self.dev()
-
                     stop_param.append(stop)
 
                     #Imprimir linea
@@ -252,16 +259,21 @@ class ModelClass():
                     # Si en las n epochs anteriores la pendiente es menor que valor, parar
                     if (len(stop_param) >= start_n_epochs + last_n_epochs):
                         slope = self.getSlope(stop_param[-last_n_epochs:]);
-                        if (slope > self.CONFIG['gs_max_slope']): break
+                        if (slope > self.CONFIG['gs_max_slope']):
+                            print("-"*50)
+                            print("MIN: "+str(np.min(stop_param))+"\t POS: "+str(np.argmin(stop_param)+1))
+                            print("MAX: "+str(np.max(stop_param))+"\t POS: "+str(np.argmax(stop_param)+1))
+                            print("-"*50)
+                            break
 
     def finalTrain(self, epochs = 1):
 
-        # Unir Train y DEV (SOLO LOS REALES, TODOS CAMBIARÍAN MUCHO EL TRAIN)
+        self.TRAIN = self.TRAIN_DEV
+        self.DEV = self.TEST
 
-        self.TRAIN_V1 = self.TRAIN_V1.append(self.DEV.loc[self.DEV.like==1], sort=False)
-        self.TRAIN_V2 = self.TRAIN_V2.append(self.DEV_V2.loc[self.DEV_V2.like==1], sort=False)
-        self.DEV = None
-        self.DEV_V2 = None
+        if(os.path.exists(self.MODEL_PATH)):
+            self.printE("Ya existe el modelo. Utilizar predict")
+            exit()
 
         # Configurar y crear sesion
         config = tf.ConfigProto()
@@ -277,17 +289,49 @@ class ModelClass():
 
             # Para cada epoch...
             for e in range(epochs):
+                self.CURRENT_EPOCH = e
                 print(str(e)+"/"+str(epochs))
 
                 # TRAIN
                 train_ret = self.train()
 
+            #Guardar modelo
+            #saver = tf.train.Saver(max_to_keep=1)
+            #saver.save(session, save_path=self.MODEL_PATH)
 
             #Test final
-            test_ret = self.test()
+            test_ret = self.dev()
 
             # Imprimir linea
-            self.gridSearchPrint(epochs,train_ret, test_ret)
+            self.gridSearchPrint(epochs-1,train_ret, test_ret[0])
+
+    def predict(self):
+
+        if(not os.path.exists(self.MODEL_PATH)):
+            self.printW("No existe un modelo guardado. Se necesita un 'finalTrain()' previo.")
+            exit()
+
+        self.DEV = self.TEST
+
+        # Configurar y crear sesion
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+
+        with tf.Session(graph=self.MODEL, config=config) as session:
+            # Restore variables from disk.
+            saver = tf.train.Saver()
+            saver.restore(session, self.MODEL_PATH)
+
+            self.CURRENT_EPOCH=-1
+
+            #Almacenar session
+            self.SESSION = session
+
+            # Test final
+            test_ret = self.dev()
+
+            # Imprimir linea
+            self.gridSearchPrint(-1, -1, test_ret[0])
 
     #- STATS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
 
@@ -672,6 +716,21 @@ class ModelClass():
         img = Image.fromarray(matrix)
         img = img.convert('L')
         img.save(path+".png")
+
+    def plothist(self, data, column,title="Histogram", bins=10, save=None):
+
+        plt.ioff()
+
+        items = bins
+
+        plt.hist(data[str(column)], bins=range(1, items + 2), edgecolor='black')  # arguments are passed to np.histogram
+        plt.xticks(range(1, items + 1))
+        plt.title(str(title))
+
+        if(save is None):plt.show()
+        else: plt.savefig(str(save) )
+
+        plt.close()
 
     def toPickle(self,path,name,data):
         with open(path+name, 'wb') as handle:

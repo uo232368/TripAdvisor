@@ -498,6 +498,100 @@ Para solucionar este comportamiento, se ha de calcular los centroides de cada re
 
 Al hacer esto se vio que puede haber restaurantes que estén en DEV y no en TRAIN, por tanto hay que cambiar el planteamiento realizado hasta ahora.
 
+# Modelo final [25/03/2019]
+Finalmente se opta por utilizar una red neuronal (ModelV4D2) para resolver el problema de preferencias.
+Cada una de las preferencias tendrá los siguientes componentes:
+* Usuario (u).
+* Restaurante al que fué (rb).
+* Foto que hizo (fb).
+* Restaurante al que fué o no (rm).
+* Foto que no hizo (fm).
+
+La idea es aplicar la misma red a cada uno de los componentes de cada preferencia, por tanto se tendrá un valor para la entrada (u,rb,fb) y otro para (u,rm,fm).
+La red se entrenará con el objetivo de que la salida de la red para la entrada buena (u,rb,fb) sea mayor (+1 de margen) respecto de la mala.
+
+### Arquitectura
+La red realizará el siguiente procedimiento:
+* Entrada: un usuario (one-hot), un restaurante (one-hot) y una foto (1536).
+* Obtener embedding tanto de usuario como de restaurante (a 512 y 256 respectivamente)
+* Transformar el vector de la imagen a un espacio de 512 dimensiones (con ReLu y DropOut) y finalmente a uno de 256.
+En este punto se tienen 3 embeddings, uno para cada componente de la entrada de tamaños 512, 256 y 256 para usuario, restaurante e imagen.
+* Estos 3 embeddings se concatenan y se les aplica un DropOut
+* Finalmente, esta concatenación se transforma, mediante varias capas ocultas de 1024 a 512, de 512 a 256, de 256 a 128 y de 128 a la salida de dimensión 1. 
+* Todas las capas anteriores poseen Bias, ReLu y DropOut a excepción de la última.
+
+### Evaluación
+El conjunto de evaluación (tanto `DEV` como `TEST`) tendrá, para cada review:
+* Las fotos de la review del usuario `u` en el restaurante `r`.
+* El resto de fotos de `r` que no son del usuario. En estas reviews se modifica el usuario y se pone `u`.
+
+El objetivo es ver que valoración da el modelo a cada una de las fotos del restaurante incluidas las del usuario (`n` en total) y, ordenando las valoraciones de mayor a menor, obtener la posición de la primera foto del usuario `p`.
+Con esta posición se calculará el percentil (`p\n`) y el percentil comenzando en cero (`(p-1)\n`).
+
+Destacar que en los conjuntos de evaluación, cada usuario está solamente una vez dada la forma de separar; ver siguiente apartado.
+
+### Creación de conjuntos
+
+##### Separar TRAIN, DEV y TEST:
+* Se utilizan solamente las reviews que tengan foto.
+* Se agrupan las reviews de un usuario que fue más de una vez al mismo restaurante.
+* Se divide el conjunto en 2: `TRAIN_DEV` y `TEST`.
+    * Para ello, por cada usuario, se mueve una de sus reviews a `TEST` y el resto a `TRAIN_DEV`.
+    * Si solo tiene una, esta va para `TRAIN_DEV`.
+    * Al finalizar, se comprueba que no existan restaurantes en `TEST` que no estén en `TRAIN_DEV`. Si los hay se trasladan a este último conjunto.
+* Finalmente, se utiliza el mismo procedimiento para dividir el conjunto de `TRAIN_DEV` en `TRAIN` y `DEV`.
+
+De este procedimiento resultan los conjuntos `TRAIN_DEV` y `TEST` utilizados para el entrenamiento final y `TRAIN` y `DEV` utilizados para la fase de búsqueda de hiperparámetros.
+
+##### Generar conjuntos adaptados al modelo:
+Partiendo de los conjuntos anteriores, es necesario llevar a cabo una adaptación a la forma de entrenar y evaluar.
+
+En el caso del conjunto de entrenamiento, partiendo del conjunto de `TRAIN` o `TRAIN_DEV` anteriores se crearán nuevos de la siguiente forma:
+* Para cada **fila** (usuario, restaurante, foto 1)
+* Crear preferencias con las 10 fotos (o menos, si no hay 10) más alejadas a la actual (foto 1) de otros usuarios dentro del **restaurante actual**.
+* Crear preferencias con las 10 fotos (o menos, si no hay 10) más alejadas a la actual (foto 1) de otros usuarios en **otros restaurantes**.
+
+Finalmente, para la evaluación se han de crear nuevos conjuntos partiendo de `DEV` y `TEST` de la siguiente forma:
+* Para cada **review** ((usuario, restaurante, foto 1), (usuario, restaurante, foto 2)... ), marcar las imágenes existentes como 'fotos reales del usuario `u`' 
+* Añadir el resto de imágenes del restaurante (las de otros usuarios) cambiando su usuario por `u`
+
+
+### Baselines
+Con el fin de comparar los resultados de nuestro sistema contra otros más elementales y sencillos, se calcularon los siguientes baselines:
+* **Baseline Random:** Para cada uno de los ejemplos de `DEV` o `TEST` donde se tienen todas las fotos de un restaurante, incluidas las del usuario, se asigna una probabilidad aleatoria uniforme a cada una de ellas, se ordenan de mayor a menor y se busca la posición de la primera foto real del usuario.
+* **Baseline Centroide:** Se calcula previamente en el conjunto de `TRAIN` o `TRAIN_DEV` el centroide de cada restaurante (a partir de sus fotos). En `DEV` o `TEST` se calcula la distancia ente el centroide correspondiente y las fotos de test, se ordenan de menor a mayor distancia y se obtiene la posicion de la primera foto real del usuario.
+
+### Experimentación
+
+##### Validación
+Sobre los conjuntos de `TRAIN` y `DEV` adaptados al modelo y partiendo de los siguientes hiper-parámetros prefijados:
+* **Epochs:** 100
+* **DropOut:** 0.8
+* **Descenso LR:** Linear cosine decay
+
+Se realizó un GRID-SEARCH **con 5 repeticiones** de cada experimento variando:
+* **El LR inicial:** 1e-3, 1e-4 y 1e-5
+* **La ciudad:** Gijón, Barcelona y Madrid
+
+Resultados en `out/20_02_2019` y en `docs/20_02_2019/Resultados_*`
+
+##### Test
+Con la mejor combinación obtenida previamente para cada ciudad, se realizaron nuevamente 5 repeticiones utilizando en este caso los conjuntos `TRAIN_DEV` y `TEST`.
+
+Además de obtener los valores de percentil y percentil comenzando en cero para todo el conjunto, en la evaluación final se desagregaron los resultados en los siguientes grupos:
+* **Usuarios con 9 fotos o más en `TRAIN_DEV`:** 20% aprox de los ejemplos
+* **Usuarios con entre 5 y 8 fotos en `TRAIN_DEV`:** 40% aprox de los ejemplos
+* **Usuarios con 4 fotos en `TRAIN_DEV`:** 60% aprox de los ejemplos
+* **Usuarios con entre 2 y 3 fotos en `TRAIN_DEV`:** 80% aprox de los ejemplos
+* **Usuarios con 1 foto en `TRAIN_DEV`:** 100% de los ejemplos
+
+Para cada uno de estos grupos se calculó:
+* El resultado del modelo
+* La mejora del modelo respecto del Baseline Random (RND-MOD)
+* La mejora del modelo respecto del Baseline Centroide (CNT-MOD)
+
+
+
 
 
 

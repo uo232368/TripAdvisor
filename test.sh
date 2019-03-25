@@ -1,14 +1,33 @@
 #!/bin/bash
 
+RPT=( 0 1 2 3 4 )
+GPU=0
+
+
+WHERE="Gijon"
+#nohup /usr/bin/python3.6 -u  Main.py -e 30 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g 0 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
+
+#for RP in ${RPT[*]} ;do
+#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
+#    GPU=$(($(($GPU+1%2))%2))
+#done
+
+
+
 WHERE="Barcelona"
-TEST="DEV"
+#nohup /usr/bin/python3.6 -u  Main.py -e 22 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g 1 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
+
+#for RP in ${RPT[*]} ;do
+#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
+#    GPU=$(($(($GPU+1%2))%2))
+#done
 
 
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 1 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_1_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 1 -usr 5 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_2_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 1 -usr 10 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_3_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 1 -usr 15 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_4_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 0 -usr 3 -rst 3 > "out/16_01_2019/"$WHERE"_"$TEST"_5_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 0 -usr 3 -rst 5 > "out/16_01_2019/"$WHERE"_"$TEST"_6_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 0 -usr 3 -rst 10 > "out/16_01_2019/"$WHERE"_"$TEST"_7_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -imgs 1 -m 2 -g 0 -usr 3 -rst 15 > "out/16_01_2019/"$WHERE"_"$TEST"_8_img.gs" &
+WHERE="Madrid"
+#nohup /usr/bin/python3.6 -u  Main.py -e 144 -lr 1e-5 -d 0.8 -c "$WHERE" -m 45 -g 0 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
+
+
+#for RP in ${RPT[*]} ;do
+#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
+#    GPU=$(($(($GPU+1%2))%2))
+#done

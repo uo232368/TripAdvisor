@@ -1,32 +1,30 @@
-#!/bin/sh
+#!/bin/bash
 
-# 12_11_2018
+# 20/02/2019
 ########################################################################################################################
 
-
-WHERE="Barcelona"
 TEST="DEV"
 
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -lr 1e-7 -m 3 -g 1 -imgs 1 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_IMGS.gs" &
+GPU=0
+NEG="10+10"
+RATES="1e-3"
 
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -lr 1e-4 1e-5 1e-6 1e-7 -m 3 -g 1 -imgs 1 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_IMGS.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -lr 1e-3 1e-4 1e-5 1e-6 -m 3 -g 1 -imgs 0 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST".gs" &
+PLACES=("Madrid")
+DPOUTS=( 0.8 )
+MODELS=( 45 )
+RPT=(  )
 
-exit
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 0 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_1.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 0 -usr 5 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_2.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 0 -usr 10 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_3.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 0 -usr 15 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_4.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 1 -usr 3 -rst 3 > "out/16_01_2019/"$WHERE"_"$TEST"_5.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 1 -usr 3 -rst 5 > "out/16_01_2019/"$WHERE"_"$TEST"_6.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 1 -usr 3 -rst 10 > "out/16_01_2019/"$WHERE"_"$TEST"_7.gs" &
-#nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -d 0.5 -m 2 -g 1 -usr 3 -rst 15 > "out/16_01_2019/"$WHERE"_"$TEST"_8.gs" &
 
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 1 -usr 3 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_1_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 1 -usr 5 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_2_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 1 -usr 10 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_3_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 1 -usr 15 -rst 0 > "out/16_01_2019/"$WHERE"_"$TEST"_4_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 0 -usr 3 -rst 3 > "out/16_01_2019/"$WHERE"_"$TEST"_5_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 1 -usr 3 -rst 5 > "out/16_01_2019/"$WHERE"_"$TEST"_6_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 0 -usr 3 -rst 10 > "out/16_01_2019/"$WHERE"_"$TEST"_7_img.gs" &
-nohup /usr/bin/python3.6 -u  Main.py -c $WHERE -imgs 1 -m 2 -g 0 -usr 3 -rst 15 > "out/16_01_2019/"$WHERE"_"$TEST"_8_img.gs" &
+for WHERE in ${PLACES[*]} ;do
+    for DP in ${DPOUTS[*]} ;do
+        for MODEL in ${MODELS[*]} ;do
+            for RP in ${RPT[*]} ;do
+
+                #echo "$WHERE"_"$TEST"_"$MODEL"_"$DP"_"$RATES"
+                nohup /usr/bin/python3.6 -u  Main.py -stage "grid" -d $DP -lr $RATES -lrdcay "linear_cosine" -e 100 -c $WHERE -m $MODEL -g $GPU -pref "$NEG" > "out/20_02_2019/"$WHERE"_"$TEST"_"$MODEL"_"$DP"_"$RATES"_"$RP".gs" &
+
+                GPU=$(($(($GPU+1%2))%2))
+           done
+        done
+    done
+done

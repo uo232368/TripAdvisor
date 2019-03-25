@@ -3,10 +3,12 @@
 from Option2 import Option2
 from Option2 import Option2Helper
 
+import os
 import time
 import pandas as pd
 import keras
 import tensorflow as tf
+from keras import backend as K
 from keras.models import Model
 from keras.preprocessing import image
 from keras.backend.tensorflow_backend import set_session
@@ -52,7 +54,7 @@ def loadNet(NET):
 def init():
 
     NET = "RESV2"
-    CITY = "Barcelona"
+    CITY = "Madrid"
     LOWRES= True
 
     #PATH = "../data/" + CITY.lower() + "_data/"
@@ -61,22 +63,23 @@ def init():
     if(LOWRES):IMG_PATH = PATH+"images_lowres/"
 
 
-    tst = pd.read_pickle(PATH+"img-option2-new.pkl")
-    print(len(tst))
-    exit()
+    tstn = pd.read_pickle(PATH+"img-option2-new.pkl")
+    tst = pd.read_pickle(PATH+"img-option2.pkl")
 
-    data = pd.read_pickle(PATH + "reviews.pkl")
-    data["num_images"] = data.images.apply(lambda x: len(x))
-    data = data.loc[data.num_images > 0]
-
-    data = tst.merge(data, right_on="reviewId",left_on="review")
-    data["img_url"] = data.apply(lambda x: x.images[x.image - 1]['image_url_lowres'], axis=1)
-
-    print(tst)
+    print(len(tst), len(tstn))
     exit()
     
 
-    '''
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = str("1")
+
+    # Utilizar solo memoria GPU necesaria
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
+
+    sess = tf.Session(graph=tf.get_default_graph(), config=config)
+    K.set_session(sess)
+
 
     n_threads = 25 #25
     threads = []
@@ -111,7 +114,7 @@ def init():
 
     pkl = pd.read_pickle(PATH+"img-option2-new.pkl")
     print(len(pkl))
-    '''
+
 
 
 if __name__ == "__main__":

@@ -1,205 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="Cambios del 25/03/2019">
-      <change afterPath="$PROJECT_DIR$/ModelV4D.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelV4D2.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelV4_1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelV4_1_DEEP.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ModelV4_DEEP.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsBarcelona_DEV.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsBarcelona_TEST.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsGijon_DEV.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsGijon_TEST.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsMadrid_DEV.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/BaselineModelsMadrid_TEST.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Barcelona_byRestaurant.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Barcelona_byUser.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Gijon_byRestaurant.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Gijon_byUser.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Madrid_byRestaurant.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/docs/20_02_2019/modelv4d2_Madrid_byUser.xls" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/img_emb/Autoencoder.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_42_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_42_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_42_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_42_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_43_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_43_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_43_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Barcelona_43_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_41_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_41_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_41_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_41_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_42_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_42_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_42_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_42_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_43_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_43_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_43_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_43_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_4_DEV_10+10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_4_DEV_10.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_4_DEV_20.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/DotProd/Gijon_4_DEV_5+5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-3_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-4_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_DEV_45_0.8_1e-5_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_TEST_3.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Barcelona_TEST_4.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-3_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-4_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_DEV_45_0.8_1e-5_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_TEST_3.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Gijon_TEST_4.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-3_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-4_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_DEV_45_0.8_1e-5_4.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_TEST_3.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrDecay_Repeticiones/Madrid_TEST_4.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_44_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_44_0.5_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_44_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_44_0.8_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_44_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_45_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_45_0.5_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_45_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_45_0.8_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_DEV_45_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Barcelona_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_44_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_44_0.5_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_44_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_44_0.8_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_44_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_45_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_45_0.5_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_45_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_45_0.8_6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_DEV_45_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Gijon_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_44_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_44_0.5_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_44_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_44_0.8_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_44_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_45_0.5_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_45_0.5_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_45_0.8_2&amp;3&amp;4&amp;5.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_45_0.8_6_(100x20).gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_DEV_45_1.0_2&amp;3&amp;4&amp;5&amp;6.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo/Madrid_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_DEV_45_0.8_1e-5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Barcelona_TEST_3.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_DEV_45_0.8_5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Gijon_TEST_3.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-3_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-3_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-3_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-3_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-4_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-4_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-4_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-4_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-5_0.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-5_1.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-5_2.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_DEV_45_0.8_1e-5_3.gs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_TEST.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_TEST_0.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_TEST_1.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_TEST_2.tst" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/out/20_02_2019/Final_LrFijo_Repeticiones/Madrid_TEST_3.tst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ModelClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelClass.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ModelV4.py" beforeDir="false" afterPath="$PROJECT_DIR$/ModelV4.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/download/DownloadData.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/download/DownloadData.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gridsearch.sh" beforeDir="false" afterPath="$PROJECT_DIR$/gridsearch.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img_emb/ImageEmbedding.py" beforeDir="false" afterPath="$PROJECT_DIR$/img_emb/ImageEmbedding.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/img_emb/nohup.out" beforeDir="false" afterPath="$PROJECT_DIR$/img_emb/nohup.out" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.sh" beforeDir="false" />
-    </list>
+    <list default="true" id="6f6499d3-312c-472c-babe-fe50d7857b47" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -243,17 +45,17 @@
           <entry key="Python Console" value="20927" />
           <entry key="dummy" value="7" />
           <entry key="md" value="17596" />
-          <entry key="py" value="78289" />
+          <entry key="py" value="78291" />
           <entry key="sh" value="2394" />
-          <entry key="txt" value="525" />
+          <entry key="txt" value="557" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Bash" value="2394" />
           <entry key="Markdown" value="17596" />
-          <entry key="PLAIN_TEXT" value="532" />
-          <entry key="Python" value="99216" />
+          <entry key="PLAIN_TEXT" value="564" />
+          <entry key="Python" value="99218" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -375,105 +177,13 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ModelV5.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="348">
-              <caret line="151" column="57" lean-forward="true" selection-start-line="151" selection-start-column="57" selection-end-line="151" selection-end-column="57" />
+            <state relative-caret-position="263">
+              <caret line="152" column="26" lean-forward="true" selection-start-line="152" selection-start-column="26" selection-end-line="152" selection-end-column="26" />
               <folding>
                 <element signature="e#632#915#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/docs/CHANGELOG.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="278">
-                <caret line="577" column="10" lean-forward="true" selection-start-line="577" selection-start-column="10" selection-end-line="577" selection-end-column="10" />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelV4D2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1524">
-              <caret line="106" column="12" selection-start-line="106" selection-start-column="12" selection-end-line="106" selection-end-column="12" />
-              <folding>
-                <element signature="e#261#547#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/ModelV4.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="188">
-              <caret line="90" column="41" selection-start-line="90" selection-start-column="41" selection-end-line="90" selection-end-column="41" />
-              <folding>
-                <element signature="e#287#414#0" />
-                <element signature="e#449#3618#0" />
-                <element signature="e#551#3596#0" />
-                <element signature="e#3706#4129#0" />
-                <element signature="e#4381#4447#0" />
-                <element signature="e#4912#5085#0" />
-                <element signature="e#5095#5158#0" />
-                <element signature="e#5528#5789#0" />
-                <element signature="e#6487#7876#0" />
-                <element signature="e#6706#7810#0" />
-                <element signature="e#6944#7381#0" />
-                <element signature="e#7647#7676#0" />
-                <element signature="e#7906#12193#0" />
-                <element signature="e#7934#8157#0" />
-                <element signature="e#8636#9309#0" />
-                <element signature="e#8827#9080#0" />
-                <element signature="e#9522#10009#0" />
-                <element signature="e#10109#12116#0" />
-                <element signature="e#11253#11385#0" />
-                <element signature="e#11685#11981#0" />
-                <element signature="e#12251#12796#0" />
-                <element signature="e#12277#12413#0" />
-                <element signature="e#12827#13011#0" />
-                <element signature="e#12863#12943#0" />
-                <element signature="e#13188#14944#0" />
-                <element signature="e#13677#13729#0" />
-                <element signature="e#14759#14900#0" />
-                <element signature="e#14978#27989#0" />
-                <element signature="e#15017#17231#0" />
-                <element signature="e#15054#16246#0" />
-                <element signature="e#15095#15540#0" />
-                <element signature="e#15391#15510#0" />
-                <element signature="e#16343#16424#0" />
-                <element signature="e#17282#21240#0" />
-                <element signature="e#17325#19728#0" />
-                <element signature="e#17626#19473#0" />
-                <element signature="e#17940#18632#0" />
-                <element signature="e#18248#18632#0" />
-                <element signature="e#18697#19189#0" />
-                <element signature="e#18697#18764#0" />
-                <element signature="e#19808#20439#0" />
-                <element signature="e#19879#19919#0" />
-                <element signature="e#20610#21152#0" />
-                <element signature="e#20689#20737#0" />
-                <element signature="e#21287#22738#0" />
-                <element signature="e#21330#21749#0" />
-                <element signature="e#21892#22171#0" />
-                <element signature="e#22331#22629#0" />
-                <element signature="e#22748#22860#0" />
-                <element signature="e#23430#23541#0" />
-                <element signature="e#23795#24340#0" />
-                <element signature="e#24397#24510#0" />
-                <element signature="e#24850#24934#0" />
-                <element signature="e#25118#25132#0" />
-                <element signature="e#26554#26610#0" />
-                <element signature="e#26778#26816#0" />
-                <element signature="e#27028#27080#0" />
               </folding>
             </state>
           </provider>
@@ -586,9 +296,9 @@
         <option value="$PROJECT_DIR$/ModelClass.py" />
         <option value="$PROJECT_DIR$/pruebas.sh" />
         <option value="$PROJECT_DIR$/img_emb/Autoencoder.py" />
-        <option value="$PROJECT_DIR$/ModelV5.py" />
         <option value="$PROJECT_DIR$/Main.py" />
         <option value="$PROJECT_DIR$/docs/CHANGELOG.md" />
+        <option value="$PROJECT_DIR$/ModelV5.py" />
       </list>
     </option>
   </component>
@@ -1132,7 +842,14 @@
       <option name="project" value="LOCAL" />
       <updated>1550835755545</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="Cambios modelo final (con documentación)">
+      <created>1553507850518</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1553507850519</updated>
+    </task>
+    <option name="localTasksCounter" value="45" />
     <servers />
   </component>
   <component name="TodoView">
@@ -1148,12 +865,12 @@
     <frame x="1920" y="31" width="1920" height="1128" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.21011059" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.495283" visible="true" weight="0.21011059" />
       <window_info id="Structure" order="1" sideWeight="0.504717" side_tool="true" weight="0.11005793" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32821497" />
-      <window_info anchor="bottom" x="4" y="138" width="1920" height="1017" id="Run" order="2" sideWeight="0.61769354" visible="true" weight="0.50338817" />
+      <window_info anchor="bottom" x="4" y="138" width="1920" height="1017" id="Run" order="2" sideWeight="0.61769354" weight="0.50338817" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.6219063" weight="0.53630203" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -1211,7 +928,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="GridSearch" />
     <MESSAGE value="Añadida documentación y test de semilla" />
     <MESSAGE value="· Eliminado test semilla&#10;· Cambiada proporcion de clase 1 y 0 en TRAIN&#10;· Añadido método para guardar datos y no regenerar cada vez" />
     <MESSAGE value="Cambios del 2/10/2018" />
@@ -1236,7 +952,8 @@
     <MESSAGE value="Cambios del 31/01/2019 (Prueba &quot;interna&quot;)" />
     <MESSAGE value="Cambios del 08/03/2019" />
     <MESSAGE value="Cambios del 15 y 20/02/2019" />
-    <option name="LAST_COMMIT_MESSAGE" value="Cambios del 15 y 20/02/2019" />
+    <MESSAGE value="Cambios modelo final (con documentación)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cambios modelo final (con documentación)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1732,6 +1449,16 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
           <caret line="267" column="56" selection-start-line="267" selection-start-column="56" selection-end-line="267" selection-end-column="56" />
+          <folding>
+            <element signature="e#25#37#0" expanded="true" />
+            <element signature="e#818#2407#0" />
+            <element signature="e#2476#4340#0" />
+            <element signature="e#4366#4665#0" />
+            <element signature="e#4688#5781#0" />
+            <element signature="e#5834#6380#0" />
+            <element signature="e#6415#7282#0" />
+            <element signature="e#9551#10644#0" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -1762,16 +1489,6 @@
             <element signature="e#25#40#0" expanded="true" />
             <element signature="e#2682#3162#0" />
             <element signature="e#3307#4373#1" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/ModelV5.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="348">
-          <caret line="151" column="57" lean-forward="true" selection-start-line="151" selection-start-column="57" selection-end-line="151" selection-end-column="57" />
-          <folding>
-            <element signature="e#632#915#0" />
           </folding>
         </state>
       </provider>
@@ -1859,6 +1576,16 @@
             <caret line="577" column="10" lean-forward="true" selection-start-line="577" selection-start-column="10" selection-end-line="577" selection-end-column="10" />
           </first_editor>
           <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ModelV5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="263">
+          <caret line="152" column="26" lean-forward="true" selection-start-line="152" selection-start-column="26" selection-end-line="152" selection-end-column="26" />
+          <folding>
+            <element signature="e#632#915#0" />
+          </folding>
         </state>
       </provider>
     </entry>

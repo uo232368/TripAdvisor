@@ -26,7 +26,7 @@ class ModelV4D2(ModelV4):
             emb_size = self.CONFIG['emb_size']
             usr_emb_size=emb_size #512
             rst_emb_size=emb_size//2   #256
-            img_emb_size=emb_size//2   #256
+            img_emb_size= emb_size//2   #256
 
             concat_size = usr_emb_size + rst_emb_size + img_emb_size
 
@@ -129,3 +129,52 @@ class ModelV4D2(ModelV4):
 
 
         return graph
+
+    def getDataStats(self):
+
+        def getNumbers(data, title=""):
+            print(title.upper() + "\t" + "# USR\t" + str(len(data.id_user.unique())))
+            print(title.upper() + "\t" + "# RST\t" + str(len(data.id_restaurant.unique())))
+            print(title.upper() + "\t" + "# FTS\t" + str(len(data.id_img.unique())))
+
+        file_path = self.PATH + "MODELV4"
+        split_file_path = file_path + "/original/"
+        file_path += "/data_" + str(self.CONFIG['neg_examples']) + "/"
+
+        print("\n")
+        print(self.CITY.upper())
+        print("-"*50)
+
+        RVW = self.getPickle(split_file_path,"TRAIN_TEST")
+
+        getNumbers(RVW, "todo")
+        getNumbers(self.getPickle(split_file_path,"TRAIN"), "train")
+        getNumbers(self.getPickle(split_file_path,"DEV"), "dev ")
+        getNumbers(self.getPickle(split_file_path,"TEST"), "test")
+
+        print("-"*50)
+
+        # Número de reviews de cada usuario
+        STS0 = RVW.groupby('id_user').apply(lambda x: pd.Series({"reviews": len(x.id_restaurant.unique())})).reset_index()
+        #self.plothist(STS0, "reviews", title="Número de reviews por usuario ("+self.CITY+")", bins=20, save="stats/" + self.DATE + "/" + self.CITY.lower() + "_hist_rvws_pr_usr.pdf")
+        self.plothist(STS0, "reviews", title="", titleX="Num. of reviews", titleY="Num. of users", bins=20, save="stats/" + self.DATE + "/" + self.CITY.lower() + "_hist_rvws_pr_usr.pdf")
+
+        # Número de reviews de cada restaurante
+        STS1 = RVW.groupby('id_restaurant').apply(lambda x: pd.Series({"reviews": len(x.id_user.unique())})).reset_index()
+        #self.plothist(STS1,"reviews",title="Número de reviews de cada restaurante ("+self.CITY+")", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_rvws_pr_rst.pdf")
+        self.plothist(STS1,"reviews",title="", titleX="Num. of reviews", titleY="Num. of restaurants", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_rvws_pr_rst.pdf")
+
+        # Numero de fotos de cada review
+        STS2 = RVW.groupby(['id_restaurant', 'id_user']).apply(lambda x: pd.Series({"fotos": len(x)})).reset_index()
+        #self.plothist(STS2,"fotos",title="Número de fotos de cada review ("+self.CITY+")", bins=10, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_rvw.pdf")
+        self.plothist(STS2,"fotos",title="", titleX="Num. of photos", titleY="Num. of reviews", bins=5, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_rvw.pdf")
+
+        # Numero de fotos de cada restaurante
+        STS3 = RVW.groupby('id_restaurant').apply(lambda x: pd.Series({"fotos": len(x)})).reset_index()
+        #self.plothist(STS3,"fotos",title="Número de fotos de cada restaurante ("+self.CITY+")", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_rst.pdf")
+        self.plothist(STS3,"fotos",title="", titleX="Num. of photos", titleY="Num. of restaurants", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_rst.pdf")
+
+        # Numero de fotos por usuario
+        STS4 = RVW.groupby('id_user').apply(lambda x: pd.Series({"fotos": len(x.id_img.unique())})).reset_index()
+        #self.plothist(STS4,"fotos",title="Número de fotos de cada usuario ("+self.CITY+")", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_usr.pdf")
+        self.plothist(STS4,"fotos",title="", titleX="Num. of photos", titleY="Num. of users", bins=20, save="stats/"+self.DATE+"/"+self.CITY.lower()+"_hist_fotos_pr_usr.pdf")

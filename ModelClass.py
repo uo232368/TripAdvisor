@@ -13,6 +13,7 @@ import math
 import signal, sys
 import hashlib
 import itertools as it
+import urllib
 
 import random as rn
 from PIL import Image
@@ -113,6 +114,7 @@ class ModelClass():
         rn.seed(self.SEED)
         tf.set_random_seed(self.SEED)
 
+        '''
         #Utilizar solo memoria GPU necesaria
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -122,10 +124,11 @@ class ModelClass():
 
         sess = tf.Session(graph=tf.get_default_graph(), config=config)
         K.set_session(sess)
+        '''
 
         self.printB("Obteniendo datos...")
 
-        train,train_dev, dev,test,img, n_rest, n_usr, v_img = self.getData()
+        train,train_dev, dev,test,img,urls, n_rest, n_usr, v_img = self.getData()
 
         self.TRAIN = train
         self.TRAIN_DEV = train_dev
@@ -133,6 +136,7 @@ class ModelClass():
         self.TEST = test
 
         self.IMG = img
+        self.URLS = urls
 
         self.N_RST = n_rest
         self.N_USR = n_usr
@@ -141,7 +145,7 @@ class ModelClass():
         self.printB("Creando modelo...")
 
         self.MODEL_PATH = "models/"+self.MODEL_NAME+"_" + self.CITY.lower() + "_option" + str(self.OPTION)
-        self.MODEL = self.getModel()
+        #self.MODEL = self.getModel()
         self.SESSION = None
 
         print("\n")
@@ -275,6 +279,8 @@ class ModelClass():
             self.printE("Ya existe el modelo. Utilizar predict")
             exit()
 
+        self.MODEL = self.getModel()
+
         # Configurar y crear sesion
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -317,6 +323,8 @@ class ModelClass():
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
 
+        self.MODEL = self.getModel()
+
         with tf.Session(graph=self.MODEL, config=config) as session:
             # Restore variables from disk.
             saver = tf.train.Saver()
@@ -334,48 +342,6 @@ class ModelClass():
             self.gridSearchPrint(-1, -1, test_ret[0])
 
     #- STATS -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
-
-    def getDataStats(self):
-
-        print("NO UTILIZAR; DESACTUALIZADO")
-
-        file = open("out.tsv", "w")
-
-        RVW = pd.read_pickle(self.PATH + "reviews.pkl")
-        RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
-        RVW["num_images"] = RVW.images.apply(lambda x: len(x))
-
-        RVW = RVW.loc[(RVW.userId != "")]
-
-        # Todos los usuarios
-        ALL_USR_LST = RVW.groupby("userId", as_index=False).count()
-
-        # Usuarios con X reviews mínimo
-        USR_LST = ALL_USR_LST.loc[(ALL_USR_LST.like >= 5), "userId"].values
-        RVW = RVW.loc[RVW.userId.isin(USR_LST)]
-
-        RVW_USR = RVW.groupby('userId')
-
-        print(len(ALL_USR_LST),len(USR_LST))
-
-
-        for i,r in RVW_USR:
-            usr = i
-            total = len(r)
-            pos = sum(r.like.values)
-            neg = total - pos
-
-            imgs = r.loc[(r.num_images > 0)]
-
-            total_imgs = len(imgs)
-            pos_imgs = sum(imgs.like.values)
-            neg_imgs = total_imgs - pos_imgs
-
-            log = "\t".join(map(lambda x: str(x), [usr, pos, neg, pos_imgs, neg_imgs])) + "\n"
-
-            file.write(log)
-
-        file.close()
 
     def getTailGraph(self):
 
@@ -717,15 +683,20 @@ class ModelClass():
         img = img.convert('L')
         img.save(path+".png")
 
-    def plothist(self, data, column,title="Histogram", bins=10, save=None):
+    def plothist(self, data, column,title="Histogram",titleX="X Axis", titleY="Y Axis", bins=10, save=None):
 
         plt.ioff()
 
         items = bins
 
-        plt.hist(data[str(column)], bins=range(1, items + 2), edgecolor='black')  # arguments are passed to np.histogram
-        plt.xticks(range(1, items + 1))
+        plt.hist(data[str(column)], bins=range(1, items + 2), edgecolor='black',align="left")  # arguments are passed to np.histogram
+        labels = list(map(lambda x: str(x),range(1, items + 1)))
+        labels[-1] = "≥"+labels[-1]
+        plt.xticks(range(1, items + 1),labels)
         plt.title(str(title))
+
+        plt.xlabel(titleX)
+        plt.ylabel(titleY)
 
         if(save is None):plt.show()
         else: plt.savefig(str(save) )

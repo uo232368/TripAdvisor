@@ -62,7 +62,7 @@ En la segunda fase se refina el modelo anterior **partiendo de los pesos aprendi
 
 Se ha de entrenar con un **learning-rate menor `lr/2` al de la fase 1** para evitar cambios bruscos que alteren en gran medida lo aprendido previamente.
 
-El **conjunto de datos** ha de ser exactamente el mismo **de la fase 1** pero en el **TRAIN** hay que eliminar auquellas valoraciones **sin imágenes**.
+El **conjunto de datos** ha de ser exactamente el mismo **de la fase 1** pero en el **TRAIN** hay que eliminar aquellas valoraciones **sin imágenes**.
 
 ### 1.2.3 Características
 * Loss: `BIN_XENTROPY`
@@ -530,6 +530,7 @@ El conjunto de evaluación (tanto `DEV` como `TEST`) tendrá, para cada review:
 El objetivo es ver que valoración da el modelo a cada una de las fotos del restaurante incluidas las del usuario (`n` en total) y, ordenando las valoraciones de mayor a menor, obtener la posición de la primera foto del usuario `p`.
 Con esta posición se calculará el percentil (`p\n`) y el percentil comenzando en cero (`(p-1)\n`).
 
+
 Destacar que en los conjuntos de evaluación, cada usuario está solamente una vez dada la forma de separar; ver siguiente apartado.
 
 ### Creación de conjuntos
@@ -551,7 +552,7 @@ Partiendo de los conjuntos anteriores, es necesario llevar a cabo una adaptació
 En el caso del conjunto de entrenamiento, partiendo del conjunto de `TRAIN` o `TRAIN_DEV` anteriores se crearán nuevos de la siguiente forma:
 * Para cada **fila** (usuario, restaurante, foto 1)
 * Crear preferencias con las 10 fotos (o menos, si no hay 10) más alejadas a la actual (foto 1) de otros usuarios dentro del **restaurante actual**.
-* Crear preferencias con las 10 fotos (o menos, si no hay 10) más alejadas a la actual (foto 1) de otros usuarios en **otros restaurantes**.
+* Crear preferencias con 10 fotos (o menos, si no hay 10) de otros usuarios en **otros restaurantes**.
 
 Finalmente, para la evaluación se han de crear nuevos conjuntos partiendo de `DEV` y `TEST` de la siguiente forma:
 * Para cada **review** ((usuario, restaurante, foto 1), (usuario, restaurante, foto 2)... ), marcar las imágenes existentes como 'fotos reales del usuario `u`' 

@@ -1,20 +1,29 @@
 # -*- coding: utf-8 -*-
 from ModelClass import *
 
-import requests
-import PIL
-from io import BytesIO
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential, Model
+from keras.optimizers import Adam
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 ########################################################################################################################
 
-class ModelV4(ModelClass):
+class ModelV5(ModelClass):
 
-    def __init__(self,city,option,config,date,seed = 2,modelName= "modelv4"):
-
+    def __init__(self,city,option,config,date,seed = 2,modelName= "modelv5"):
         ModelClass.__init__(self,city,option,config,modelName,date,seed = seed)
-        self.IMG = np.row_stack(self.IMG.vector.values)
 
     def getModel(self):
+
+        def load_image(path):
+            image = tf.read_file(self.IMG_PATH+ path)
+            image = tf.image.decode_jpeg(image, channels=3)
+            image = tf.image.resize_images(image, [self.CONFIG["img_size"], self.CONFIG["img_size"]])
+            image /= 255.0  # normalize to [0,1] range
+            return image
+
+        img_width = self.CONFIG["img_size"]
+        img_height = img_width
 
         # Creación del grafo de TF.
         graph = tf.Graph()
@@ -24,57 +33,156 @@ class ModelV4(ModelClass):
             tf.set_random_seed(self.SEED)
 
             emb_size = self.CONFIG['emb_size']
+            usr_emb_size=emb_size #512
+            rst_emb_size=emb_size//2   #256
+            img_emb_size=emb_size*2   #1024
 
-            # Número global de iteraciones
+            concat_size = usr_emb_size + rst_emb_size + img_emb_size
+
+            # Variables
             global_step_bin = tf.Variable(0, dtype=tf.int32, trainable=False, name='global_step_bin')
 
             # Datos de entrada -----------------------------------------------------------------------------------------------------------
-            dropout = tf.placeholder_with_default(1.0, shape=(),name='dropout')
+
             is_train = tf.placeholder(tf.bool, name="is_train");
+            dropout = tf.placeholder(tf.float32, name="dropout");
+            batch_size = tf.placeholder(tf.int64, name="batch_size")
 
-            user_input = tf.placeholder(tf.int32, shape=[None, 1], name="user_input")
-            rest_input = tf.placeholder(tf.int32, shape=[None, 1], name="rest_input")
-            rest_input_worst = tf.placeholder(tf.int32, shape=[None, 1], name="rest_input_worst")
+            user_input = tf.placeholder(tf.int32, shape=[None], name="user_input")
+            rest_input = tf.placeholder(tf.int32, shape=[None], name="rest_input")
+            img_input_best = tf.placeholder(tf.string, shape=[None], name="img_input_best")
+            rest_input_worst = tf.placeholder(tf.int32, shape=[None], name="rest_input_worst")
+            img_input_worst = tf.placeholder(tf.string, shape=[None], name="img_input_worst")
 
-            img_input_best = tf.placeholder(tf.float32, shape=[None, self.V_IMG], name="img_input_best")
-            img_input_worst  = tf.placeholder(tf.float32, shape=[None, self.V_IMG], name="img_input_worst")
+            # Crear los datasets correspondientes --------------------------------------------------------------------------
+
+            user_ds = tf.data.Dataset.from_tensor_slices(user_input)
+            rest_ds = tf.data.Dataset.from_tensor_slices(rest_input)
+            img_best_ds = tf.data.Dataset.from_tensor_slices(img_input_best)
+            img_best_ds = img_best_ds.map(load_image, num_parallel_calls=5)
+            rest_worst_ds = tf.data.Dataset.from_tensor_slices(rest_input_worst)
+            img_worst_ds = tf.data.Dataset.from_tensor_slices(img_input_worst)
+            img_worst_ds = img_worst_ds.map(load_image, num_parallel_calls=5)
+
+            #dataset = tf.data.Dataset.zip((user_ds, rest_ds, img_best_ds, rest_worst_ds, img_worst_ds)).batch(batch_size)
+            #dataset = dataset.prefetch(buffer_size=-1)
+
+            B = tf.data.Dataset.zip((user_ds, rest_ds, img_best_ds))
+            B = B.batch(batch_size)
+            B = B.prefetch(buffer_size=-1)
+
+            W = tf.data.Dataset.zip((rest_worst_ds, img_worst_ds))
+            W = W.batch(batch_size)
+            W = W.prefetch(buffer_size=-1)
+
+            # Se crea un iterador indicando el tipo de datos de entrada y el tamaño
+            iter_b = tf.data.Iterator.from_structure(B.output_types, B.output_shapes)
+            iter_w = tf.data.Iterator.from_structure(W.output_types, W.output_shapes)
+
+            user_batch, rest_batch, img_batch_best = iter_b.get_next()
+            rest_batch_worst, img_batch_worst = iter_w.get_next()
+
+            #user_batch, rest_batch, img_batch_best, rest_batch_worst, img_batch_worst = iter.get_next()  # Pedir un batch
+
+            init_iter_b = iter_b.make_initializer(B, name="init_iter_b")  # Operación de inicializar datos
+            init_iter_w = iter_w.make_initializer(W, name="init_iter_w")  # Operación de inicializar datos
+
+
+            def imgNet(input):
+                conv1 = tf.layers.conv2d(inputs=input, filters=32, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv1")
+                conv2 = tf.layers.conv2d(inputs=conv1, filters=32, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv2")
+                conv3 = tf.layers.conv2d(inputs=conv2, filters=32, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv3")
+                conv4 = tf.layers.conv2d(inputs=conv3, filters=32, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv4")
+
+                pool1 = tf.layers.max_pooling2d(inputs=conv4, pool_size=[2, 2], strides=2 )
+
+                conv5 = tf.layers.conv2d(inputs=pool1, filters=64,  kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv5")
+                conv6 = tf.layers.conv2d(inputs=conv5, filters=64,  kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv6")
+                conv7 = tf.layers.conv2d(inputs=conv6, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE,  name="conv7")
+                conv8 = tf.layers.conv2d(inputs=conv7, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE,  name="conv8")
+                conv9 = tf.layers.conv2d(inputs=conv8, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE,  name="conv9")
+                conv10 = tf.layers.conv2d(inputs=conv9, filters=64, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv10")
+
+                pool2 = tf.layers.max_pooling2d(inputs=conv10, pool_size=[2, 2], strides=2 )
+
+                conv11 = tf.layers.conv2d(inputs=pool2, filters=128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv11")
+                conv12 = tf.layers.conv2d(inputs=conv11, filters=128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv12")
+                conv13 = tf.layers.conv2d(inputs=conv12, filters=128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv13")
+                conv14 = tf.layers.conv2d(inputs=conv13, filters=128, kernel_size=[3, 3], padding="same", activation=tf.nn.relu,reuse=tf.AUTO_REUSE, name="conv14")
+
+                flat1 = tf.layers.flatten(inputs=conv14, name="flat1")
+                dense1 = tf.layers.dense(inputs=flat1, units=img_emb_size*2, activation=tf.nn.relu, reuse=tf.AUTO_REUSE, name="dense1")
+                dop1 = tf.layers.dropout(inputs=dense1, rate=dropout,  name="dop1")
+                #dense2 = tf.layers.dense(inputs=dop1, units=emb_size, activation=tf.nn.relu, reuse=tf.AUTO_REUSE, name="dense2")
+                #dop2 = tf.layers.dropout(inputs=dense2, rate=dropout,  name="dop2")
+                out = tf.layers.dense(inputs=dop1, units=img_emb_size, activation=tf.nn.relu, reuse=tf.AUTO_REUSE, name="dense3")
+                #out = tf.reduce_mean(conv6, axis=[1, 2])
+                return out
+
+            img_emb_best = imgNet(img_batch_best)
+            img_emb_worst = imgNet(img_batch_worst)
 
             # Embeddings -----------------------------------------------------------------------------------------------------------------
 
-            E1 = tf.Variable(tf.truncated_normal([self.N_USR, emb_size], mean=0.0, stddev=1.0 / math.sqrt(emb_size)),name="E1")
-            E2 = tf.Variable(tf.truncated_normal([self.N_RST, emb_size], mean=0.0, stddev=1.0 / math.sqrt(emb_size)),name="E2")
-            E3 = tf.Variable(tf.truncated_normal([self.V_IMG, emb_size*2], mean=0.0, stddev=1.0 / math.sqrt(emb_size*2)),name="E3")
+            E1 = tf.Variable(tf.truncated_normal([self.N_USR, usr_emb_size], mean=0.0, stddev=1.0 / math.sqrt(usr_emb_size)),name="E1")
+            E2 = tf.Variable(tf.truncated_normal([self.N_RST, rst_emb_size], mean=0.0, stddev=1.0 / math.sqrt(rst_emb_size)),name="E2")
 
-            # Operaciones -----------------------------------------------------------------------------------------------------------------
+            T0 = tf.Variable(tf.truncated_normal([concat_size,emb_size], mean=0.0, stddev=1.0 / math.sqrt(emb_size)),name="T0")
+            T1 = tf.Variable(tf.truncated_normal([emb_size,emb_size//2], mean=0.0, stddev=1.0 / math.sqrt(emb_size//2)),name="T1")
+            T2 = tf.Variable(tf.truncated_normal([emb_size//2,emb_size//4], mean=0.0, stddev=1.0 / math.sqrt(emb_size//4)),name="T2")
+            T3 = tf.Variable(tf.truncated_normal([emb_size//4,1], mean=0.0, stddev=1.0 / math.sqrt(1)),name="T3")
 
-            user_emb = tf.nn.embedding_lookup(E1, user_input[:,0])
-            rest_emb = tf.nn.embedding_lookup(E2, rest_input[:,0])
+            bst0 = tf.Variable(tf.zeros(emb_size),name="bt0")
+            bst1 = tf.Variable(tf.zeros(emb_size//2),name="bt1")
+            bst2 = tf.Variable(tf.zeros(emb_size//4),name="bt2")
 
-            rest_worst_emb = tf.nn.embedding_lookup(E2, rest_input_worst[:,0])
+            # Operaciones entrada --------------------------------------------------------------------------------------
 
-            img_emb_best = tf.matmul(img_input_best, E3, name='img_emb_best')
-            img_emb_worst = tf.matmul(img_input_worst, E3, name='img_emb_worst')
+            user_emb = tf.nn.embedding_lookup(E1, user_batch)
+            rest_emb = tf.nn.embedding_lookup(E2, rest_batch)
+            rest_worst_emb = tf.nn.embedding_lookup(E2, rest_batch_worst)
 
-            user_rest_emb = tf.concat([user_emb,rest_emb],axis=1, name="user_rest_emb")
-            user_rest_emb_worst = tf.concat([user_emb,rest_worst_emb],axis=1, name="user_rest_emb_worst")
+            # Operaciones capas ocultas --------------------------------------------------------------------------------------------
+
+            best_concat = tf.concat([user_emb,rest_emb,img_emb_best],axis=1)
+            best_concat = tf.nn.dropout(best_concat, name='best_concat', keep_prob=dropout)
+
+            worst_concat = tf.concat([user_emb,rest_worst_emb,img_emb_worst],axis=1)
+            worst_concat = tf.nn.dropout(worst_concat, name='worst_concat', keep_prob=dropout)
+
+            bt0 = tf.nn.dropout(tf.nn.relu(tf.matmul(best_concat, T0)+bst0),keep_prob=dropout, name='bt0')
+            bt1 = tf.nn.dropout(tf.nn.relu(tf.matmul(bt0, T1)+bst1),keep_prob=dropout, name='bt1')
+            bt2 = tf.nn.dropout(tf.nn.relu(tf.matmul(bt1, T2)+bst2),keep_prob=dropout, name='bt2')
+            best_out = tf.matmul(bt2, T3, name='dot_best')
+
+            #bt2 = tf.nn.dropout(tf.nn.relu(tf.matmul(bt0, T12) + bst12), keep_prob=dropout, name='bt2')
+
+            wt0 = tf.nn.dropout(tf.nn.relu(tf.matmul(worst_concat, T0)+bst0),keep_prob=dropout,name='wt0')
+            wt1 = tf.nn.dropout(tf.nn.relu(tf.matmul(wt0, T1)+bst1),keep_prob=dropout,name='wt1')
+            wt2 = tf.nn.dropout(tf.nn.relu(tf.matmul(wt1, T2)+bst2),keep_prob=dropout,name='wt2')
+
+            #wt3 = tf.nn.dropout(tf.nn.relu(tf.matmul(wt2, T3)+bst3),keep_prob=dropout,name='wt3')
+            #worst_out = tf.matmul(wt3, T4, name='dot_worst')
+
+            worst_out = tf.matmul(wt2, T3, name='dot_worst')
+
+            #wt2 = tf.nn.dropout(tf.nn.relu(tf.matmul(wt0, T12) + bst12), keep_prob=dropout, name='wt2')
 
             # Cálculo de LOSS y optimizador ----------------------------------------------------------------------------------------------
 
-            dot_best = tf.reduce_sum(tf.multiply(user_rest_emb, img_emb_best), 1, keepdims=True, name="dot_best")
-            dot_worst = tf.reduce_sum(tf.multiply(user_rest_emb_worst, img_emb_worst), 1, keepdims=True, name="dot_worst")
+            batch_loss = tf.math.maximum(0.0,1-(best_out-worst_out), name="batch_loss")
+            loss = tf.reduce_sum(batch_loss, name="loss")
 
-            batch_loss = tf.math.maximum(0.0,1-(dot_best-dot_worst), name="batch_loss")
-            loss = tf.reduce_sum(batch_loss)
+            decay_steps = (len(self.TRAIN) // self.CONFIG["batch_size"]) * self.CONFIG["epochs"]
+            learning_rate = tf.train.linear_cosine_decay(self.CONFIG['learning_rate'], global_step_bin, decay_steps,name="learning_rate")
 
-            adam = tf.train.AdamOptimizer(name='train_step_bin',learning_rate=self.CONFIG['learning_rate'])
+            adam = tf.train.AdamOptimizer(name='train_step_bin',learning_rate=learning_rate)
             train_step_bin = adam.minimize(loss=loss, global_step=global_step_bin)
 
-            # Crear objeto encargado de almacenar la red
-            saver = tf.train.Saver(max_to_keep=1)
 
         return graph
 
-    def getBaselines(self, test=False):
+    def getBaselines(self):
 
         def getPos(data, ITEMS):
             g = data.copy()
@@ -103,8 +211,9 @@ class ModelV4(ModelClass):
 
         # Obtener el conjunto de TRAIN original
         path = self.DATA_PATH+ "original/"
-        if(test==False):TRAIN = self.getPickle(path, "TRAIN")
-        else:TRAIN = self.getPickle(path, "TRAIN_DEV")
+        TRAIN = self.getPickle(path, "TRAIN")
+
+        # ToDo: CUANDO SE ENTRENE EL MODELO FINAL; HAY QUE CALCULAR ESTO SOBRE TRAIN_DEV PARA TEST
 
         for i, g in TRAIN.groupby("id_restaurant"):
             all_c = self.IMG[g.id_img.values, :]
@@ -117,10 +226,7 @@ class ModelV4(ModelClass):
 
         RET = pd.DataFrame(columns=["id_user","id_restaurant","n_photos","n_photos_dev","cnt_pos","rnd_pos"])
 
-        if (test == False):ITEMS = self.DEV
-        else:ITEMS = self.TEST
-
-        for i, g in ITEMS.groupby("id_user"):
+        for i, g in self.DEV.groupby("id_user"):
 
             cnt_pos = getPos(g,RST_CNTS)
             rnd_pos = getRndPos(g)
@@ -134,7 +240,7 @@ class ModelV4(ModelClass):
         RET["PCNT_RND"] = RET.apply(lambda x: x.rnd_pos/x.n_photos , axis=1)
         RET["PCNT-1_RND"] = RET.apply(lambda x: (x.rnd_pos-1)/x.n_photos , axis=1)
 
-        RET.to_excel("docs/"+self.DATE+"/BaselineModels"+self.CITY+("_TEST" if test else "_DEV")+".xls")
+        RET.to_excel("docs/"+self.DATE+"/BaselineModels"+self.CITY+".xls")
 
         print("PCNT_CNT:\t",RET["PCNT_CNT"].mean())
         print("PCNT-1_CNT:\t",RET["PCNT-1_CNT"].mean())
@@ -145,131 +251,27 @@ class ModelV4(ModelClass):
 
     def train(self):
 
-        train_df = pd.DataFrame()
+        if(len(self.TRAIN) % self.CONFIG["batch_size"]==0):
+            n_batches = (len(self.TRAIN) // self.CONFIG["batch_size"])
+        else:
+            n_batches = (len(self.TRAIN) // self.CONFIG["batch_size"]) +1
 
-        train_bin_loss = []
-        train_bin_batches = np.array_split(self.TRAIN, len(self.TRAIN) // self.CONFIG['batch_size'])
+        train_loss = []
 
-        for bn in range(len(train_bin_batches)):
+        # Cargar los datos en el iterador
+        self.SESSION.run(["init_iter_b","init_iter_w"], feed_dict={
+            "batch_size:0": self.CONFIG["batch_size"],
+            "user_input:0": self.TRAIN.id_user.values,
+            "rest_input:0": self.TRAIN.id_restaurant.values,
+            "img_input_best:0": self.TRAIN.best_path.values,
+            "rest_input_worst:0": self.TRAIN.id_rest_worst.values,
+            "img_input_worst:0": self.TRAIN.worst_path.values})
 
-            batch_dtfm_imgs_ret = train_bin_batches[bn][['id_user', 'id_restaurant','id_img','id_rest_worst','worst']]
-            ret = batch_dtfm_imgs_ret.copy()
-            batch_train_bin = batch_dtfm_imgs_ret.values
+        for b in range(n_batches):
+            _, batch_loss = self.SESSION.run(["train_step_bin", "batch_loss:0"], feed_dict={"is_train:0":True,"dropout:0":self.CONFIG["dropout"]})
+            train_loss.extend(batch_loss[:, 0])
 
-            feed_dict_bin = {
-                "dropout:0": self.CONFIG["dropout"],
-                "is_train:0":True,
-                "user_input:0": batch_train_bin[:, [0]],
-                "rest_input:0": batch_train_bin[:, [1]],
-                "img_input_best:0": self.IMG[batch_train_bin[:, [2]][:,0],:],
-                "rest_input_worst:0":  batch_train_bin[:, [3]],
-                "img_input_worst:0": self.IMG[batch_train_bin[:, [4]][:,0],:]
-            }
-
-            _, gs,lr,batch_loss,dot_best, dot_worst = self.SESSION.run(['train_step_bin:0','global_step_bin:0','learning_rate:0', 'batch_loss:0','dot_best:0','dot_worst:0'], feed_dict=feed_dict_bin)
-
-            train_bin_loss.extend(batch_loss[:, 0])
-            #ret['best'] = dot_best[:, 0]
-            #ret['worst'] = dot_worst[:, 0]
-            #ret['loss'] = batch_loss[:, 0]
-
-            #train_df = train_df.append(ret)
-
-        #print(lr)
-
-        return (np.mean(train_bin_loss), lr)
-
-    def dev_debugMethod(self, user, rest, data, dev):
-
-        def getUsrRestBaselines(user, rest, data):
-
-            data = data.reset_index(drop=True)
-            data["model_pos"] = data.index+1
-
-            # Obtener el conjunto de TRAIN original
-            path = self.DATA_PATH + "original/"
-            TRAIN = self.getPickle(path, "TRAIN_DEV")
-            TRAIN = TRAIN.loc[TRAIN.id_restaurant==rest]
-
-            #Obtener el centroide del restaurante
-            all_c = self.IMG[TRAIN.id_img.values, :]
-            CENTROIDE = np.mean(all_c, axis=0)
-
-            #Calcular las distancias con el centroide
-            rst_imgs = self.IMG[data.id_img.values, :]
-            dsts = scipy.spatial.distance.cdist(rst_imgs, [CENTROIDE], 'euclidean')
-            data["centroide"] = dsts
-            data = data.sort_values("centroide").reset_index(drop=True)
-            data["cnt_pos"] = data.index+1
-
-            #Calcular el random
-            data["random"] = np.random.random_sample( len(data))
-            data = data.sort_values("random", ascending=False).reset_index(drop=True)
-            data["rnd_pos"] = data.index+1
-
-            return data
-
-        def createUserPreferences(user, rest):
-
-            def getImg(url):
-                response = requests.get(url)
-                return Image.open(BytesIO(response.content))
-
-            path = "tmp_img/" + str(user) + "-" + str(rest) + "/prefs"
-            os.makedirs(path, exist_ok=True)
-
-            TRAIN_PREFS = self.getPickle(self.DATA_PATH + "data_" + self.CONFIG["neg_examples"] + "/","TRAIN_DEV_PREFS")
-            usr = TRAIN_PREFS.loc[TRAIN_PREFS.id_user == user]
-
-            usr = usr.merge(self.URLS, right_on="id_img", left_on="id_img")
-            usr = usr.rename(index=str, columns={"url": "best_url"})
-
-            usr = usr.merge(self.URLS, right_on="id_img", left_on="worst")
-            usr = usr.rename(index=str, columns={"url": "worst_url"})
-
-            for _, pref in usr.iterrows():
-
-                best = getImg(pref.best_url)
-                worst = getImg(pref.worst_url)
-                imgs = [best,worst]
-                min_shape = sorted([(np.sum(i.size), i.size) for i in imgs])[0][1]
-                imgs_comb = np.hstack((np.asarray(i.resize(min_shape)) for i in imgs))
-                imgs_comb = PIL.Image.fromarray(imgs_comb)
-                imgs_comb.save(path+'/'+str(pref.id_img_x)+"-"+str(pref.worst)+'.jpg')
-
-        createUserPreferences(user,rest)
-
-        usr_tr_imgs = self.TRAIN_DEV.loc[self.TRAIN_DEV.id_user == user].id_img.unique()
-
-        rst_imgs = data.id_img.values
-        usr_rst_imgs = dev
-
-        position_data = getUsrRestBaselines(user, rest, data)
-
-        urls_usr_train = self.URLS.loc[self.URLS.id_img.isin(usr_tr_imgs), ["id_img", "url"]]
-
-        urls_rst = self.URLS.loc[self.URLS.id_img.isin(rst_imgs), ["id_img", "url"]]
-        urls_rst = urls_rst.merge(position_data, on="id_img")
-        urls_rst = urls_rst.sort_values("prediction", ascending=False).reset_index(drop=True)
-
-        fld = "tmp_img/" + str(user)+"-"+str(rest)
-        os.makedirs(fld, exist_ok=True)
-        os.makedirs(fld+"/model", exist_ok=True)
-        os.makedirs(fld+"/random", exist_ok=True)
-        os.makedirs(fld+"/centroid", exist_ok=True)
-
-
-        for _, dt in urls_rst.iterrows():
-            name = ".jpg"
-            if (dt.id_img in usr_rst_imgs): name = "_dev" + name
-
-            urllib.request.urlretrieve(dt.url, fld + "/model/"+str(int(dt.model_pos))+name)
-            urllib.request.urlretrieve(dt.url, fld + "/random/"+str(int(dt.cnt_pos))+name)
-            urllib.request.urlretrieve(dt.url, fld + "/centroid/"+str(int(dt.rnd_pos))+name)
-
-        for _, dt in urls_usr_train.iterrows(): urllib.request.urlretrieve(dt.url,fld + "/" + str(dt.id_img) + "_usr_t.jpg")
-
-        print()
+        return (np.mean(train_loss))
 
     def dev(self):
 
@@ -282,51 +284,38 @@ class ModelV4(ModelClass):
 
             return pos
 
-        # Recomendación de restaurantes --------------------------------------------------------------------------------
+        if(len(self.DEV) % self.CONFIG["batch_size"]==0):
+            n_batches = (len(self.DEV) // self.CONFIG["batch_size"])
+        else:
+            n_batches = (len(self.DEV) // self.CONFIG["batch_size"]) +1
 
-        dev_bin_res = pd.DataFrame()
-
-        dev_loss = []
+        dev_pred = []
 
         pos_model = []
         pcnt_model = []
         pcnt1_model = []
 
-        # Recomendación de imágenes --------------------------------------------------------------------------------
-        dev_img_res = pd.DataFrame()
+        # Cargar los datos en el iterador
+        self.SESSION.run("init_iter_b", feed_dict={
+            "batch_size:0": self.CONFIG["batch_size"],
+            "user_input:0": self.DEV.id_user.values,
+            "rest_input:0": self.DEV.id_restaurant.values,
+            "img_input_best:0": self.DEV.best_path.values})
 
-        for batch_di in np.array_split(self.DEV, 10):
-            batch_dtfm_imgs_ret = batch_di.copy()
-            batch_dtfm_imgs = batch_di[['id_user', 'id_restaurant','id_img']]
-            batch_dm = batch_dtfm_imgs.values
+        for b in range(n_batches):
+            dot_best = self.SESSION.run('dot_best:0', feed_dict={"is_train:0":False,"dropout:0":1.0})
+            dev_pred.extend(dot_best[:, 0])
 
-            feed_dict_bin = {
-                "dropout:0":1,
-                "is_train:0": False,
-                "user_input:0": batch_dm[:, [0]],
-                "rest_input:0": batch_dm[:, [1]],
-                "img_input_best:0": self.IMG[batch_dm[:, [2]][:,0],:]
-            }
-
-            dot_best = self.SESSION.run('dot_best:0', feed_dict=feed_dict_bin)
-
-            batch_dtfm_imgs_ret['prediction'] = dot_best[:, 0]
-            dev_img_res = dev_img_res.append(batch_dtfm_imgs_ret, ignore_index=True)
+        dev_img_res = self.DEV.copy()
+        dev_img_res["prediction"] = dev_pred
 
         RET = pd.DataFrame(columns=["id_user","id_restaurant","n_photos","n_photos_dev","model_pos","pcnt_model","pcnt1_model"])
 
         for i,r in dev_img_res.groupby(["id_user","id_restaurant"]):
             r = r.sort_values("prediction", ascending=False)
-            dev = r.loc[r.is_dev==1,'id_img'].values
+            dev = r.loc[r.is_dev==1]
 
             item_pos = getPos(r)
-
-
-            # DEBUG ####################################################################################################
-            #if(len(r)<=10 and item_pos<3):
-            #if (i[0]==143):
-            #    self.dev_debugMethod(i[0], i[1], r, dev)
-            ############################################################################################################
 
             pos_model.append(item_pos)
             pcnt_model.append(item_pos/len(r))
@@ -334,57 +323,19 @@ class ModelV4(ModelClass):
 
             RET = RET.append({"id_user":i[0],"id_restaurant":i[1],"n_photos":len(r),"n_photos_dev":len(dev),"model_pos":pos_model[-1],"pcnt_model":pcnt_model[-1],"pcnt1_model":pcnt1_model[-1]},ignore_index=True)
 
-        if(self.CURRENT_EPOCH==(self.CONFIG["epochs"]-1) or self.CURRENT_EPOCH==-1):
-
-            RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_byRestaurant.xls") # Por restaurante
-            RET = RET[['id_user', 'id_restaurant', 'n_photos_dev', 'model_pos','pcnt_model', 'pcnt1_model']]
-
-            #ESTO SOLO VALE PARA TEST!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-            items = [9,5,4,2,1]
-
-            TRAIN_DATA = self.getPickle(self.DATA_PATH + "original/", "TRAIN_DEV")
-            TRAIN_DATA = TRAIN_DATA.groupby("id_user").apply(lambda x : pd.Series({"n_photos_train":len(x),"n_rest_train":len(x.id_restaurant.unique())})).reset_index()
-            RET = TRAIN_DATA.merge(RET, right_on="id_user", left_on="id_user")
-
-            BASELINE = pd.read_excel("docs/" + self.DATE + "/BaselineModels" + self.CITY + "_TEST.xls")[["id_user", "PCNT-1_CNT", "PCNT-1_RND"]]
-            RET = BASELINE.merge(RET, right_on="id_user", left_on="id_user")
-
-            RET["RND-MOD"] = RET["PCNT-1_RND"]-RET["pcnt1_model"]
-            RET["CNT-MOD"] = RET["PCNT-1_CNT"]-RET["pcnt1_model"]
-
-            RET = RET.sort_values("n_photos_train",ascending=False).reset_index(drop=True)
-
-            def getAcAverage(data):
-                ret = []
-                for i, v in enumerate(data):
-                    ret.append(np.mean(data[:i+1]))
-                return ret
-
-            RET["RND-MOD_AC"] = getAcAverage(RET["RND-MOD"].values)
-            RET["CNT-MOD_AC"] = getAcAverage(RET["CNT-MOD"].values)
-
-            print("-"*100)
-            print("N_FOTOS_TRAIN (>=)\tN_ITEMS\t%ITEMS\tRND-MOD AC\tCNT-MOD AC\tMODELO")
-            for it in items:
-                data = RET.loc[RET["n_photos_train"]>=it]
-                print(str(it) + "\t" + str(len(data))+ "\t" +str(len(data)/len(RET)) + "\t" + str(data.iloc[-1, data.columns.get_loc("RND-MOD_AC")]) + "\t" + str(data.iloc[-1, data.columns.get_loc("CNT-MOD_AC")]) + "\t" + str(data["pcnt1_model"].mean()))
-            print("-"*100)
-
-            #RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_byUser.xls") # Por usuario
+        #if(self.CURRENT_EPOCH==10):RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_Results("+self.CONFIG["neg_examples"]+").xls")
 
         return ((pos_model, pcnt_model, pcnt1_model), np.mean(pcnt1_model))
 
     def gridSearchPrint(self,epoch,train,dev):
 
         if(epoch==0):
-            header = ["E","LRN_RATE","T_LOSS","MEAN_POS","PCNT","PCNT-1"]
+            header = ["E","T_LOSS","MEAN_POS","PCNT","PCNT-1"]
             header_line = "\t".join(header)
             print(header_line)
 
         log_items = [epoch+1]
-        log_items.append(np.round(train[1], decimals=7))
-        log_items.extend(np.round([train[0]], decimals=4))
+        log_items.extend(np.round([train], decimals=4))
         log_items.extend(np.round([np.mean(dev[0]),np.mean(dev[1]),np.mean(dev[2])],decimals=4))
 
         log_line = "\t".join(map(lambda x: str(x), log_items))
@@ -530,7 +481,7 @@ class ModelV4(ModelClass):
                     img_worst = []
 
                     if (neg_rest > 0):
-                        # Obtener neg_rest imágenes de otros usuarios del mismo restaurante
+                        # Obtener imágenes de otros usuarios del mismo restaurante
                         images_idx_rest = data.loc[(data.id_restaurant == id_r) & (data.id_user != id_u), "id_img"].values  # Imagenes de ese restaurante y otros users
 
                         if(len(images_idx_rest)>0):
@@ -543,6 +494,7 @@ class ModelV4(ModelClass):
                             id_rest_worst.extend([id_r]*len(indx))
 
                     if(neg_other > 0):
+                        # Obtener neg_rest imágenes de otros usuarios del mismo restaurante
                         # Obtener neg_other imágenes de otros usuarios en otros restaurantes
 
                         images_other = data.loc[(data.id_restaurant != id_r) & (data.id_user != id_u)].sample(neg_other)
@@ -576,6 +528,13 @@ class ModelV4(ModelClass):
                 #TRAIN_PREFS = TRAIN_PREFS.groupby("item").apply(trainFn, TRAIN_PREFS).reset_index(drop=True)
                 TRAIN_PREFS = getPreferences(TRAIN_PREFS)
 
+                TRAIN_PREFS = TRAIN_PREFS.merge(IMG[["id_img","path"]], on="id_img")
+                TRAIN_PREFS = TRAIN_PREFS.rename(index=str, columns={"path": "best_path"})
+                TRAIN_PREFS = TRAIN_PREFS.merge(IMG[["id_img","path"]], left_on="worst", right_on="id_img")
+                TRAIN_PREFS = TRAIN_PREFS.rename(index=str, columns={"path": "worst_path"})
+
+                TRAIN_PREFS = TRAIN_PREFS[["id_user","id_restaurant","id_rest_worst","best_path","worst_path"]]
+
                 TRAIN_PREFS = utils.shuffle(TRAIN_PREFS, random_state=self.SEED).reset_index(drop=True)
                 self.toPickle(file_path, "TRAIN_PREFS", TRAIN_PREFS);
                 del TRAIN_PREFS
@@ -589,6 +548,14 @@ class ModelV4(ModelClass):
 
                 #TRAIN_DEV_PREFS = TRAIN_DEV_PREFS.groupby("item").apply(trainFn, TRAIN_DEV_PREFS).reset_index(drop=True)
                 TRAIN_DEV_PREFS = getPreferences(TRAIN_DEV_PREFS)
+
+                TRAIN_DEV_PREFS = TRAIN_DEV_PREFS.merge(IMG[["id_img", "path"]], on="id_img")
+                TRAIN_DEV_PREFS = TRAIN_DEV_PREFS.rename(index=str, columns={"path": "best_path"})
+                TRAIN_DEV_PREFS = TRAIN_DEV_PREFS.merge(IMG[["id_img", "path"]], left_on="worst", right_on="id_img")
+                TRAIN_DEV_PREFS = TRAIN_DEV_PREFS.rename(index=str, columns={"path": "worst_path"})
+
+                TRAIN_DEV_PREFS = TRAIN_DEV_PREFS[["id_user","id_restaurant","id_rest_worst","best_path","worst_path"]]
+
                 TRAIN_DEV_PREFS = utils.shuffle(TRAIN_DEV_PREFS, random_state=self.SEED).reset_index(drop=True)
                 self.toPickle(file_path, "TRAIN_DEV_PREFS", TRAIN_DEV_PREFS);
                 del TRAIN_DEV_PREFS
@@ -620,6 +587,11 @@ class ModelV4(ModelClass):
                 TRAIN = self.getPickle(split_file_path, "TRAIN")
 
                 DEV = DEV.groupby(["id_user", "id_restaurant"]).apply(testFn,TRAIN).reset_index(drop=True)
+
+                DEV = DEV.merge(IMG[["id_img", "path"]], on="id_img")
+                DEV = DEV.rename(index=str, columns={"path": "best_path"})
+                DEV = DEV[["id_user", "id_restaurant","is_dev","best_path"]]
+
                 self.toPickle(file_path, "DEV", DEV); del DEV
 
             else: self.printW("Ya se han añadido los restaurantes a DEV, se omite...")
@@ -629,6 +601,11 @@ class ModelV4(ModelClass):
                 TRAIN_DEV = self.getPickle(split_file_path, "TRAIN_DEV")
 
                 TEST = TEST.groupby(["id_user", "id_restaurant"]).apply(testFn, TRAIN_DEV).reset_index(drop=True)
+
+                TEST = TEST.merge(IMG[["id_img", "path"]], on="id_img")
+                TEST = TEST.rename(index=str, columns={"path": "best_path"})
+                TEST = TEST[["id_user", "id_restaurant","is_dev","best_path"]]
+
                 self.toPickle(file_path, "TEST", TEST);del TEST
 
             else: self.printW("Ya se han añadido los restaurantes a TEST, se omite...")
@@ -645,15 +622,11 @@ class ModelV4(ModelClass):
         file_path += "/data_" + str(self.CONFIG['neg_examples']) + "/"
 
         RVW, IMG, USR_TMP, REST_TMP = self.getFilteredData();
-
-        IMG["id_img"] = IMG.index
-
-        URLS = RVW[["reviewId", "images"]].merge(IMG, left_on="reviewId", right_on="review")
-        URLS["url"] = URLS.apply(lambda x: x.images[x.image - 1]['image_url_lowres'], axis=1)
-        URLS = URLS[["id_img","url"]]
-
         RVW = RVW.drop(columns=['restaurantId', 'userId', 'url', 'text', 'title', 'date', 'rating', 'language', 'like'])
 
+        IMG["id_img"] = IMG.index
+        IMG["path"]= IMG.apply(lambda x: str(x.review) + "/" + str(x.image - 1) + ".jpg", axis=1)
+        IMG = IMG[["review","id_img","path", "vector"]]
 
         #Para DEBUG (Ver url de fotos)---------------------------------------------------------------------------------
         #RVW = RVW.merge(IMG, left_on="reviewId", right_on="review")
@@ -673,7 +646,7 @@ class ModelV4(ModelClass):
             USR_TMP = self.getPickle(file_path, "USR_TMP")
             V_IMG = self.getPickle(file_path, "V_IMG")
 
-            return (TRAIN, TRAIN_DEV, DEV, TEST, IMG,URLS, REST_TMP, USR_TMP, V_IMG)
+            return (TRAIN, TRAIN_DEV, DEV, TEST, IMG, REST_TMP, USR_TMP, V_IMG)
 
         os.makedirs(file_path, exist_ok=True)
 
@@ -740,4 +713,75 @@ class ModelV4(ModelClass):
         DEV = self.getPickle(file_path,"DEV")
         TEST = self.getPickle(file_path,"TEST")
 
-        return (TRAIN, TRAIN_DEV, DEV, TEST, IMG,URLS, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector))
+        return (TRAIN, TRAIN_DEV, DEV, TEST, IMG, len(REST_TMP), len(USR_TMP), len(IMG.iloc[0].vector))
+
+    def gridSearch(self, params, max_epochs = 50, start_n_epochs = 5, last_n_epochs = 5):
+
+        def createCombs():
+
+            def flatten(lst):
+                return sum(([x] if not isinstance(x, list) else flatten(x)
+                            for x in lst), [])
+
+            combs = []
+            level = 0
+            for v in params.values():
+                if (len(combs)==0):
+                    combs = v
+                else:
+                    combs = list(it.product(combs, v))
+                level+=1
+
+                if(level>1):
+                    for i in range(len(combs)):
+                        combs[i] = flatten(combs[i])
+
+            return pd.DataFrame(combs, columns=params.keys())
+
+        def configNet(comb):
+            comb.pop("Index")
+
+            for k in comb.keys():
+                assert (k in self.CONFIG.keys())
+                self.CONFIG[k]=comb[k]
+
+        #-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#-----#
+
+        combs = createCombs()
+        self.printW("Existen "+str(len(combs))+" combinaciones posibles")
+
+        for c in combs.itertuples():
+
+            stop_param = []
+
+            c = dict(c._asdict())
+
+            #Configurar la red
+            configNet(c)
+
+            #Crear el modelo
+            self.MODEL = self.getModel()
+
+            #Imprimir la configuración
+            self.printConfig(filter=c.keys())
+
+            #Configurar y crear sesion
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+
+            with tf.Session(graph=self.MODEL, config=config) as sess:
+
+                self.SESSION = sess
+
+                n_batches = len(self.TRAIN) // self.CONFIG["batch_size"]
+                sess.run(tf.global_variables_initializer())
+
+                for e in range(max_epochs):
+
+                    train_ret = self.train()
+
+                    dev_ret, stop = self.dev()
+                    stop_param.append(stop)
+
+                    #Imprimir linea
+                    self.gridSearchPrint(e,train_ret,dev_ret)

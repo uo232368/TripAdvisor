@@ -34,25 +34,32 @@ def getNet(model_file,img_width,img_height, gpu=0,lr = 1e-3):
     if (os.path.exists(model_file)):
         print("Loading old model...")
         model = load_model(model_file)
+        encoder_model = load_model(saveDir + "e_" + name)
+        decoder_model = load_model(saveDir + "d_" + name)
         K.set_value(model.optimizer.lr, lr)
 
-        return model
+        return encoder_model, decoder_model, model
     
     input_img = Input(shape=(img_width,img_height, 3))
-    x = Conv2D(64, (3, 3), padding='same')(input_img)
-    x = BatchNormalization()(x)
-    x = Activation('relu')(x)
-    x = MaxPooling2D((2, 2), padding='same')(x)
-    x = Conv2D(32, (3, 3), padding='same')(x)
+    x = Conv2D(8, (3, 3), padding='same')(input_img)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = MaxPooling2D((2, 2), padding='same')(x)
     x = Conv2D(16, (3, 3), padding='same')(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
-    encoded = MaxPooling2D((2, 2), padding='same')(x)
+    x = MaxPooling2D((2, 2), padding='same')(x)
+    x = Conv2D(32, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = MaxPooling2D((2, 2), padding='same')(x)
+    x = Conv2D(64, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    encoded = MaxPooling2D((2, 2), padding='same', name="embeddigs")(x)
 
-    x = Conv2D(16, (3, 3), padding='same')(encoded)
+    input_decoder = Input(shape=encoded.get_shape().as_list()[1:])
+    x = Conv2D(64, (3, 3), padding='same')(input_decoder)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = UpSampling2D((2, 2))(x)
@@ -60,7 +67,11 @@ def getNet(model_file,img_width,img_height, gpu=0,lr = 1e-3):
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = UpSampling2D((2, 2))(x)
-    x = Conv2D(64, (3, 3), padding='same')(x)
+    x = Conv2D(16, (3, 3), padding='same')(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
+    x = UpSampling2D((2, 2))(x)
+    x = Conv2D(8, (3, 3), padding='same')(x)
     x = BatchNormalization()(x)
     x = Activation('relu')(x)
     x = UpSampling2D((2, 2))(x)
@@ -68,13 +79,17 @@ def getNet(model_file,img_width,img_height, gpu=0,lr = 1e-3):
     x = BatchNormalization()(x)
     decoded = Activation('sigmoid')(x)
 
-    model = Model(input_img, decoded)
+    encoder_model = Model(input_img, encoded)
+    decoder_model = Model(input_decoder, decoded)
+
+    model = Model(encoder_model.input, decoder_model(encoded))
     model.compile(optimizer=Adam(lr=lr, decay=1e-6), loss='binary_crossentropy')
+
 
     #model.summary()
     #exit()
 
-    return model
+    return encoder_model, decoder_model,model
 
 def getNet2(model_file, img_width, img_height,gpu=0, lr=1e-3):
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu)
@@ -236,22 +251,73 @@ def plotDist(ret,show = 5):
 
     plt.show()
 
+def embeddingTests():
+
+    inp_imgs = train_generator.next()[0]
+    enc_imgs = encoder_model.predict(inp_imgs)
+
+    #enc_imgs += np.random.random_sample(enc_imgs.shape)*0.5
+    # noise = np.flip(enc_imgs)
+
+
+    #mn = np.mean(enc_imgs, axis=0)*2.5
+
+    '''
+    mn = np.zeros((16, 16, 64))
+    mn[:, [7,8], :] = 1
+    mn[[7,8], :, :] = 1
+
+    for s in range(len(enc_imgs)):
+        enc_imgs[s] += mn
+
+    '''
+    dec_imgs = decoder_model.predict(enc_imgs)
+
+    plt.figure(figsize=(16, 4))
+
+    n = 10
+    padding= int(np.random.random(1)*(len(inp_imgs)-n))
+
+    for i in range(n):
+
+        # display original
+        ax = plt.subplot(3, n, i + 1)
+        plt.imshow(inp_imgs[i+padding])
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        # display emb
+        ax = plt.subplot(3, n, i + 1 + n)
+        plt.imshow(np.mean(enc_imgs[i+padding],axis=2))
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+        # display reconstruction
+        ax = plt.subplot(3, n, i + 1 + (2 * n))
+        plt.imshow(dec_imgs[i+padding])
+        ax.get_xaxis().set_visible(False)
+        ax.get_yaxis().set_visible(False)
+
+    plt.show()
+
+    return 0
+
 ########################################################################################################################
 
 #https://github.com/shibuiwilliam/Keras_Autoencoder/blob/master/Cifar_Conv_AutoEncoder.ipynb
 
 seed = 45
-batch_size = 64
+batch_size = 128
 learning_rate = 1e-3
 
 img_width = 256
 img_height = 256
 
-epochs = 1000
+epochs = 0
 saveDir = ".temp/models/"
 
 model_n = 1
-step="test"
+step="train"
 gpu=1
 
 name = "AutoEncoder.hdf5"
@@ -266,7 +332,7 @@ if not os.path.isdir(saveDir): os.makedirs(saveDir)
 train_generator,valid_generator,_ = loadData()
 
 if("AutoEncoder2" in chkpt): model = getNet2(chkpt,img_width,img_height, gpu=gpu,lr=learning_rate)
-else: model = getNet(chkpt,img_width,img_height,gpu=gpu, lr=learning_rate)
+else: encoder_model, decoder_model, model = getNet(chkpt,img_width,img_height,gpu=gpu, lr=learning_rate)
 
 STEP_SIZE_TRAIN=train_generator.n//train_generator.batch_size
 STEP_SIZE_VALID=valid_generator.n//valid_generator.batch_size
@@ -274,16 +340,25 @@ STEP_SIZE_VALID=valid_generator.n//valid_generator.batch_size
 
 if("train" in step):
 
-    es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
-    cp_cb = ModelCheckpoint(filepath = chkpt, monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
+    #es_cb = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
+    #cp_cb = ModelCheckpoint(filepath = chkpt, monitor='val_loss', verbose=1, save_best_only=True, mode='auto')
 
-    history = model.fit_generator(generator=train_generator,
+    if(epochs>0):
+        history = model.fit_generator(generator=train_generator,
                         steps_per_epoch=STEP_SIZE_TRAIN,
                         validation_data=valid_generator,
                         validation_steps=STEP_SIZE_VALID,
-                        callbacks=[es_cb, cp_cb],
+                        #callbacks=[es_cb, cp_cb],
                         verbose=1,
                         epochs=epochs)
+
+        encoder_model.save(saveDir+"e_"+name)
+        decoder_model.save(saveDir+"d_"+name)
+        model.save(saveDir+name)
+
+    embeddingTests()
+
+    exit()
 
 elif("test" in step):
     STEP_SIZE_VALID=valid_generator.n//512

@@ -15,6 +15,7 @@ from ModelV4D import *
 from ModelV4D2 import *
 
 from ModelV5 import *
+from ModelV5K import *
 
 ########################################################################################################################
 
@@ -51,14 +52,14 @@ stage= "grid" if args.stage == None else args.stage
 embsize = [512] if args.emb == None else args.emb
 gpu = 0 if args.gpu == None else args.gpu
 dpout = [0.8] if args.d == None else args.d
-lrates = [1e-5] if args.lr == None else args.lr
-lrDecay = None if args.lrdcay == None else args.lrdcay
+lrates = [1e-4] if args.lr == None else args.lr
+lrDecay = "linear_cosine" if args.lrdcay == None else args.lrdcay
 pref = "10+10" if args.pref == None else args.pref
 
 option = 2 if args.i == None else args.i
-ims = 64 if args.ims == None else args.ims
+ims = 128 if args.ims == None else args.ims
 
-epochs= 200 if args.e == None else args.e
+epochs= 100 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
 city = "Gijon" if args.c == None else args.c
 hidden_size = [128] if args.hidd == None else args.hidd
@@ -66,6 +67,7 @@ hidden2_size = [0] if args.hidd2 == None else args.hidd2
 use_images = 1 if args.imgs == None else args.imgs
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
+#os.environ['TF_ENABLE_AUTO_MIXED_PRECISION'] = '1'
 
 config = {"top": [1,5,10,15,20],
           "neg_examples":pref,
@@ -138,14 +140,57 @@ if (model == 5):
 
     config["batch_size"] = 256
 
-    modelv5 = ModelV5(city=city, option=option, config=config, date=date, seed=seed)
+    modelv5 = ModelV5K(city=city, option=option, config=config, date=date, seed=seed)
+    #modelv5.TRAIN = modelv5.TRAIN.sample(len(modelv5.TRAIN)//10)
+
+    #modelv5 = ModelV5(city=city, option=option, config=config, date=date, seed=seed)
     modelv5.gridSearch(params, max_epochs=epochs, start_n_epochs=epochs, last_n_epochs=epochs)#15/10 o 30/20
 
 
 if (model == 45):
-    # ToDo: Documentar
 
     modelv4d = ModelV4D2(city=city, option=option, config=config, date=date, seed=seed)
+    #modelv4d.getDataStats()
+
+    '''
+    import sklearn
+    PCA_space = 50
+    TSNE_space = 2
+    clusters= 100
+
+    IMG = pd.read_pickle(modelv4d.PATH + "img-option" + str(modelv4d.OPTION) + "-new.pkl")
+    IMG['review'] = IMG.review.astype(int)
+    IMG["id_img"] = IMG.index
+    IMG = IMG.sample(1000)
+    IMGM = np.row_stack(IMG.vector.values)
+    URLS =IMG[["id_img"]].merge(modelv4d.URLS)
+
+    #IMGM = sklearn.decomposition.PCA(n_components=PCA_space).fit_transform(IMGM)
+    #IMGM = sklearn.manifold.TSNE(n_components=TSNE_space, verbose=1).fit_transform(IMGM)
+
+    kmeans = sklearn.cluster.MiniBatchKMeans(n_clusters=clusters,random_state = 0, verbose=1,batch_size=512, max_no_improvement=200 )
+    kmeans = kmeans.fit(IMGM)
+
+    print("-"*50)
+    print(clusters, PCA_space,sklearn.metrics.silhouette_score(IMGM, kmeans.labels_, sample_size=len(IMGM)))
+
+    URLS["cluster"] = kmeans.labels_
+
+    path = "tmp_img/clusters/"
+    os.makedirs(path,exist_ok=True)
+
+    for idx,c in URLS.groupby("cluster"):
+        #if(idx!=2):continue
+
+        path_c = path+str(idx)+"/"
+        os.makedirs(path_c, exist_ok=True)
+
+        for _, data in c.iterrows():
+            urllib.request.urlretrieve(data.url, path_c + str(data.name)+".jpg")
+
+    exit()
+    
+    '''
 
     if("grid" in stage):
 
@@ -161,7 +206,7 @@ if (model == 45):
     if("test" in stage):
         modelv4d.finalTrain(epochs=epochs)
 
-    #modelv4d.predict()
+    modelv4d.predict()
 
     #modelv4d.getBaselines(test=False) # EN VALIDACION
     #modelv4d.getBaselines(test=True)  # EN TEST

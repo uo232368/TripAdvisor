@@ -364,6 +364,8 @@ class ModelV5K(ModelV5):
                 dev_ret, _ = self.dev(dev_sequence)
                 self.gridSearchPrint(e, train_ret.history['model_2_loss'][0], dev_ret)
 
+
+
             exit()
 
 

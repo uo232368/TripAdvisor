@@ -8,6 +8,7 @@ import time
 import pandas as pd
 import keras
 import tensorflow as tf
+import numpy as np
 from keras import backend as K
 from keras.models import Model
 from keras.preprocessing import image
@@ -47,6 +48,14 @@ def loadNet(NET):
         ouT = net.get_layer('avg_pool').output
         net = Model(inputs=inP, outputs=ouT)
 
+    if (NET == "FOOD"):
+        model_name = "foodNet.hdf5"
+
+        net = keras.models.load_model(model_name)
+        inP = net.input
+        ouT = net.get_layer('global_average_pooling2d_1').output
+        net = Model(inputs=inP, outputs=ouT)
+
     net._make_predict_function()
 
     return net
@@ -54,7 +63,9 @@ def loadNet(NET):
 def init():
 
     NET = "RESV2"
-    CITY = "Madrid"
+    #NET = "FOOD"
+
+    CITY = "Gijon"
     LOWRES= True
 
     #PATH = "../data/" + CITY.lower() + "_data/"
@@ -63,13 +74,8 @@ def init():
     if(LOWRES):IMG_PATH = PATH+"images_lowres/"
 
 
-    tstn = pd.read_pickle(PATH+"img-option2-new.pkl")
-    tst = pd.read_pickle(PATH+"img-option2.pkl")
-
-    print(len(tst), len(tstn))
-    exit()
-    
-
+    #tstn = pd.read_pickle(PATH+"img-option2-new.pkl")
+    #tst = pd.read_pickle(PATH+"img-option2.pkl")
 
     os.environ["CUDA_VISIBLE_DEVICES"] = str("1")
 
@@ -109,11 +115,14 @@ def init():
 
     waitForEnd(threads)
 
-    OPH = Option2Helper()
-    OPH.joinImages(PATH);
+    savename="img-option2-new.pkl"
+    #savename="img-food.pkl"
 
-    pkl = pd.read_pickle(PATH+"img-option2-new.pkl")
-    print(len(pkl))
+    OPH = Option2Helper()
+    OPH.joinImages(PATH,savename);
+
+    #pkl = pd.read_pickle(PATH+savename)
+    #print(len(pkl))
 
 
 

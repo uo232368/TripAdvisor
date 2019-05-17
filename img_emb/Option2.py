@@ -20,7 +20,7 @@ from keras.applications.imagenet_utils import decode_predictions
 
 class Option2Helper():
 
-    def joinImages(self,path):
+    def joinImages(self,path, name= "img.pkl"):
 
         ret = pd.DataFrame(columns=Option2.img_cols)
 
@@ -30,7 +30,7 @@ class Option2Helper():
                 tmp_ret = pd.read_pickle(Option2.TMP_FOLDER+"/"+f)
                 ret = ret.append(tmp_ret,ignore_index=True)
 
-        if(len(ret)>0):pd.to_pickle(ret,path+"img-option2-new.pkl")
+        if(len(ret)>0):pd.to_pickle(ret,path+name)
 
         #Eliminar los ficheros de la carpeta.
         for f in os.listdir(Option2.TMP_FOLDER):
@@ -72,7 +72,7 @@ class Option2(threading.Thread):
             img = image.img_to_array(img)
             x = keras.applications.resnet50.preprocess_input(np.expand_dims(img.copy(), axis=0))
 
-        if (self.NET == "RESV2"):
+        if (self.NET == "RESV2" or self.NET=="FOOD"):
             img = image.load_img(PATH, target_size=(299, 299))
             img = image.img_to_array(img)
             x = keras.applications.inception_resnet_v2.preprocess_input(np.expand_dims(img.copy(), axis=0))

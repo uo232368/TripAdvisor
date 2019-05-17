@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ModelV5 import *
+from src.ModelV5 import *
 
 from keras.preprocessing.image import ImageDataGenerator, Iterator
 from keras.models import Sequential, Model

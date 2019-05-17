@@ -14,6 +14,7 @@ import signal, sys
 import hashlib
 import itertools as it
 import urllib
+import random
 
 import random as rn
 from PIL import Image
@@ -22,11 +23,13 @@ import keras
 import tensorflow as tf
 from keras import backend as K
 from keras import losses
+from keras.optimizers import Adam
 from keras.utils import *
 from keras.models import Model, Sequential
-from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout,Embedding, Flatten
+from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout
+from keras.layers import Embedding, Flatten, GlobalAveragePooling2D,BatchNormalization,GaussianNoise
 from keras.utils import to_categorical
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, TensorBoard
 
 import scipy
 from scipy.spatial import distance_matrix
@@ -108,6 +111,7 @@ class ModelClass():
         #os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
         warnings.filterwarnings('always')
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         #Fijar las semillas de numpy y TF
         np.random.seed(self.SEED)
@@ -128,24 +132,11 @@ class ModelClass():
 
         self.printB("Obteniendo datos...")
 
-        train,train_dev, dev,test,img,urls, n_rest, n_usr, v_img = self.getData()
-
-        self.TRAIN = train
-        self.TRAIN_DEV = train_dev
-        self.DEV = dev
-        self.TEST = test
-
-        self.IMG = img
-        self.URLS = urls
-
-        self.N_RST = n_rest
-        self.N_USR = n_usr
-        self.V_IMG = v_img
+        self.DATA = self.getData()
 
         self.printB("Creando modelo...")
 
         self.MODEL_PATH = "models/"+self.MODEL_NAME+"_" + self.CITY.lower() + "_option" + str(self.OPTION)
-        #self.MODEL = self.getModel()
         self.SESSION = None
 
         print("\n")
@@ -602,7 +593,7 @@ class ModelClass():
 
             res = (results.iloc[:, 1:].sum() / sum(likes)) * 100.0
 
-        #Si solo hay más de 1 positivo por usuario en DEV/TEST
+        #Si hay más de 1 positivo por usuario en DEV/TEST
         else:
             #Mejorable??
             results = results.groupby('id_user').apply(getMultipleHits).reset_index(drop=True)

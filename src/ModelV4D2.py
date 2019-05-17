@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from ModelV4 import *
+from src.ModelV4 import *
 
 ########################################################################################################################
 
@@ -23,7 +23,7 @@ class ModelV4D2(ModelV4):
 
             tf.set_random_seed(self.SEED)
 
-            emb_size = self.CONFIG['emb_size']
+            emb_size = 512
             usr_emb_size=emb_size #512
             rst_emb_size=emb_size//2   #256
             img_emb_size= emb_size//2   #256
@@ -42,15 +42,15 @@ class ModelV4D2(ModelV4):
             rest_input = tf.placeholder(tf.int32, shape=[None, 1], name="rest_input")
             rest_input_worst = tf.placeholder(tf.int32, shape=[None, 1], name="rest_input_worst")
 
-            img_input_best = tf.placeholder(tf.float32, shape=[None, self.V_IMG], name="img_input_best")
-            img_input_worst  = tf.placeholder(tf.float32, shape=[None, self.V_IMG], name="img_input_worst")
+            img_input_best = tf.placeholder(tf.float32, shape=[None, self.DATA["V_IMG"]], name="img_input_best")
+            img_input_worst  = tf.placeholder(tf.float32, shape=[None, self.DATA["V_IMG"]], name="img_input_worst")
 
             # Embeddings -----------------------------------------------------------------------------------------------------------------
 
-            E1 = tf.Variable(tf.truncated_normal([self.N_USR, usr_emb_size], mean=0.0, stddev=1.0 / math.sqrt(usr_emb_size)),name="E1")
-            E2 = tf.Variable(tf.truncated_normal([self.N_RST, rst_emb_size], mean=0.0, stddev=1.0 / math.sqrt(rst_emb_size)),name="E2")
+            E1 = tf.Variable(tf.truncated_normal([self.DATA["N_USR"], usr_emb_size], mean=0.0, stddev=1.0 / math.sqrt(usr_emb_size)),name="E1")
+            E2 = tf.Variable(tf.truncated_normal([self.DATA["N_RST"], rst_emb_size], mean=0.0, stddev=1.0 / math.sqrt(rst_emb_size)),name="E2")
 
-            E30 = tf.Variable(tf.truncated_normal([self.V_IMG, emb_size], mean=0.0, stddev=1.0 / math.sqrt(emb_size)),name="E30")
+            E30 = tf.Variable(tf.truncated_normal([self.DATA["V_IMG"], emb_size], mean=0.0, stddev=1.0 / math.sqrt(emb_size)),name="E30")
             bse30 = tf.Variable(tf.zeros(emb_size),name="be30")
             E31 = tf.Variable(tf.truncated_normal([emb_size, img_emb_size], mean=0.0, stddev=1.0 / math.sqrt(img_emb_size)),name="E31")
             bse31 = tf.Variable(tf.zeros(img_emb_size),name="be31")
@@ -119,7 +119,7 @@ class ModelV4D2(ModelV4):
             #Learning Rate ---------------------------------------------------------------------------------------------
 
             if((self.CONFIG['lr_decay'] is not None) and ("linear_cosine" in self.CONFIG["lr_decay"])):
-                decay_steps = (len(self.TRAIN)//self.CONFIG["batch_size"])*self.CONFIG["epochs"]
+                decay_steps = (len(self.DATA["TRAIN"])//self.CONFIG["batch_size"])*self.CONFIG["epochs"]
                 learning_rate = tf.train.linear_cosine_decay(self.CONFIG['learning_rate'], global_step_bin, decay_steps, name="learning_rate")
             else:
                 learning_rate = tf.add(self.CONFIG['learning_rate'], 0, name="learning_rate")

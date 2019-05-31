@@ -20,6 +20,7 @@ from src.ModelV5K import *
 from src.ModelV6 import *
 from src.ModelV60 import *
 
+
 ########################################################################################################################
 
 # Obtener argumentos por linea de comandos
@@ -45,7 +46,8 @@ parser.add_argument('-hidd', nargs='+', type=int, help='Lista de hidden a probar
 parser.add_argument('-hidd2', nargs='+', type=int, help='Lista de hidden2 a probar')
 parser.add_argument('-top', nargs='+', type=int, help='Lista de tops a calcular')
 
-parser.add_argument('-imgs', type=int,help="Usar imágenes", )
+parser.add_argument('-use_imgs', type=int,help="Usar imágenes", )
+parser.add_argument('-use_like', type=int,help="Usar Like", )
 parser.add_argument('-cnn', type=int,help="Usar cnn", )
 
 parser.add_argument('-rst', type=int,help="min_rest_revs")
@@ -56,32 +58,26 @@ args = parser.parse_args()
 model= 6 if args.m == None else args.m
 stage= "grid" if args.stage == None else args.stage
 
-gpu = 1  if args.gpu == None else args.gpu
+gpu = 0  if args.gpu == None else args.gpu
 
-#dpout = [.3] if args.d == None else args.d
-#lrates = [2e-5] if args.lr == None else args.lr
-
-#dpout = [.8] if args.d == None else args.d
-#lrates = [1e-4] if args.lr == None else args.lr
-
-dpout = [.8] if args.d == None else args.d
+dpout = [1.0] if args.d == None else args.d
 lrates = [1e-5] if args.lr == None else args.lr
 
 lrDecay = "linear_cosine" if args.lrdcay == None else args.lrdcay
 
 nimg = "10+10" if args.nimg == None else args.nimg
-nlike = "2" if args.nlike == None else args.nlike
+nlike = "n" if args.nlike == None else args.nlike
 #nlike = "n" if args.nlike == None else args.nlike
 
-epochs= 50 if args.e == None else args.e
+epochs= 100 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
 city = "Gijon" if args.c == None else args.c
 
-use_images =  1 if args.imgs == None else args.imgs
+use_images = 1  if args.use_imgs == None else args.use_imgs
+use_like =  0 if args.use_like == None else args.use_like
 use_cnn = 0 if args.cnn == None else args.cnn
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
-#os.environ['TF_ENABLE_AUTO_MIXED_PRECISION'] = '1'
 
 config = {"top": [1,5,10,15,20],
           "neg_images":nimg,
@@ -92,11 +88,13 @@ config = {"top": [1,5,10,15,20],
           "dropout": dpout[0],  # Prob de mantener
 
           "use_images":use_images,
+          "use_like": use_like,
           "use_cnn":use_cnn,
 
           "epochs":epochs,
           "batch_size": 512,
-          "gs_max_slope":-1e-8}
+          "gs_max_slope":-1e-8,
+          "gpu":gpu}
 
 date = "24_04_2019"
 
@@ -110,7 +108,13 @@ if (model == 6):
     else:
         exit()
 
-    modelv6.getDataStats()
+    #modelv6.getDataStats()
+
+    #modelv6.getBaselines()
+    #modelv6.getBaselines(test=True)
+
+    modelv6.getDetailedResults()
+    exit()
 
     # Ejecutar la fase pertinente
     if("grid" in stage):
@@ -123,19 +127,8 @@ if (model == 6):
             modelv6.gridSearch(params, max_epochs=epochs, start_n_epochs=epochs)  # CON DECAY Y 100 EPOCHS
 
     if("test" in stage):
-        modelv6.finalTrain(epochs=epochs)
+        modelv6.finalTrain(epochs=epochs, save=True)
 
-elif (model == 5):
-
-    params = {"learning_rate": lrates, "dropout":dpout}
-
-    config["batch_size"] = 256
-
-    modelv5 = ModelV5K(city=city, option=option, config=config, date=date, seed=seed)
-    #modelv5.TRAIN = modelv5.TRAIN.sample(len(modelv5.TRAIN)//10)
-
-    #modelv5 = ModelV5(city=city, option=option, config=config, date=date, seed=seed)
-    modelv5.gridSearch(params, max_epochs=epochs, start_n_epochs=epochs, last_n_epochs=epochs)#15/10 o 30/20
 
 elif (model == 45):
 
@@ -256,58 +249,3 @@ elif (model == 45):
     #modelv4d.getBaselines(test=True)  # EN TEST
 
     exit()
-
-elif (model == 44):
-
-    params = {"learning_rate": lrates, "dropout":dpout}
-
-    modelv4d = ModelV4D(city=city, option=option, config=config, date=date, seed=seed)
-    print(" Negativos: " + config["neg_examples"])
-    print("#" * 50)
-
-    modelv4d.gridSearch(params, max_epochs=3000, start_n_epochs=100, last_n_epochs=20)#15/10 o 30/20
-
-elif (model == 43):
-
-    params = {"learning_rate": lrates}
-
-    modelv43 = ModelV4_1_DEEP(city=city, option=option, config=config, date=date, seed=seed)
-    print(" Negativos: " + config["neg_examples"])
-    print("#" * 50)
-
-    modelv43.gridSearch(params, max_epochs=3000, start_n_epochs=50)
-
-elif (model == 42):
-
-    params = {"learning_rate": lrates}
-
-    modelv42 = ModelV4_DEEP(city=city, option=option, config=config, date=date, seed=seed)
-    print(" Negativos: " + config["neg_examples"])
-    print("#" * 50)
-
-    modelv42.gridSearch(params, max_epochs=3000, start_n_epochs=50)
-
-elif (model == 41):
-
-    params = {"learning_rate": lrates}
-
-    modelv41 = ModelV4_1(city=city, option=option, config=config, date=date, seed=seed)
-    print(" Negativos: " + config["neg_examples"])
-    print("#" * 50)
-
-    modelv41.gridSearch(params, max_epochs=3000, start_n_epochs=50)
-
-elif (model == 4):
-
-    params = { "learning_rate": lrates }
-
-    modelv4 = ModelV4(city=city, option=option, config=config, date=date,seed=seed)
-    print(" Negativos: "+config["neg_examples"])
-    print("#" * 50)
-
-
-    #modelv4.getBaselines()
-
-    modelv4.gridSearch(params,max_epochs=3000, start_n_epochs=50)
-
-

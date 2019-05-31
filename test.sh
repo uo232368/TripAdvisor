@@ -1,33 +1,40 @@
 #!/bin/bash
 
-RPT=( 0 1 2 3 4 )
-GPU=0
+GPU=1
+T_NEG="10+10"
+L_NEG="n"
+EPOCHS=100
+STAGE="test"
 
 
 WHERE="Gijon"
-#nohup /usr/bin/python3.6 -u  Main.py -e 30 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g 0 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
 
-#for RP in ${RPT[*]} ;do
-#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
-#    GPU=$(($(($GPU+1%2))%2))
-#done
+#RATE="1e-5"
+#nohup /usr/bin/python3.6 -u  Main.py -use_imgs 0 -use_like 1 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_LIKE.gs" &
 
+#RATE="5e-5"
+#nohup /usr/bin/python3.6 -u  Main.py -use_imgs 1 -use_like 0 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_TAKE.gs" &
+
+RATE="5e-6"
+GPU=$(($(($GPU+1%2))%2))
+nohup /usr/bin/python3.6 -u  Main.py -use_imgs 1 -use_like 1 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_BOTH.gs" &
+
+
+exit
 
 
 WHERE="Barcelona"
-#nohup /usr/bin/python3.6 -u  Main.py -e 22 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g 1 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
+RATE="1e-6"
+nohup /usr/bin/python3.6 -u  Main.py -use_imgs 0 -use_like 1 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_LIKE.gs" &
 
-#for RP in ${RPT[*]} ;do
-#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
-#    GPU=$(($(($GPU+1%2))%2))
-#done
+RATE="5e-6"
+nohup /usr/bin/python3.6 -u  Main.py -use_imgs 1 -use_like 0 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_TAKE.gs" &
+
+RATE="1e-6"
+GPU=$(($(($GPU+1%2))%2))
+nohup /usr/bin/python3.6 -u  Main.py -use_imgs 1 -use_like 1 -stage "$STAGE" -d 1 -lr $RATE -lrdcay "linear_cosine" -e $EPOCHS -c $WHERE -m 6 -g $GPU -nimg "$T_NEG" -nlike "$L_NEG" > "out/24_04_2019/"$WHERE"_"$STAGE"_BOTH.gs" &
+
 
 
 WHERE="Madrid"
-#nohup /usr/bin/python3.6 -u  Main.py -e 144 -lr 1e-5 -d 0.8 -c "$WHERE" -m 45 -g 0 -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST.tst" &
-
-
-#for RP in ${RPT[*]} ;do
-#    nohup /usr/bin/python3.6 -u  Main.py -e 45 -stage "test" -lrdcay "linear_cosine" -e 100 -lr 1e-4 -d 0.8 -c "$WHERE" -m 45 -g $GPU -pref "10+10" > "out/20_02_2019/"$WHERE"_TEST_"$RP".tst" &
-#    GPU=$(($(($GPU+1%2))%2))
-#done
+RATE=""

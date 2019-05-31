@@ -3,6 +3,28 @@ from src.ModelV6 import *
 
 
 ########################################################################################################################
+class DotBias(keras.layers.Layer):
+
+    def __init__(self, use_bias=False, **kwargs):
+        self.use_bias = use_bias
+        self.bias_initializer = keras.initializers.Constant(value=0.0)
+        super(DotBias, self).__init__(**kwargs)
+
+    def build(self, input_shape):
+        if (self.use_bias):
+            self.bias = self.add_weight(shape=(1,), initializer=self.bias_initializer,name='bias', trainable=True)
+            super(DotBias, self).build(input_shape)  # Be sure to call this at the end
+
+    def call(self, x):
+        dot = K.batch_dot(x[0], x[1], axes=1)
+        if (self.use_bias):
+            return K.bias_add(dot, self.bias)
+        else:
+            return dot
+
+    def compute_output_shape(self, input_shape):
+        return (None, 1)
+
 class ModelV60(ModelV6):
 
     def __init__(self,city,config,date,seed = 2):
@@ -10,7 +32,14 @@ class ModelV60(ModelV6):
         ModelV6.__init__(self,city,config,date,seed = seed)
 
         self.MODEL_NAME = "modelv60"
-        self.MODEL_PATH = "models/" + self.MODEL_NAME + "_" + self.CITY.lower() + "/"
+
+        if(self.CONFIG["use_images"]):
+            if(self.CONFIG["use_like"]):submodel = "both"
+            else: submodel = "take"
+        elif(self.CONFIG["use_like"]): submodel = "like"
+        else: submodel = "none"
+
+        self.MODEL_PATH = "models/"+self.MODEL_NAME+"/" + self.CITY.lower()+"_"+submodel
 
         print(" " + self.MODEL_NAME + " Básico")
         print("#" * 50)
@@ -19,33 +48,28 @@ class ModelV60(ModelV6):
 
     def getModel(self):
 
-        emb_size = 256 #512
+        # Fijar las semillas de numpy y TF
+        np.random.seed(self.SEED)
+        rn.seed(self.SEED)
+        tf.set_random_seed(self.SEED)
+
+
+        emb_size = 256
         activation_fn = "relu"
         
         usr_emb_size = emb_size
         rst_emb_size = emb_size
         img_emb_size = emb_size
 
+        #init = keras.initializers.RandomUniform(minval=0, maxval=0.1, seed=None)
+
         model_u = Sequential()
-        model_u.add(Embedding(self.DATA["N_USR"], usr_emb_size, input_shape=(1,), name="in_usr", embeddings_constraint=keras.constraints.nonneg()))
+        model_u.add(Embedding(self.DATA["N_USR"], usr_emb_size, input_shape=(1,), name="in_usr",  embeddings_constraint=keras.constraints.nonneg()))
         model_u.add(Flatten())
 
         model_r = Sequential()
-        model_r.add(Embedding(self.DATA["N_RST"], rst_emb_size, input_shape=(1,), name="in_rst", embeddings_constraint=keras.constraints.nonneg()))
+        model_r.add(Embedding(self.DATA["N_RST"], rst_emb_size, input_shape=(1,), name="in_rst",  embeddings_constraint=keras.constraints.nonneg()))
         model_r.add(Flatten())
-
-        '''
-        model_i = Sequential()
-        model_i.add(Dense(img_emb_size*2, use_bias=True, input_shape=(self.DATA["V_IMG"],), name="in_img"))
-        model_i.add(BatchNormalization())
-        model_i.add(Activation(activation_fn))
-        model_i.add(Dropout(1.0 - self.CONFIG["dropout"]))
-
-        model_i.add(Dense(img_emb_size, use_bias=True))
-        model_i.add(BatchNormalization())
-        model_i.add(Activation(activation_fn))
-        model_i.add(Dropout(1.0 - self.CONFIG["dropout"]))
-        '''
 
         model_i = Sequential()
         model_i.add(Dense(img_emb_size, input_shape=(self.DATA["V_IMG"],), name="in_img", use_bias=True))
@@ -54,57 +78,27 @@ class ModelV60(ModelV6):
 
         conc_like_out = Dot(axes=1)([model_u.output, model_r.output])
 
-        '''
-        conc_like = keras.layers.concatenate([model_u.output, model_r.output])
-        conc_like = GaussianNoise(0.3)(conc_like)
-        conc_like = BatchNormalization()(conc_like)
-        conc_like = Activation(activation_fn)(conc_like)
-        conc_like = Dropout(1.0 - self.CONFIG["dropout"])(conc_like)
-
-        conc_like = Dense(emb_size, use_bias=True)(conc_like)
-        conc_like = BatchNormalization()(conc_like)
-        conc_like = Activation(activation_fn)(conc_like)
-        conc_like = Dropout(1.0 - self.CONFIG["dropout"])(conc_like)
-
-        conc_like_out = Dense(1,  activation="sigmoid", name="like_out")(conc_like)
-
-        '''
+        #conc_like_out = DotBias(use_bias=True)([model_u.output, model_r.output])
 
         #  TAKE --------------------------------------------------------------------------------------------------------
 
         conc_take_out = Dot(axes=1)([model_u.output, model_i.output])
-
-        '''
-        conc_take = keras.layers.concatenate([model_u.output, model_i.output])
-        conc_take = BatchNormalization()(conc_take)
-        conc_take = Activation(activation_fn)(conc_take)
-        conc_take = Dropout(1.0 - self.CONFIG["dropout"])(conc_take)
-
-        conc_take = Dense(emb_size, use_bias=True)(conc_take)
-        conc_take = BatchNormalization()(conc_take)
-        conc_take = Activation(activation_fn)(conc_take)
-        conc_take = Dropout(1.0 - self.CONFIG["dropout"])(conc_take)
-
-        conc_take_out = Dense(1, activation="sigmoid", name="take_out")(conc_take)
-        '''
 
         opt = Adam(lr=self.CONFIG["learning_rate"])
 
         model_like = Model(inputs=[model_u.input, model_r.input], outputs=conc_like_out)
         model_like.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
 
-        #model_take = Model(inputs=[model_u.input, model_r.input, model_i.input], outputs=conc_take_out)
-        #model_take.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
-
         model_take = Model(inputs=[model_u.input, model_i.input], outputs=conc_take_out)
         model_take.compile(loss="binary_crossentropy", optimizer=opt, metrics=["accuracy"])
-
 
         plot_model(model_take,"model_take.png")
         plot_model(model_like,"model_like.png")
 
-        if (self.CONFIG["use_images"] == 1): return (model_like,model_take)
-        else: return model_like
+        return (model_like, model_take)
+
+        #if (self.CONFIG["use_images"] == 1): return (model_like,model_take)
+        #else: return model_like
 
     def train_batches(self, sq_take, sq_like):
 
@@ -116,6 +110,16 @@ class ModelV60(ModelV6):
             return ret
 
         #---------------------------------------------------------------------------------------------------------------
+
+        if ("linear_cosine" in self.CONFIG["lr_decay"]):
+            val = K.get_value(tf.train.linear_cosine_decay(self.CONFIG["learning_rate"], self.CURRENT_EPOCH, self.CONFIG["epochs"]))
+
+            if(self.CONFIG["use_images"]==1):
+                K.set_value(self.MODEL[0].optimizer.lr, val)
+                K.set_value(self.MODEL[1].optimizer.lr, val)
+            else:
+                K.set_value(self.MODEL.optimizer.lr, val)
+
 
         for b in range(max(sq_take.__len__(), sq_like.__len__())):
 
@@ -151,36 +155,24 @@ class ModelV60(ModelV6):
 
         #---------------------------------------------------------------------------------------------------------------
 
-        if(self.CONFIG["use_images"]==1):
-            # Entrenar 2 partes
+        ret={}
 
-            if(self.CONFIG["lr_decay"] is "linear_cosine"):
-                val = K.get_value(tf.train.linear_cosine_decay(self.CONFIG["learning_rate"],self.CURRENT_EPOCH,self.CONFIG["epochs"]))
-                K.set_value(self.MODEL[0].optimizer.lr,val)
-                K.set_value(self.MODEL[1].optimizer.lr,val)
 
+        if ("linear_cosine" in self.CONFIG["lr_decay"]):
+            val = K.get_value(tf.train.linear_cosine_decay(self.CONFIG["learning_rate"], self.CURRENT_EPOCH, self.CONFIG["epochs"]))
+            K.set_value(self.MODEL[0].optimizer.lr, val)
+            K.set_value(self.MODEL[1].optimizer.lr, val)
+            ret["LDECAY"] = val/self.CONFIG["learning_rate"]
+
+        if(self.CONFIG["use_like"]==1):
             like_ret = _train(self.MODEL[0], sq_like)
+            ret["L_LOSS"] = like_ret.history['loss'][0]
+
+        if (self.CONFIG["use_images"] == 1):
             take_ret = _train(self.MODEL[1], sq_take)
+            ret["T_LOSS"] = take_ret.history['loss'][0]
 
-            #print(np.sum(self.MODEL[0].get_layer("in_usr").get_weights()[0] - self.MODEL[1].get_layer("in_usr").get_weights()[0]))
-
-            #print(take_ret.history['acc'][0])
-
-            #return (0, take_ret.history['loss'][0])
-            return [like_ret.history['loss'][0], take_ret.history['loss'][0]]
-
-        else:
-            # Entrenar solo 1
-
-            if (self.CONFIG["lr_decay"] is "linear_cosine"):
-                val = K.get_value(tf.train.linear_cosine_decay(self.CONFIG["learning_rate"],self.CURRENT_EPOCH,self.CONFIG["epochs"]))
-                K.set_value(self.MODEL.optimizer.lr,val)
-
-            like_ret = _train(self.MODEL, sq_like)
-
-            #print(like_ret.history['acc'][0])
-
-            return [like_ret.history['loss'][0]]
+        return ret
 
     def dev(self, sq_take, sq_like):
 
@@ -191,20 +183,24 @@ class ModelV60(ModelV6):
 
             return tmp_like
 
-        if(self.CONFIG["use_images"]==1):
+        #---------------------------------------------------------------------------------------------------------------
+
+        ret={}
+
+        if(self.CONFIG["use_like"]==1):
             like_ret = _dev(self.MODEL[0], sq_like)
             mean_pos, median_pos = self.getTopN(like_ret)
+            ret["L_AVG"] = mean_pos
+            ret["L_MDN"] = median_pos
 
+
+        if(self.CONFIG["use_images"]==1):
             take_ret = _dev(self.MODEL[1], sq_take)
-            pos_model, pcnt_model, pcnt1_model = self.getImagePos(take_ret)
+            _,pcnt1_model,pcnt1_model_median  = self.getImagePos(take_ret)
+            ret["T_AVG"] = pcnt1_model
+            ret["T_MDN"] = pcnt1_model_median
 
-            return [median_pos,pcnt1_model]
-
-        else:
-            like_ret = _dev(self.MODEL, sq_like)
-            mean_pos, median_pos = self.getTopN(like_ret)
-
-            return [median_pos]
+        return ret
 
     ####################################################################################################################
 

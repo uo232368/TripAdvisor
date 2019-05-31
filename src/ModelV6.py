@@ -76,22 +76,20 @@ class ModelV6(ModelClass):
             self.printConfig(filter=c.keys())
 
             #Configurar y crear sesion
-            config = tf.ConfigProto()
-            config.gpu_options.allow_growth = True
-            sess = tf.Session(config=config)
-            keras.backend.set_session(sess)
+            #config = tf.ConfigProto()
+            #config.gpu_options.allow_growth = True
+            #sess = tf.Session(config=config)
+            #keras.backend.set_session(sess)
+
+            cfg = K.tf.ConfigProto()
+            cfg.gpu_options.allow_growth = True
+            sess = K.tf.Session(config=cfg)
+            K.set_session(sess)
 
             self.SESSION = sess
 
             #Conjuntos de entrenamiento
-            #train_batches = np.array_split(self.TRAIN, len(self.TRAIN) // self.CONFIG['batch_size'])
-            #dev_batches = np.array_split(self.DEV, len(self.DEV)  // (self.CONFIG['batch_size']*2))
-
             keras.backend.get_session().run(tf.global_variables_initializer())
-
-            #mycallback = self.DevCallback(self,dev_batches)
-            tb_call = TensorBoard(log_dir='logs', batch_size= self.CONFIG['batch_size'], write_graph=True, write_images=True,update_freq='batch')
-
 
             train_sequence_take = self.TrainSequenceTake(self.DATA["TRAIN_IMG"],self.CONFIG['batch_size'], self)
             train_sequence_like = self.TrainSequenceLike(self.DATA["TRAIN_LIKE"],self.CONFIG['batch_size'], self)
@@ -99,6 +97,9 @@ class ModelV6(ModelClass):
             dev_sequence_take   = self.DevSequenceTake(self.DATA["DEV_IMG"], self.CONFIG['batch_size'], self)
             dev_sequence_like   = self.DevSequenceLike(self.DATA["DEV_LIKE"], self.CONFIG['batch_size'], self)
 
+            #self.printE("CAMBIAR ESTO")
+            #dev_sequence_take   = self.DevSequenceTake(self.DATA["TEST_IMG"], self.CONFIG['batch_size'], self)
+            #dev_sequence_like   = self.DevSequenceLike(self.DATA["TEST_LIKE"], self.CONFIG['batch_size'], self)
 
             for e in range(max_epochs):
                 tes = time.time()
@@ -106,9 +107,13 @@ class ModelV6(ModelClass):
                 self.CURRENT_EPOCH = e
 
                 train_ret = self.train(train_sequence_take, train_sequence_like)
-                dev_ret = self.dev(dev_sequence_take,dev_sequence_like)
 
-                self.gridSearchPrint(e,time.time()-tes, train_ret, dev_ret)
+                if(e!=max_epochs-1):self.gridSearchPrint(e,time.time()-tes, train_ret, {})
+
+            dev_ret = self.dev(dev_sequence_take,dev_sequence_like)
+            self.gridSearchPrint(e,time.time()-tes, train_ret, dev_ret)
+
+            K.clear_session()
 
     def getImagePos(self, data):
 
@@ -120,20 +125,21 @@ class ModelV6(ModelClass):
 
             return pos
 
-        pos_model = []
-        pcnt_model = []
         pcnt1_model = []
-
+        ret = []
 
         for i, r in data.groupby(["id_user", "id_restaurant"]):
             r = r.sort_values("prediction", ascending=False)
             item_pos = getPos(r)
 
-            pos_model.append(item_pos)
-            pcnt_model.append(item_pos / len(r))
             pcnt1_model.append((item_pos - 1) / len(r))
 
-        return np.mean(pos_model),np.mean(pcnt_model),np.mean(pcnt1_model)
+            ret.append([i[0],i[1],item_pos,len(r),len(r.loc[r.is_dev == 1]),pcnt1_model[-1]])
+
+        ret = pd.DataFrame(ret)
+        ret.columns=["id_user", "id_restaurant","model_pos","n_photos","n_photos_dev","PCNT-1_MDL"]
+
+        return ret,np.mean(pcnt1_model),np.median(pcnt1_model)
 
     def getTopN(self, data):
 
@@ -172,24 +178,265 @@ class ModelV6(ModelClass):
         def frm(item):
             return'{:6.3f}'.format(item)
 
-        if (self.CONFIG["use_images"] == 1):
-            header = ["E","E_TIME","L_LOSS","T_LOSS", "LIKE","TAKE"]
-        else:
-            header = ["E","E_TIME","L_LOSS"]
-            #header.extend(list(map(lambda x : "TOP_"+str(x),self.CONFIG["top"])))
-            header.append("LIKE")
+        #--------------------------------------------------------------------------------------------------------------
+        header = ["E", "E_TIME"]
+        header.extend(train.keys())
+        header.extend(dev.keys())
 
         if(epoch==0):print("\t".join(header))
 
         line = [time]
-        line.extend(train)
-        line.extend(dev)
+        line.extend(train.values())
+        line.extend(dev.values())
         line = list(map(frm,line))
         line.insert(0,str(epoch))
 
         print("\t".join(line))
 
         return None
+
+    def finalTrain(self, epochs = 1, save=False):
+
+        if(os.path.exists(self.MODEL_PATH)):
+            self.printE("Ya existe el modelo...")
+            exit()
+
+        # Conjuntos de entrenamiento
+        train_dev_sequence_take = self.TrainSequenceTake(self.DATA["TRAIN_DEV_IMG"], self.CONFIG['batch_size'], self)
+        train_dev_sequence_like = self.TrainSequenceLike(self.DATA["TRAIN_DEV_LIKE"], self.CONFIG['batch_size'], self)
+
+        test_sequence_take = self.DevSequenceTake(self.DATA["TEST_IMG"], self.CONFIG['batch_size'], self)
+        test_sequence_like = self.DevSequenceLike(self.DATA["TEST_LIKE"], self.CONFIG['batch_size'], self)
+
+        # Crear el modelo
+        self.MODEL = self.getModel()
+
+        cfg = K.tf.ConfigProto()
+        cfg.gpu_options.allow_growth = True
+        sess = K.tf.Session(config=cfg)
+        K.set_session(sess)
+
+        self.SESSION = sess
+
+        keras.backend.get_session().run(tf.global_variables_initializer())
+
+        for e in range(epochs):
+            print(e,"/",epochs)
+
+            tes = time.time()
+            self.CURRENT_EPOCH = e
+
+            train_ret = self.train(train_dev_sequence_take, train_dev_sequence_like)
+
+        dev_ret = self.dev(test_sequence_take, test_sequence_like)
+        self.gridSearchPrint(e, time.time() - tes, train_ret, dev_ret)
+
+        if(save):
+            os.makedirs(self.MODEL_PATH)
+            for m in self.MODEL:
+                m.save(self.MODEL_PATH+"/"+m.name)
+
+        K.clear_session()
+
+    def getBaselines(self, test=False):
+
+        def getTrain():
+
+            file_path = "/media/HDD/pperez/TripAdvisor/" + self.CITY.lower() + "_data/MODELV6/"
+            path = file_path + "original_take/"
+
+            if (test == False):
+                TRAIN = self.getPickle(path, "TRAIN")
+            else:
+                TRAIN = self.getPickle(path, "TRAIN_DEV")
+
+            # Añadir las imágenes a TRAIN
+            _, IMG, _, _ = self.getFilteredData();
+            IMG["id_img"] = IMG.index
+            TRAIN = TRAIN.merge(IMG[["review", "id_img"]], left_on="reviewId", right_on="review")
+            TRAIN = TRAIN.drop(columns=['review'])
+
+            return TRAIN
+
+        def getCentroids(TRAIN):
+
+            RST_CNTS = pd.DataFrame(columns=["id_restaurant", "vector"])
+
+            for i, g in TRAIN.groupby("id_restaurant"):
+                all_c = self.DATA["IMG"][g.id_img.values, :]
+                cnt = np.mean(all_c, axis=0)
+
+                RST_CNTS = RST_CNTS.append({"id_restaurant": i, "vector": cnt}, ignore_index=True)
+
+            return RST_CNTS
+
+        def getPos(data, ITEMS):
+            g = data.copy()
+            id_rest = g.id_restaurant.unique()[0]
+            item = ITEMS.loc[ITEMS.id_restaurant == id_rest].vector.values[0]
+
+            rst_imgs = self.DATA["IMG"][g.id_img.values, :]
+            dsts = scipy.spatial.distance.cdist(rst_imgs, [item], 'euclidean')
+
+            g["dsts"] = dsts
+
+            g = g.sort_values("dsts").reset_index(drop=True)
+
+            return min(g.loc[g.is_dev == 1].index.values) + 1
+
+        def getRndPos(data):
+            g = data.copy()
+            g["prob"] = np.random.random_sample(len(g))
+            g = g.sort_values("prob").reset_index(drop=True)
+
+            return len(g) - max(g.loc[g.is_dev == 1].index.values)
+
+        # Fijar semilla para mantener los resultados del random
+        # ---------------------------------------------------------------------------------------------------------------
+        np.random.seed(self.SEED)
+
+        # Obtener el conjunto de TRAIN original
+        # ---------------------------------------------------------------------------------------------------------------
+
+        TRAIN = getTrain()
+
+        # Obtener los centroides de los restaurantes en train y los random
+        # ---------------------------------------------------------------------------------------------------------------
+
+        RST_CNTS = getCentroids(TRAIN)
+
+        # Para cada caso de DEV, calcular el resultado de los baselines
+        # ---------------------------------------------------------------------------------------------------------------
+
+        RET = pd.DataFrame(columns=["id_user", "id_restaurant", "n_photos", "n_photos_dev", "cnt_pos", "rnd_pos"])
+
+        if (test == False):
+            ITEMS = self.DATA["DEV_IMG"]
+        else:
+            ITEMS = self.DATA["TEST_IMG"]
+
+        for i, g in ITEMS.groupby("id_user"):
+            cnt_pos = getPos(g, RST_CNTS)
+            rnd_pos = getRndPos(g)
+
+            RET = RET.append({"id_user": i,
+                              "id_restaurant": g.id_restaurant.values[0],
+                              "n_photos": len(g),
+                              "n_photos_dev": len(g.loc[g.is_dev == 1]),
+                              "cnt_pos": cnt_pos,
+                              "rnd_pos": rnd_pos},ignore_index=True)
+
+
+        RET["PCNT-1_CNT"] = RET.apply(lambda x: (x.cnt_pos - 1) / x.n_photos, axis=1)
+        RET["PCNT-1_RND"] = RET.apply(lambda x: (x.rnd_pos - 1) / x.n_photos, axis=1)
+
+        ret_path = "docs/" + self.DATE + "/Baselines"
+        os.makedirs(ret_path, exist_ok=True)
+
+        RET.to_excel(ret_path+"/BM" + self.CITY + ("_TEST" if test else "_DEV") + ".xlsx")
+
+        print("RND\t%f\t%f" % (RET["PCNT-1_RND"].mean(), RET["PCNT-1_RND"].median()))
+        print("CNT\t%f\t%f" % (RET["PCNT-1_CNT"].mean(), RET["PCNT-1_CNT"].median()))
+
+        return RET
+
+    def getDetailedResults(self):
+
+        def getTrain():
+
+            TRAIN = self.getPickle(self.DATA_PATH + "original_take/", "TRAIN_DEV")
+
+            # Añadir las imágenes a TRAIN
+            _, IMG, _, _ = self.getFilteredData();
+            IMG["id_img"] = IMG.index
+            TRAIN = TRAIN.merge(IMG[["review", "id_img"]], left_on="reviewId", right_on="review")
+            TRAIN = TRAIN.drop(columns=['review'])
+
+            TRAIN = TRAIN.groupby("id_user").apply(lambda x: pd.Series({"n_photos_train": len(x.id_img.unique()), "n_rest_train": len(x.id_restaurant.unique())})).reset_index()
+
+            return TRAIN
+
+        def getIMGProbs(model):
+
+            dts = self.DATA["TEST_IMG"]
+
+            X1 = dts.id_user.values
+            X2 = self.DATA["IMG"][dts.id_img.values,:]
+            prs = model.predict([X1,X2])
+
+            dts["prediction"] = prs
+
+            return dts
+
+        def getLKEProbs(model):
+
+            dts = self.DATA["TEST_LIKE"]
+
+            X1 = dts.id_user.values
+            X2 = dts.id_restaurant.values
+            prs = model.predict([X1,X2])
+
+            dts["prediction"] = prs
+
+            return dts
+
+        def getAcAverage(data):
+            ret = []
+            for i, v in enumerate(data):
+                ret.append(np.mean(data[:i+1]))
+            return ret
+
+        #---------------------------------------------------------------------------------------------------------------
+
+        # Cargar los modelos
+        #---------------------------------------------------------------------------------------------------------------
+
+        if(not os.path.exists(self.MODEL_PATH)): self.printE("No existe el modelo."); exit()
+
+        model_like = load_model(self.MODEL_PATH+"/model_1")
+        model_take = load_model(self.MODEL_PATH+"/model_2")
+
+        # Evaluar en TEST
+        #---------------------------------------------------------------------------------------------------------------
+
+        RET = pd.DataFrame(columns=["id_user","id_restaurant","n_photos","n_photos_dev","model_pos","pcnt_model","pcnt1_model"])
+
+        if(self.CONFIG["use_images"]==1):
+            probs = getIMGProbs(model_take)
+            pcnt,_,_ = self.getImagePos(probs)
+
+            blines = self.getBaselines(test=True)[["id_user", "PCNT-1_CNT", "PCNT-1_RND"]]
+
+            #Cargar todos los datos con los que se entrena (TRAIN+DEV)
+            TRAIN_DATA = getTrain()
+
+            RET = TRAIN_DATA.merge(pcnt, right_on="id_user", left_on="id_user")
+            RET = blines.merge(RET, right_on="id_user", left_on="id_user")
+
+            RET = RET[['id_user', 'id_restaurant','n_rest_train', 'n_photos_train', 'n_photos', 'n_photos_dev', 'model_pos',  'PCNT-1_RND', 'PCNT-1_CNT','PCNT-1_MDL']]
+
+            RET["RND-MOD"] = RET["PCNT-1_RND"] - RET["PCNT-1_MDL"]
+            RET["CNT-MOD"] = RET["PCNT-1_CNT"] - RET["PCNT-1_MDL"]
+
+            RET = RET.sort_values("n_photos_train", ascending=False).reset_index(drop=True)
+
+            RET["RND-MOD_AC"] = getAcAverage(RET["RND-MOD"].values)
+            RET["CNT-MOD_AC"] = getAcAverage(RET["CNT-MOD"].values)
+
+            print("-" * 100)
+            print("N_FOTOS_TRAIN (>=)\tN_ITEMS\t%ITEMS\tRND-MOD AC\tCNT-MOD AC\tMODELO\tAVG_TEST_IMG")
+            for it in range(10,0,-1):
+                data = RET.loc[RET["n_photos_train"] >= it]
+                print(str(it) + "\t" +
+                      str(len(data)) + "\t" +
+                      str(len(data) / len(RET)) + "\t" +
+                      str(data.iloc[-1, data.columns.get_loc("RND-MOD_AC")]) + "\t" +
+                      str(data.iloc[-1, data.columns.get_loc("CNT-MOD_AC")]) + "\t" +
+                      str(data["PCNT-1_MDL"].mean())+ "\t" +
+                      str(data["n_photos_dev"].mean()))
+            print("-" * 100)
+
+            RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_byUser.xls") # Por usuario
 
     ####################################################################################################################
 
@@ -502,8 +749,8 @@ class ModelV6(ModelClass):
             #-----------------------------------------------------------------------------------------------------------
 
             if(self.CONFIG["neg_likes"]=="n"):
-                #ITEMS_PER_USR =  int((N_RST / N_USR) * 100)
-                ITEMS_PER_USR =  int((N_USR / N_RST) * 5)
+                ITEMS_PER_USR =  int((N_RST / N_USR) * 100)
+                #ITEMS_PER_USR =  int((N_USR / N_RST) * 5)
 
             else: ITEMS_PER_USR = int(self.CONFIG["neg_likes"])
 

@@ -25,7 +25,7 @@ from keras import backend as K
 from keras import losses
 from keras.optimizers import Adam
 from keras.utils import *
-from keras.models import Model, Sequential
+from keras.models import Model, Sequential, load_model
 from keras.layers import Input,Dense,Activation,Concatenate, Dot,Conv2D,MaxPooling2D, Dropout
 from keras.layers import Embedding, Flatten, GlobalAveragePooling2D,BatchNormalization,GaussianNoise
 from keras.utils import to_categorical
@@ -46,6 +46,7 @@ import urllib
 import matplotlib
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import axes3d, Axes3D
+from numba import cuda
 
 ########################################################################################################################
 
@@ -113,7 +114,8 @@ class ModelClass():
         warnings.filterwarnings('always')
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-        #Fijar las semillas de numpy y TF
+
+        # Fijar las semillas de numpy y TF
         np.random.seed(self.SEED)
         rn.seed(self.SEED)
         tf.set_random_seed(self.SEED)
@@ -260,8 +262,10 @@ class ModelClass():
                             print("MAX: "+str(np.max(stop_param))+"\t POS: "+str(np.argmax(stop_param)+1))
                             print("-"*50)
                             break
+                print("HAY QUE REINICIAR BIEN LA SESIÓN PARA EVITAR MEMORY LEAK")
+                exit()
 
-    def finalTrain(self, epochs = 1):
+    def finalTrain(self, epochs = 1, save=False):
 
         self.TRAIN = self.TRAIN_DEV
         self.DEV = self.TEST

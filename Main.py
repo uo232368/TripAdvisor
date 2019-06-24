@@ -58,30 +58,35 @@ args = parser.parse_args()
 model= 6 if args.m == None else args.m
 stage= "grid" if args.stage == None else args.stage
 
-gpu = 0  if args.gpu == None else args.gpu
+gpu = 1  if args.gpu == None else args.gpu
 
 dpout = [1.0] if args.d == None else args.d
-lrates = [1e-5] if args.lr == None else args.lr
+lrates = [1e-2] if args.lr == None else args.lr
 
 lrDecay = "linear_cosine" if args.lrdcay == None else args.lrdcay
 
 nimg = "10+10" if args.nimg == None else args.nimg
-nlike = "n" if args.nlike == None else args.nlike
-#nlike = "n" if args.nlike == None else args.nlike
+nlike = "0" if args.nlike == None else args.nlike
+
+min_revs_usr = 10 # Número mínimo de reviews para el like
+min_revs_rst = 5 # Número mínimo de reviews para el like
 
 epochs= 100 if args.e == None else args.e
 seed = 100 if args.s == None else args.s
 city = "Gijon" if args.c == None else args.c
 
-use_images = 1  if args.use_imgs == None else args.use_imgs
-use_like =  0 if args.use_like == None else args.use_like
+use_images = 0  if args.use_imgs == None else args.use_imgs
+use_like =  1 if args.use_like == None else args.use_like
 use_cnn = 0 if args.cnn == None else args.cnn
 
 os.environ["CUDA_VISIBLE_DEVICES"]=str(gpu)
 
-config = {"top": [1,5,10,15,20],
+config = {"top": [1,2,3,4,5,10,15,20],
           "neg_images":nimg,
           "neg_likes": nlike,
+
+          "min_revs_usr": min_revs_usr,
+          "min_revs_rst": min_revs_rst,
 
           "learning_rate": lrates[0],
           "lr_decay": lrDecay,
@@ -113,8 +118,10 @@ if (model == 6):
     #modelv6.getBaselines()
     #modelv6.getBaselines(test=True)
 
-    modelv6.getDetailedResults()
-    exit()
+    #modelv6.getDetailedResults()
+    #exit()
+
+    #modelv6.likeBaseline(test=True)
 
     # Ejecutar la fase pertinente
     if("grid" in stage):

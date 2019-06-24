@@ -53,7 +53,6 @@ class ModelV60(ModelV6):
         rn.seed(self.SEED)
         tf.set_random_seed(self.SEED)
 
-
         emb_size = 256
         activation_fn = "relu"
         
@@ -105,7 +104,7 @@ class ModelV60(ModelV6):
         def _train_random_batch(model,data):
 
             bn =np.random.randint(data.__len__())
-            ret = model.fit(data.__getitem__(bn)[0],data.__getitem__(bn)[1],verbose=0)
+            ret = model.train_on_batch(data.__getitem__(bn)[0],data.__getitem__(bn)[1])
 
             return ret
 
@@ -189,7 +188,7 @@ class ModelV60(ModelV6):
 
         if(self.CONFIG["use_like"]==1):
             like_ret = _dev(self.MODEL[0], sq_like)
-            mean_pos, median_pos = self.getTopN(like_ret)
+            _,mean_pos, median_pos = self.getTopN(like_ret)
             ret["L_AVG"] = mean_pos
             ret["L_MDN"] = median_pos
 

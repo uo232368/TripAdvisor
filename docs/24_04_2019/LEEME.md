@@ -2,6 +2,11 @@
 
 ### Arquitectura
 
+Se tienen 3 modelos:
+
+* **Modelo LIKE:** Se aprende el _me gusta / no me gusta_ de los usuarios respecto a los restaurantes. Se hace el producto escalar de los embeddigs de ambos. Estos embeddigs se calculan con factorización de matrices no negativas.
+* **Modelo TAKE:** Se aprende el _la hizo / no la hizo_ de las fotos respecto de los usuarios. Se hace producto escalar enntre embedding de usuario (como modelo anterior) y embedding de imagen con una capa lineal y bias.
+* **Modelo BOTH:** Se aprenden ambas cosas compartiendo los pesos de la parte de los usuarios.
 
 ### Conjunto de datos
 
@@ -26,7 +31,7 @@ A partir de todo el conjunto de datos:
 
         
 ##### Algoritmo (a)
-> **Para cada usuario:** si tiene una review va a TRAIN, si tiene más, 1 para TEST y el resto a TRAIN.
+> **Para cada usuario:** si tiene una review va a TRAIN, si tiene más, 1 para TEST y el resto a TRAIN.  
 
 ##### Algoritmo (b)
 > **Para cada usuario, restaurante, imagen:**
@@ -39,6 +44,7 @@ A partir de todo el conjunto de datos:
 > * Se obtienen el resto de imágenes del restaurante.
 > * Se modifica su usuario para que sea el actual.
 > * Se marca el item actual para saber cual es el real.
+> * Si el usuario tiene 4 imágenes se crean 4 casos distintos para evitar que el random se vea beneficiado.
 
 
 ##### Algoritmo (d)
@@ -54,7 +60,27 @@ A partir de todo el conjunto de datos:
 >   * No tiene en TRAIN + TRAIN de las imágenes si se está en el conjunto de DEV
 >   * No tiene en TRAIN_DEV + TRAIN_DEV de las imágenes si se está en el conjunto de TEST
 
+### Baselines
+
+##### Parte TAKE
+* **Random:** Se asigna una probabilidad aleatoria a cada imagen del restaurante en DEV|TEST y se obtiene la posición en funcion de esta probabilidad. Se hacen 10 repeticiones para obtener cerca del 50% (una sola podría salir muy bien).
+* **Centroide:** Se calcula la imagen centroide de cada restaurante con los datos de TRAIN y en DEV|TEST se calculan las distancias con este.
+
+##### Parte LIKE
+* **Positivos:** Se ordenan los restaurantes en función del número de reviews positivas. Más positivas más alto en TOP.
+
 ### Entrenamiento
 
+A tener en cuenta:
+* Se hace un grid-search con LR-DECAY.
+* En el caso del modelo `BOTH` se entrena primero un batch de LIKE y luego uno de TAKE.
 
 ### Evaluación
+
+Se obtienen los resultados desagregados en función de los datos de los que se dispone en TRAIN (tanto para usuarios como restaurantes).
+
+### Resultados
+
+La parte de TAKE parece funcionar correctamente, pero en la parte de LIKE, se ve que el baseline nos iguala o mejora.
+
+Ver `Resultados.xlsx`

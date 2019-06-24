@@ -128,16 +128,19 @@ class ModelV6(ModelClass):
         pcnt1_model = []
         ret = []
 
-        for i, r in data.groupby(["id_user", "id_restaurant"]):
+        for i, r in data.groupby("id_test"):
             r = r.sort_values("prediction", ascending=False)
             item_pos = getPos(r)
 
             pcnt1_model.append((item_pos - 1) / len(r))
 
-            ret.append([i[0],i[1],item_pos,len(r),len(r.loc[r.is_dev == 1]),pcnt1_model[-1]])
+            usr = r.id_user.values[0]
+            rst = r.id_restaurant.values[0]
+
+            ret.append([usr,rst,i,item_pos,len(r),len(r.loc[r.is_dev == 1]),pcnt1_model[-1]])
 
         ret = pd.DataFrame(ret)
-        ret.columns=["id_user", "id_restaurant","model_pos","n_photos","n_photos_dev","PCNT-1_MDL"]
+        ret.columns=["id_user", "id_restaurant","id_test","model_pos","n_photos","n_photos_dev","PCNT-1_MDL"]
 
         return ret,np.mean(pcnt1_model),np.median(pcnt1_model)
 
@@ -145,14 +148,16 @@ class ModelV6(ModelClass):
 
         def getPos(r):
             r = r.reset_index(drop=True)
-            id_r = r.id_restaurant.unique()[0]
             #pos = len(r)-max(r.loc[r.is_dev == 1].index.values)
             pos = min(r.loc[r.is_dev == 1].index.values)+1
 
+            if((r.id_user.values[0]==289 and r.id_top.values[0]==110) or
+                (r.id_user.values[0]==205 and r.id_top.values[0]==437)):
+                print(r.loc[r.is_dev == 1].prediction.values[0])
+
             return pos
 
-        ret = pd.DataFrame()
-        pos_model = []
+        ret = []
 
         grp = data.groupby(["id_user","id_top"])
 
@@ -161,17 +166,18 @@ class ModelV6(ModelClass):
 
             item_pos = getPos(r)
 
-            pos_model.append(item_pos)
+            ret.append([i[0],i[1],item_pos])
 
-        ret["position"] = pos_model
+        ret = pd.DataFrame(ret)
+        ret.columns=["id_user", "id_restaurant","model_pos"]
 
-        for t in self.CONFIG["top"]:
-            ret[str(t)] = (ret["position"]<=t).astype(int)
+        #for t in self.CONFIG["top"]:
+        #    ret[str(t)] = (ret["model_pos"]<=t).astype(int)
 
         #ret2 = ret.iloc[:, 1:].sum(axis=0).reset_index()
         #print(((ret2[0] / len(grp)) * 100).values)
 
-        return np.mean(ret.position), np.median(ret.position)
+        return ret,np.mean(ret.model_pos), np.median(ret.model_pos)
 
     def gridSearchPrint(self,epoch,time,train,dev):
 
@@ -202,11 +208,27 @@ class ModelV6(ModelClass):
             exit()
 
         # Conjuntos de entrenamiento
+
         train_dev_sequence_take = self.TrainSequenceTake(self.DATA["TRAIN_DEV_IMG"], self.CONFIG['batch_size'], self)
         train_dev_sequence_like = self.TrainSequenceLike(self.DATA["TRAIN_DEV_LIKE"], self.CONFIG['batch_size'], self)
 
+        #train_dev_sequence_take = self.TrainSequenceTake(self.DATA["TRAIN_IMG"], self.CONFIG['batch_size'], self)
+        #train_dev_sequence_like = self.TrainSequenceLike(self.DATA["TRAIN_LIKE"], self.CONFIG['batch_size'], self)
+
         test_sequence_take = self.DevSequenceTake(self.DATA["TEST_IMG"], self.CONFIG['batch_size'], self)
         test_sequence_like = self.DevSequenceLike(self.DATA["TEST_LIKE"], self.CONFIG['batch_size'], self)
+
+        '''
+        usrs = [289, 205];
+        rsts = [110, 437]
+        items = self.DATA["TEST_LIKE"].loc[(self.DATA["TEST_LIKE"].id_user.isin(usrs)) & (self.DATA["TEST_LIKE"].id_top.isin(rsts))]
+        DEV = self.DATA["DEV_LIKE"]
+        DEV = DEV.append(items, ignore_index=True)
+        
+
+        test_sequence_take = self.DevSequenceTake(self.DATA["DEV_IMG"], self.CONFIG['batch_size'], self)
+        test_sequence_like = self.DevSequenceLike(DEV, self.CONFIG['batch_size'], self)
+        '''
 
         # Crear el modelo
         self.MODEL = self.getModel()
@@ -238,7 +260,7 @@ class ModelV6(ModelClass):
 
         K.clear_session()
 
-    def getBaselines(self, test=False):
+    def takeBaseline(self, test=False):
 
         def getTrain():
 
@@ -285,13 +307,16 @@ class ModelV6(ModelClass):
             return min(g.loc[g.is_dev == 1].index.values) + 1
 
         def getRndPos(data):
+
             g = data.copy()
+            pos = []
+
             g["prob"] = np.random.random_sample(len(g))
             g = g.sort_values("prob").reset_index(drop=True)
 
             return len(g) - max(g.loc[g.is_dev == 1].index.values)
 
-        # Fijar semilla para mantener los resultados del random
+        # Fijar semilla
         # ---------------------------------------------------------------------------------------------------------------
         np.random.seed(self.SEED)
 
@@ -308,35 +333,107 @@ class ModelV6(ModelClass):
         # Para cada caso de DEV, calcular el resultado de los baselines
         # ---------------------------------------------------------------------------------------------------------------
 
-        RET = pd.DataFrame(columns=["id_user", "id_restaurant", "n_photos", "n_photos_dev", "cnt_pos", "rnd_pos"])
+        ret = []
+        rpt = 10
 
         if (test == False):
             ITEMS = self.DATA["DEV_IMG"]
         else:
             ITEMS = self.DATA["TEST_IMG"]
 
-        for i, g in ITEMS.groupby("id_user"):
+        for i, g in ITEMS.groupby("id_test"):
+
             cnt_pos = getPos(g, RST_CNTS)
-            rnd_pos = getRndPos(g)
+            rnd_pos = []
 
-            RET = RET.append({"id_user": i,
-                              "id_restaurant": g.id_restaurant.values[0],
-                              "n_photos": len(g),
-                              "n_photos_dev": len(g.loc[g.is_dev == 1]),
-                              "cnt_pos": cnt_pos,
-                              "rnd_pos": rnd_pos},ignore_index=True)
+            for r in range(rpt): rnd_pos.append(getRndPos(g))
 
+            d = [g.id_user.values[0],g.id_restaurant.values[0],i,len(g),cnt_pos]
+            d.extend(rnd_pos)
+
+            ret.append(d)
+
+        RET = pd.DataFrame(ret)
+
+        title = ["id_user", "id_restaurant","id_test","n_photos", "cnt_pos"]
+        title.extend(list(map(lambda x: "rnd_pos_" + str(x), range(10))))
+
+        RET.columns = title
 
         RET["PCNT-1_CNT"] = RET.apply(lambda x: (x.cnt_pos - 1) / x.n_photos, axis=1)
-        RET["PCNT-1_RND"] = RET.apply(lambda x: (x.rnd_pos - 1) / x.n_photos, axis=1)
+        for r in range(rpt): RET["PCNT-1_RND_"+str(r)] = RET.apply(lambda x: (x["rnd_pos_"+str(r)] - 1) / x.n_photos, axis=1)
 
         ret_path = "docs/" + self.DATE + "/Baselines"
         os.makedirs(ret_path, exist_ok=True)
 
-        RET.to_excel(ret_path+"/BM" + self.CITY + ("_TEST" if test else "_DEV") + ".xlsx")
+        RET.to_excel(ret_path+"/Take_" + self.CITY + ("_TEST" if test else "_DEV") + ".xlsx")
 
-        print("RND\t%f\t%f" % (RET["PCNT-1_RND"].mean(), RET["PCNT-1_RND"].median()))
+        #print("RND\t%f\t%f" % (RET["PCNT-1_RND"].mean(), RET["PCNT-1_RND"].median()))
+        avg = [];mdn = []
+        for r in range(rpt): avg.append(RET["PCNT-1_RND_"+str(r)].mean()); mdn.append(RET["PCNT-1_RND_"+str(r)].median())
+
+        print("RND\t%f\t%f" % (np.mean(avg), np.mean(mdn)))
         print("CNT\t%f\t%f" % (RET["PCNT-1_CNT"].mean(), RET["PCNT-1_CNT"].median()))
+
+        return RET
+
+    def likeBaseline(self, test=False):
+
+        if (test == False):
+            TRAIN = self.DATA["TRAIN_LIKE"]
+            TRAIN = TRAIN.loc[TRAIN.reviewId>-1]
+
+            TEST  = self.DATA["DEV_LIKE"]
+        else:
+            TRAIN = self.DATA["TRAIN_DEV_LIKE"]
+            TRAIN = TRAIN.loc[TRAIN.reviewId>-1]
+
+            TEST  = self.DATA["TEST_LIKE"]
+
+        # Calcular la probabilidad de cada restaurante
+        #REST = TRAIN.groupby("id_restaurant").apply(lambda x : pd.Series({"prediction":sum(x.like)/len(x)})).reset_index()
+        REST = TRAIN.groupby("id_restaurant").apply(lambda x : pd.Series({"prediction":sum(x.like)})).reset_index()
+
+        # Añadir probabilidades al TEST
+        TEST = TEST.merge(REST, on="id_restaurant")
+
+        # Calcular posiciones
+        RET = []
+
+        for i, r in TEST.groupby(["id_user","id_top"]):
+            r = r.sort_values("prediction", ascending=False).reset_index()
+            item_pos = r.loc[r.is_dev == 1].index.values[0]+1
+
+            RET.append([i[0],i[1],item_pos])
+
+
+        RET = pd.DataFrame(RET)
+        RET.columns = ["id_user","id_top","baseline_pos"]
+
+
+        # Obtener solo los usuarios y restaurantes involucrados
+        TRAIN_USR = TRAIN.loc[TRAIN.id_user.isin(RET.id_user.unique())]
+        TRAIN_RST = TRAIN.loc[TRAIN.id_restaurant.isin(RET.id_top.unique())]
+
+        # Obtener datos de cada usuario y cada restaurante en TRAIN
+        TRAIN_USR = TRAIN_USR.groupby("id_user").apply(lambda x: pd.Series({"usr_train_likes": x.like.sum(), "usr_train_reviews": len(x), "usr_train_nRest": len(x.id_restaurant.unique())})).reset_index()
+        TRAIN_USR["usr_train_dislikes"] = TRAIN_USR.usr_train_reviews - TRAIN_USR.usr_train_likes
+
+        TRAIN_RST = TRAIN_RST.groupby("id_restaurant").apply(lambda x: pd.Series({"rst_train_likes": x.like.sum(), "rst_train_reviews": len(x),"rst_train_nUsrs": len(x.id_user.unique())})).reset_index()
+        TRAIN_RST["rst_train_dislikes"] = TRAIN_RST.rst_train_reviews - TRAIN_RST.rst_train_likes
+
+        RET = RET.merge(TRAIN_USR, on="id_user")
+        RET = RET.merge(TRAIN_RST, left_on="id_top", right_on="id_restaurant")
+
+        RET = RET[["id_user", "id_restaurant", "baseline_pos",
+                   "usr_train_likes", "usr_train_dislikes", "usr_train_reviews", "usr_train_nRest",
+                   "rst_train_likes", "rst_train_dislikes", "rst_train_reviews", "rst_train_nUsrs"]]
+
+        print(RET.baseline_pos.mean(),RET.baseline_pos.median())
+
+        ret_path = "docs/" + self.DATE + "/Baselines"
+        os.makedirs(ret_path, exist_ok=True)
+        RET.to_excel(ret_path+"/Like_" + self.CITY + ("_TEST" if test else "_DEV") + ".xlsx")
 
         return RET
 
@@ -358,11 +455,11 @@ class ModelV6(ModelClass):
 
         def getIMGProbs(model):
 
-            dts = self.DATA["TEST_IMG"]
+            test_sequence_take = self.DevSequenceTake(self.DATA["TEST_IMG"], self.CONFIG['batch_size'], self)
 
-            X1 = dts.id_user.values
-            X2 = self.DATA["IMG"][dts.id_img.values,:]
-            prs = model.predict([X1,X2])
+            dts = self.DATA["TEST_IMG"].copy()
+
+            prs = model.predict_generator(test_sequence_take, use_multiprocessing=True, workers=12)
 
             dts["prediction"] = prs
 
@@ -370,11 +467,11 @@ class ModelV6(ModelClass):
 
         def getLKEProbs(model):
 
-            dts = self.DATA["TEST_LIKE"]
+            test_sequence_like = self.DevSequenceLike(self.DATA["TEST_LIKE"], self.CONFIG['batch_size'], self)
 
-            X1 = dts.id_user.values
-            X2 = dts.id_restaurant.values
-            prs = model.predict([X1,X2])
+            dts = self.DATA["TEST_LIKE"].copy()
+
+            prs = model.predict_generator(test_sequence_like, use_multiprocessing=True, workers=12)
 
             dts["prediction"] = prs
 
@@ -386,16 +483,52 @@ class ModelV6(ModelClass):
                 ret.append(np.mean(data[:i+1]))
             return ret
 
+        def op(data, type="average"):
+            if("average" in type): return str(np.mean(data.values))
+            else: return str(np.median(data.values))
+
         #---------------------------------------------------------------------------------------------------------------
 
         # Cargar los modelos
         #---------------------------------------------------------------------------------------------------------------
 
         if(not os.path.exists(self.MODEL_PATH)): self.printE("No existe el modelo."); exit()
-
         model_like = load_model(self.MODEL_PATH+"/model_1")
         model_take = load_model(self.MODEL_PATH+"/model_2")
 
+
+        #---------------------------------------------------------------------------------------------------------------
+        # BORRAR -------------------------------------------------------------------------------------------------------
+        #---------------------------------------------------------------------------------------------------------------
+        '''
+        TR = self.DATA["TRAIN_LIKE"]
+        TD = self.DATA["TRAIN_DEV_LIKE"]
+        DV = self.DATA["DEV_LIKE"]
+        TS = self.DATA["TEST_LIKE"]
+
+        file_path = self.PATH + self.MODEL_NAME.upper()[:-1]
+        split_file_path_like = file_path + "/original_like_["+str(self.CONFIG['min_revs_usr'])+"|"+str(self.CONFIG['min_revs_rst'])+"]/"
+
+        TR_O = self.getPickle(split_file_path_like,"TRAIN")
+        TD_O = self.getPickle(split_file_path_like,"TRAIN_DEV")
+        DV_O = self.getPickle(split_file_path_like,"DEV")
+        TS_O = self.getPickle(split_file_path_like,"TEST")
+
+        T_RST = TR.groupby("id_restaurant").apply(lambda x : pd.Series({"like":sum(x.like), "dislike":len(x)-sum(x.like)})).reset_index()
+        TD_RST = TD.groupby("id_restaurant").apply(lambda x : pd.Series({"like":sum(x.like), "dislike":len(x)-sum(x.like)})).reset_index()
+
+        T_USR = TR.groupby("id_user").apply(lambda x: pd.Series({"like": sum(x.like), "dislike": len(x) - sum(x.like)})).reset_index()
+        TD_USR = TD.groupby("id_user").apply(lambda x: pd.Series({"like": sum(x.like), "dislike": len(x) - sum(x.like)})).reset_index()
+
+        DV_R_STATS = DV.merge(T_RST, on="id_restaurant")
+        TS_R_STATS = TS.merge(TD_RST, on="id_restaurant")
+
+        DV_U_STATS = DV.merge(T_USR, on="id_user")
+        TS_U_STATS = TS.merge(TD_USR, on="id_user")
+
+        exit()
+        '''
+        #---------------------------------------------------------------------------------------------------------------
         # Evaluar en TEST
         #---------------------------------------------------------------------------------------------------------------
 
@@ -405,46 +538,133 @@ class ModelV6(ModelClass):
             probs = getIMGProbs(model_take)
             pcnt,_,_ = self.getImagePos(probs)
 
-            blines = self.getBaselines(test=True)[["id_user", "PCNT-1_CNT", "PCNT-1_RND"]]
+            blines = self.takeBaseline(test=True)#[["id_user","id_test", "rnd_pos","cnt_pos","PCNT-1_CNT", "PCNT-1_RND"]]
 
             #Cargar todos los datos con los que se entrena (TRAIN+DEV)
             TRAIN_DATA = getTrain()
 
-            RET = TRAIN_DATA.merge(pcnt, right_on="id_user", left_on="id_user")
-            RET = blines.merge(RET, right_on="id_user", left_on="id_user")
+            RET = pcnt.merge(TRAIN_DATA, right_on="id_user", left_on="id_user")
+            RET = RET.merge(blines, right_on="id_test", left_on="id_test")
 
-            RET = RET[['id_user', 'id_restaurant','n_rest_train', 'n_photos_train', 'n_photos', 'n_photos_dev', 'model_pos',  'PCNT-1_RND', 'PCNT-1_CNT','PCNT-1_MDL']]
+            #RET = RET[['id_user_x', 'id_restaurant','n_rest_train', 'n_photos_train', 'n_photos', 'n_photos_dev', 'model_pos',"rnd_pos","cnt_pos", 'PCNT-1_RND', 'PCNT-1_CNT','PCNT-1_MDL']]
 
-            RET["RND-MOD"] = RET["PCNT-1_RND"] - RET["PCNT-1_MDL"]
-            RET["CNT-MOD"] = RET["PCNT-1_CNT"] - RET["PCNT-1_MDL"]
+            #RET["RND-MOD"] = RET["PCNT-1_RND"] - RET["PCNT-1_MDL"]
+            #RET["CNT-MOD"] = RET["PCNT-1_CNT"] - RET["PCNT-1_MDL"]
 
             RET = RET.sort_values("n_photos_train", ascending=False).reset_index(drop=True)
 
-            RET["RND-MOD_AC"] = getAcAverage(RET["RND-MOD"].values)
-            RET["CNT-MOD_AC"] = getAcAverage(RET["CNT-MOD"].values)
+            #-----------------------------------------------------------------------------------------------------------
+            # Eliminar los restaurantes que tengan menos de 10 imágenes en el test (son faciles de acertar)
+            #-----------------------------------------------------------------------------------------------------------
+
+            nRestIMG = 10
+
+            RET10 = RET.loc[(RET["n_photos_x"] >= nRestIMG)]
+
+            method = "median"
+
+            random_cols = [col for col in RET10.columns if 'PCNT-1_RND_' in col]
 
             print("-" * 100)
-            print("N_FOTOS_TRAIN (>=)\tN_ITEMS\t%ITEMS\tRND-MOD AC\tCNT-MOD AC\tMODELO\tAVG_TEST_IMG")
-            for it in range(10,0,-1):
-                data = RET.loc[RET["n_photos_train"] >= it]
+            print(method.upper())
+            print("-" * 100)
+            print("N_FOTOS_TRAIN_USR (>=)\tN_ITEMS\t%ITEMS\tRANDOM\tCENTROIDE\tMODELO")
+            for it in range(100,0,-1):
+                data = RET10.loc[RET10["n_photos_train"] >= it]
+
                 print(str(it) + "\t" +
                       str(len(data)) + "\t" +
-                      str(len(data) / len(RET)) + "\t" +
-                      str(data.iloc[-1, data.columns.get_loc("RND-MOD_AC")]) + "\t" +
-                      str(data.iloc[-1, data.columns.get_loc("CNT-MOD_AC")]) + "\t" +
-                      str(data["PCNT-1_MDL"].mean())+ "\t" +
-                      str(data["n_photos_dev"].mean()))
+                      str(len(data) / len(RET10)) + "\t" +
+                      op(data[random_cols].mean(axis=1),type=method) + "\t" +
+                      op(data["PCNT-1_CNT"],type=method) + "\t" +
+                      op(data["PCNT-1_MDL"],type=method))
+
             print("-" * 100)
 
-            RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_byUser.xls") # Por usuario
+            #-----------------------------------------------------------------------------------------------------------
+            # Eliminar los usuarios que tengan menos de 10 fotos en train (se sabe poco de ellos)
+            #-----------------------------------------------------------------------------------------------------------
+
+            nUserIMG = 10
+
+            RET_f = RET10.loc[(RET10["n_photos_train"] >= nUserIMG)]
+
+            #_,WCX_res = scipy.stats.wilcoxon(RET_f.model_pos, RET_f.rnd_pos)
+
+            #print("Sign test p-values: " +str( WCX_res))
+
+            #print("-" * 100)
+
+            print("\tRND\tCNT\tMOD")
+
+            positions = [1, 2, 3]
+
+            random_cols = [col for col in RET10.columns if 'rnd_pos_' in col]
+
+            for p in positions:
+                rnd = np.average(np.sum(RET_f[random_cols] == p))
+                #rnd = len(RET_f.loc[RET_f.rnd_pos==p])
+                cnt = len(RET_f.loc[RET_f.cnt_pos==p])
+                mdl = len(RET_f.loc[RET_f.model_pos==p])
+                print("%d\t%f\t%d\t%d" % (p, rnd, cnt, mdl) )
+
+            print("-" * 100)
+            #print("RND\tCNT\tMOD")
+            #print("%f\t%f\t%f" % (np.median(RET_f["PCNT-1_RND"]),np.median(RET_f["PCNT-1_CNT"]),np.median(RET_f["PCNT-1_MDL"])))
+
+            RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_TAKE.xls") # Por usuario
+
+        if(self.CONFIG["use_like"]==1):
+
+            probs = getLKEProbs(model_like)
+            poss,_, _ = self.getTopN(probs)
+
+            baseline = self.likeBaseline(test=True)
+
+            RET = poss.merge(baseline, on=["id_user","id_restaurant"])
+
+            #Cuantas reviews tiene cada restaurante ??
+            positions = [1, 2, 3]
+
+            for p in positions:
+                data = RET.loc[RET.model_pos==p]
+                data_b = RET.loc[RET.baseline_pos==p]
+                print(p,"\t",len(data),"\t", len(data)/len(RET),"\t",len(data_b),"\t", len(data_b)/len(RET),"\t", len(RET))
+
+            print("-" * 100)
+
+            n_items = [100,90,80,70,60,50,40,30,20,10,5,4,3,2,1]
+
+            #Para el número de reviews del restaurante
+            for t in n_items:
+                data = RET.loc[RET.rst_train_reviews>=t]
+                print(t,"\t",np.mean(data.model_pos),"\t", np.median(data.model_pos),"\t",np.mean(data.baseline_pos),"\t", np.median(data.baseline_pos),"\t", len(data))
+
+            print("-" * 100)
+
+            #Para el número de reviews del usuario
+            for t in n_items:
+                data = RET.loc[RET.usr_train_reviews>=t]
+                print(t,"\t",np.mean(data.model_pos),"\t", np.median(data.model_pos),"\t",np.mean(data.baseline_pos),"\t", np.median(data.baseline_pos),"\t", len(data))
+
+            RET.to_excel("docs/"+self.DATE+"/"+self.MODEL_NAME+"_"+self.CITY+"_LIKE.xlsx") # Por usuario
 
     ####################################################################################################################
 
     def getFilteredData(self,verbose=True):
 
+        def dropMultipleVisits(data):
+            # Si un usuario fue multiples veces al mismo restaurante, quedarse siempre con la última (la de mayor reviewId)
+            multiple = data.groupby(["userId", "restaurantId"])["reviewId"].max().reset_index(name="last_reviewId")
+            return data.loc[data.reviewId.isin(multiple.last_reviewId.values)].reset_index(drop=True)
+
+        ################################################################################################################
+
         IMG = pd.read_pickle(self.PATH + "img-option" + str(self.OPTION) + "-new.pkl")
         #IMG = pd.read_pickle(self.PATH + "img-food.pkl")
         RVW = pd.read_pickle(self.PATH + "reviews.pkl")
+
+        RVW = RVW.drop(columns="index")
 
         IMG['review'] = IMG.review.astype(int)
         RVW["reviewId"] = RVW.reviewId.astype(int)
@@ -453,8 +673,39 @@ class ModelV6(ModelClass):
         RVW["like"] = RVW.rating.apply(lambda x: 1 if x > 30 else 0)
         RVW = RVW.loc[(RVW.userId != "")]
 
+        # Quedarse con ultima review de los usuarios en caso de tener valoraciones diferentes (mismo rest)
+        # --------------------------------------------------------------------------------------------------------------
+
+        RVW = dropMultipleVisits(RVW)
+
+        # Eliminar usuarios con menos de n reviews DE LOS QUE NO TIENEN IMÁGEN
+        # --------------------------------------------------------------------------------------------------------------
+
+
+        if(self.CONFIG["min_revs_rst"]>0):
+
+            self.printE("SE FILTRAN LAS REVIEWS DE LOS RESTAURANTES")
+            DROP_RVWS = RVW.groupby("restaurantId")["like"].count().reset_index(name="revs")
+            DROP_RVWS = DROP_RVWS.loc[(DROP_RVWS.revs < self.CONFIG["min_revs_rst"])].restaurantId.values
+            DROP_RVWS = RVW.loc[RVW.restaurantId.isin(DROP_RVWS)].index.values
+
+            RVW = RVW.loc[~RVW.index.isin(DROP_RVWS)].reset_index(drop=True)
+
+        if (self.CONFIG["min_revs_usr"] > 0):
+
+            self.printE("SE FILTRAN LAS REVIEWS DE LOS USUARIOS")
+
+            DROP_RVWS = RVW.groupby("userId")["like"].count().reset_index(name="revs")
+            DROP_RVWS = DROP_RVWS.loc[(DROP_RVWS.revs < self.CONFIG["min_revs_usr"])].userId.values
+            DROP_RVWS = RVW.loc[RVW.userId.isin(DROP_RVWS)].index.values
+
+            RVW = RVW.loc[~RVW.index.isin(DROP_RVWS)].reset_index(drop=True)
+
+        #Todo: Mirar despues cuantas reviews quedan en los restaurantes
+
+
         # Obtener ID para ONE-HOT de usuarios y restaurantes
-        # ---------------------------------------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------------------------------------
 
         USR_TMP = pd.DataFrame(columns=["real_id", "id_user"])
         REST_TMP = pd.DataFrame(columns=["real_id", "id_restaurant"])
@@ -481,15 +732,6 @@ class ModelV6(ModelClass):
         return RVW, IMG, USR_TMP,REST_TMP
 
     def getData(self):
-
-        def dropMultipleVisits(data):
-            #Si un usuario fue multiples veces al mismo restaurante, quedarse siempre con la última (la de mayor reviewId)
-            stay = []
-
-            for i, g in tqdm(data.groupby(["id_user", "id_restaurant"]), desc="Droping multiple visits"):
-                stay.append(max(g.reviewId.values))
-
-            return data.loc[data.reviewId.isin(stay)]
 
         def splitIMGSets(file_temp,dataset):
 
@@ -600,6 +842,7 @@ class ModelV6(ModelClass):
 
                 Subset1 = Subset1.drop(columns=["TO_1", "TO_2"])
                 Subset2 = Subset2.drop(columns=["TO_1", "TO_2"])
+
 
                 return Subset1, Subset2
 
@@ -725,24 +968,26 @@ class ModelV6(ModelClass):
                 new_items = []
                 columns   = data.columns.values
 
-                for i,g in tqdm(data.groupby("id_user"),desc="Train like items"):
+                if(ITEMS_PER_USR>0):
 
-                    #Si todas las reviews que tiene son positivas, añadir nuevos ejemplos
-                    if(g.like.unique()[0]==1 or len(g.like.unique())>1 ):
-                        rsts = data.loc[data.id_user!=i].sample(ITEMS_PER_USR).id_restaurant.values
-                        n_u_itms = list(zip([-1]*ITEMS_PER_USR,[i]*ITEMS_PER_USR,rsts,[0]*ITEMS_PER_USR))
+                    for i,g in tqdm(data.groupby("id_user"),desc="Train like items"):
 
-                        #øversampling
-                        #ovrsm = g.sample(len(n_u_itms), replace=True).values
-                        #new_items.extend(ovrsm)
+                        #Si todas las reviews que tiene son positivas, añadir nuevos ejemplos
+                        if(g.like.unique()[0]==1 or len(g.like.unique())>1 ):
+                            rsts = data.loc[data.id_user!=i].sample(ITEMS_PER_USR).id_restaurant.values
+                            n_u_itms = list(zip([-1]*ITEMS_PER_USR,[i]*ITEMS_PER_USR,rsts,[0]*ITEMS_PER_USR))
 
-                        new_items.extend(n_u_itms)
+                            #øversampling
+                            #ovrsm = g.sample(len(n_u_itms), replace=True).values
+                            #new_items.extend(ovrsm)
+
+                            new_items.extend(n_u_itms)
 
 
-                new_df = pd.DataFrame(new_items)
-                new_df.columns = columns
+                    new_df = pd.DataFrame(new_items)
+                    new_df.columns = columns
 
-                data = data.append(new_df, ignore_index=True)
+                    data = data.append(new_df, ignore_index=True)
 
                 return data
 
@@ -757,9 +1002,11 @@ class ModelV6(ModelClass):
             if(not os.path.exists(file_path+"TRAIN_LIKE")):
 
                 TRAIN_LIKE = self.getPickle(split_file_path_like, "TRAIN")
-                TRAIN_IMG = self.getPickle(split_file_path_take, "TRAIN")
+                #TRAIN_IMG = self.getPickle(split_file_path_take, "TRAIN")
 
-                TRAIN = TRAIN_LIKE.append(TRAIN_IMG, ignore_index=True)
+                #TRAIN = TRAIN_LIKE.append(TRAIN_IMG, ignore_index=True)
+                TRAIN = TRAIN_LIKE
+                self.printE("NO SE AÑADEN LAS REVIEWS CON IMAGEN")
 
                 TRAIN = compensateItems(TRAIN)
 
@@ -772,9 +1019,11 @@ class ModelV6(ModelClass):
             if (not os.path.exists(file_path + "TRAIN_DEV_LIKE")):
 
                 TRAIN_DEV_LIKE = self.getPickle(split_file_path_like, "TRAIN_DEV")
-                TRAIN_DEV_IMG = self.getPickle(split_file_path_take, "TRAIN_DEV")
+                #TRAIN_DEV_IMG = self.getPickle(split_file_path_take, "TRAIN_DEV")
 
-                TRAIN_DEV = TRAIN_DEV_LIKE.append(TRAIN_DEV_IMG, ignore_index=True)
+                #TRAIN_DEV = TRAIN_DEV_LIKE.append(TRAIN_DEV_IMG, ignore_index=True)
+                TRAIN_DEV = TRAIN_DEV_LIKE
+                self.printE("NO SE AÑADEN LAS REVIEWS CON IMAGEN")
 
                 TRAIN_DEV = compensateItems(TRAIN_DEV)
 
@@ -792,14 +1041,20 @@ class ModelV6(ModelClass):
                 id_u = data.id_user.values[0]
 
                 tmp = img_set.loc[img_set.id_restaurant == id_r]
-                tmp['is_dev'] = 0
+
+                tmp = pd.concat([tmp] * len(data))
+
+                tmp["is_dev"] = 0
+                tmp["id_test"] = np.repeat(data.id_img.values,len(tmp)/len(data))
+
                 data['is_dev'] = 1
+                data['id_test'] = data.id_img
 
                 tmp = tmp.append(data, ignore_index=True)
 
                 tmp['id_user'] = id_u
 
-                tmp = tmp[['id_user', 'id_restaurant', 'id_img', 'is_dev']]
+                tmp = tmp[['id_user', 'id_restaurant', 'id_img', 'is_dev','id_test']]
 
                 return tmp
 
@@ -851,7 +1106,7 @@ class ModelV6(ModelClass):
                 # Lista de restaurantes no vistos
                 available_rests = list(set(range(numb_rests)) - set(used_rests))
                 assert len(available_rests) >=99
-                new_rests = random.choices(available_rests, k=new_items)
+                new_rests = random.sample(available_rests, k=new_items)
 
                 tmp = pd.DataFrame()
                 tmp["id_restaurant"] = new_rests
@@ -867,8 +1122,11 @@ class ModelV6(ModelClass):
 
             if(not os.path.exists(file_path+"DEV_LIKE")):
                 DEV_L = self.getPickle(split_file_path_like, "DEV")
-                DEV_T = self.getPickle(split_file_path_take, "DEV")
-                DEV = DEV_L.append(DEV_T.loc[DEV_T.like==1],ignore_index=True)
+                #DEV_T = self.getPickle(split_file_path_take, "DEV")
+                #DEV = DEV_L.append(DEV_T.loc[DEV_T.like==1],ignore_index=True)
+
+                DEV = DEV_L
+                self.printE("NO SE AÑADEN LAS REVIEWS CON IMAGEN")
 
                 TRAIN = self.getPickle(file_path, "TRAIN_LIKE")
 
@@ -879,12 +1137,16 @@ class ModelV6(ModelClass):
 
             if(not os.path.exists(file_path+"TEST_LIKE")):
                 TEST_L = self.getPickle(split_file_path_like, "TEST")
-                TEST_T = self.getPickle(split_file_path_take, "TEST")
-                TEST = TEST_L.append(TEST_T.loc[TEST_T.like==1],ignore_index=True)
+                #TEST_T = self.getPickle(split_file_path_take, "TEST")
+                #TEST = TEST_L.append(TEST_T.loc[TEST_T.like==1],ignore_index=True)
+
+                TEST = TEST_L
+                self.printE("NO SE AÑADEN LAS REVIEWS CON IMAGEN")
 
                 TRAIN_DEV = self.getPickle(file_path, "TRAIN_DEV_LIKE")
 
-                TEST = TEST.loc[TEST.like==1] #Solo los positivos para este caso
+                TEST = TEST.loc[TEST.like==1] #Solo los positivos para este caso (ESTO VALE PARA ALGO?)
+
                 TEST = TEST.groupby(["id_user", "id_restaurant"]).progress_apply(topNfn,prev_set=TRAIN_DEV, numb_rests=N_RESTS).reset_index(drop=True)
                 self.toPickle(file_path, "TEST_LIKE", TEST);del TEST
 
@@ -899,9 +1161,9 @@ class ModelV6(ModelClass):
 
         file_path = self.PATH + self.MODEL_NAME.upper()
         split_file_path_take = file_path + "/original_take/"
-        split_file_path_like = file_path + "/original_like/"
+        split_file_path_like = file_path + "/original_like_["+str(self.CONFIG['min_revs_usr'])+"|"+str(self.CONFIG['min_revs_rst'])+"]/"
 
-        file_path += "/data_" + str(self.CONFIG['neg_images']) + "_"+self.CONFIG["neg_likes"]+"/"
+        file_path += "/data_%s_%s_[%d|%d]/" % (self.CONFIG['neg_images'],self.CONFIG["neg_likes"],self.CONFIG['min_revs_usr'],self.CONFIG['min_revs_rst'])
 
         RVW, IMG, USR_TMP, REST_TMP = self.getFilteredData();
 
@@ -943,12 +1205,6 @@ class ModelV6(ModelClass):
 
         os.makedirs(file_path, exist_ok=True)
 
-        # --------------------------------------------------------------------------------------------------------------
-        # Quedarse con ultima review de los usuarios en caso de tener valoraciones diferentes (mismo rest)
-        # --------------------------------------------------------------------------------------------------------------
-
-        RVW = dropMultipleVisits(RVW)
-
         # Separar reviews con y sin imágen.
         # ---------------------------------------------------------------------------------------------------------------
 
@@ -962,8 +1218,10 @@ class ModelV6(ModelClass):
         # --------------------------------------------------------------------------------------------------------------
 
         splitIMGSets(split_file_path_take, RVW_IM)
-        splitLIKESets(split_file_path_like, RVW_NI) #Como el anterior, pero solo mueve likes a DEV y TEST
+        #splitLIKESets(split_file_path_like, RVW_NI) #Como el anterior, pero solo mueve likes a DEV y TEST
 
+        self.printE("UTILIZAR SOLO LOS QUE NO TIENEN IMÁGEN!!") # Si no, al hacer BOTH, puede haber datos de DEV de IMG en TRAIN de esto.
+        splitLIKESets(split_file_path_like, RVW)
 
         # Crear conjuntos de TRAIN y GUARDAR
         # --------------------------------------------------------------------------------------------------------------
